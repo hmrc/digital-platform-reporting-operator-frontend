@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package pages
+package pages.add
 
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
+import controllers.routes
+import models.UserAnswers
+import play.api.libs.json.JsPath
 import play.api.mvc.Call
-import scala.language.implicitConversions
 
-trait Page {
+case object HasSecondaryContactPage extends AddQuestionPage[Boolean] {
 
-  final def nextPage(mode: Mode, answers: UserAnswers): Call =
-    mode match {
-      case NormalMode => nextPageNormalMode(answers)
-      case CheckMode  => nextPageCheckMode(answers)
-    }
+  override def path: JsPath = JsPath \ toString
 
-  protected def nextPageNormalMode(answers: UserAnswers): Call
+  override def toString: String = "hasSecondaryContact"
 
-  protected def nextPageCheckMode(answers: UserAnswers): Call
-}
-
-object Page {
-
-  implicit def toString(page: Page): String =
-    page.toString
+  override protected def nextPageNormalMode(answers: UserAnswers): Call =
+    routes.IndexController.onPageLoad()
 }
