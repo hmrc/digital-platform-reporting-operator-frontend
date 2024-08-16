@@ -14,27 +14,32 @@
  * limitations under the License.
  */
 
-package pages
+package forms.add
 
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import play.api.mvc.Call
-import scala.language.implicitConversions
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-trait Page {
+class HasUkTaxIdentifierFormProviderSpec extends BooleanFieldBehaviours {
 
-  final def nextPage(mode: Mode, answers: UserAnswers): Call =
-    mode match {
-      case NormalMode => nextPageNormalMode(answers)
-      case CheckMode  => nextPageCheckMode(answers)
-    }
+  val requiredKey = "hasUkTaxIdentifier.error.required"
+  val invalidKey = "error.boolean"
 
-  protected def nextPageNormalMode(answers: UserAnswers): Call
+  val form = new HasUkTaxIdentifierFormProvider()()
 
-  protected def nextPageCheckMode(answers: UserAnswers): Call
-}
+  ".value" - {
 
-object Page {
+    val fieldName = "value"
 
-  implicit def toString(page: Page): String =
-    page.toString
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

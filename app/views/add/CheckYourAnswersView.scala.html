@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package pages
+@import controllers.add.routes
 
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import play.api.mvc.Call
-import scala.language.implicitConversions
+@this(
+    layout: templates.Layout,
+    govukSummaryList: GovukSummaryList
+)
 
-trait Page {
+@(list: SummaryList)(implicit request: Request[_], messages: Messages)
 
-  final def nextPage(mode: Mode, answers: UserAnswers): Call =
-    mode match {
-      case NormalMode => nextPageNormalMode(answers)
-      case CheckMode  => nextPageCheckMode(answers)
-    }
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
 
-  protected def nextPageNormalMode(answers: UserAnswers): Call
+    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
 
-  protected def nextPageCheckMode(answers: UserAnswers): Call
-}
-
-object Page {
-
-  implicit def toString(page: Page): String =
-    page.toString
+    @govukSummaryList(list)
 }

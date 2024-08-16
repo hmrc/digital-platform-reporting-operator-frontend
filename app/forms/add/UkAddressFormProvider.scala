@@ -14,27 +14,23 @@
  * limitations under the License.
  */
 
-package pages
+package forms.add
 
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import play.api.mvc.Call
-import scala.language.implicitConversions
+import javax.inject.Inject
 
-trait Page {
+import forms.mappings.Mappings
+import play.api.data.Form
+import play.api.data.Forms._
+import models.UkAddress
 
-  final def nextPage(mode: Mode, answers: UserAnswers): Call =
-    mode match {
-      case NormalMode => nextPageNormalMode(answers)
-      case CheckMode  => nextPageCheckMode(answers)
-    }
+class UkAddressFormProvider @Inject() extends Mappings {
 
-  protected def nextPageNormalMode(answers: UserAnswers): Call
-
-  protected def nextPageCheckMode(answers: UserAnswers): Call
-}
-
-object Page {
-
-  implicit def toString(page: Page): String =
-    page.toString
-}
+   def apply(): Form[UkAddress] = Form(
+     mapping(
+      "line1" -> text("ukAddress.error.line1.required")
+        .verifying(maxLength(100, "ukAddress.error.line1.length")),
+      "line2" -> text("ukAddress.error.line2.required")
+        .verifying(maxLength(100, "ukAddress.error.line2.length"))
+    )(UkAddress.apply)(x => Some((x.line1, x.line2)))
+   )
+ }
