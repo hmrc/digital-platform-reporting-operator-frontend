@@ -1,39 +1,59 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package controllers
 
 import base.SpecBase
-import forms.$className$FormProvider
-import models.NormalMode
+import forms.InternationalAddressFormProvider
+import models.{NormalMode, InternationalAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.$className$Page
+import pages.InternationalAddressPage
 import play.api.inject.bind
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import views.html.$className$View
+import views.html.InternationalAddressView
 
 import scala.concurrent.Future
 
-class $className$ControllerSpec extends SpecBase with MockitoSugar {
+class InternationalAddressControllerSpec extends SpecBase with MockitoSugar {
 
-  private val formProvider = new $className$FormProvider()
+  private val formProvider = new InternationalAddressFormProvider()
   private val form = formProvider()
 
-  lazy val $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
+  private lazy val internationalAddressRoute = routes.InternationalAddressController.onPageLoad(NormalMode).url
 
-  "$className$ Controller" - {
+  private val validAnswer = InternationalAddress("value 1", "value 2")
+  private val userAnswers = emptyUserAnswers.set(InternationalAddressPage, validAnswer).success.value
+
+  "InternationalAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, $className;format="decap"$Route)
+        val request = FakeRequest(GET, internationalAddressRoute)
+
+        val view = application.injector.instanceOf[InternationalAddressView]
 
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[$className$View]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -42,19 +62,17 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = emptyUserAnswers.set($className$Page, true).success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, $className;format="decap"$Route)
+        val request = FakeRequest(GET, internationalAddressRoute)
 
-        val view = application.injector.instanceOf[$className$View]
+        val view = application.injector.instanceOf[InternationalAddressView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(InternationalAddress("value 1", "value 2")), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -71,13 +89,13 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, $className;format="decap"$Route)
-            .withFormUrlEncodedBody(("value", "true"))
+          FakeRequest(POST, internationalAddressRoute)
+            .withFormUrlEncodedBody(("line1", "value 1"), ("line2", "value 2"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual $className$Page.nextPage(NormalMode, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual InternationalAddressPage.nextPage(NormalMode, emptyUserAnswers).url
       }
     }
 
@@ -87,12 +105,12 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, $className;format="decap"$Route)
-            .withFormUrlEncodedBody(("value", ""))
+          FakeRequest(POST, internationalAddressRoute)
+            .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> ""))
+        val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[$className$View]
+        val view = application.injector.instanceOf[InternationalAddressView]
 
         val result = route(application, request).value
 
@@ -106,7 +124,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, $className;format="decap"$Route)
+        val request = FakeRequest(GET, internationalAddressRoute)
 
         val result = route(application, request).value
 
@@ -121,8 +139,8 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, $className;format="decap"$Route)
-            .withFormUrlEncodedBody(("value", "true"))
+          FakeRequest(POST, internationalAddressRoute)
+            .withFormUrlEncodedBody(("line1", "value 1"), ("line2", "value 2"))
 
         val result = route(application, request).value
 

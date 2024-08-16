@@ -19,3 +19,140 @@ GET         /account/sign-out                            controllers.auth.AuthCo
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET        /businessName                        controllers.BusinessNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /businessName                        controllers.BusinessNameController.onSubmit(mode: Mode = NormalMode)
+GET        /changeBusinessName                  controllers.BusinessNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeBusinessName                  controllers.BusinessNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /businessType                        controllers.BusinessTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /businessType                        controllers.BusinessTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /changeBusinessType                  controllers.BusinessTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeBusinessType                  controllers.BusinessTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET        /canPhonePrimaryContact                        controllers.CanPhonePrimaryContactController.onPageLoad(mode: Mode = NormalMode)
+POST       /canPhonePrimaryContact                        controllers.CanPhonePrimaryContactController.onSubmit(mode: Mode = NormalMode)
+GET        /changeCanPhonePrimaryContact                  controllers.CanPhonePrimaryContactController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeCanPhonePrimaryContact                  controllers.CanPhonePrimaryContactController.onSubmit(mode: Mode = CheckMode)
+
+GET        /canPhoneSecondaryContact                        controllers.CanPhoneSecondaryContactController.onPageLoad(mode: Mode = NormalMode)
+POST       /canPhoneSecondaryContact                        controllers.CanPhoneSecondaryContactController.onSubmit(mode: Mode = NormalMode)
+GET        /changeCanPhoneSecondaryContact                  controllers.CanPhoneSecondaryContactController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeCanPhoneSecondaryContact                  controllers.CanPhoneSecondaryContactController.onSubmit(mode: Mode = CheckMode)
+
+GET        /chrn                        controllers.ChrnController.onPageLoad(mode: Mode = NormalMode)
+POST       /chrn                        controllers.ChrnController.onSubmit(mode: Mode = NormalMode)
+GET        /changeChrn                  controllers.ChrnController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeChrn                  controllers.ChrnController.onSubmit(mode: Mode = CheckMode)
+
+GET        /crn                        controllers.CrnController.onPageLoad(mode: Mode = NormalMode)
+POST       /crn                        controllers.CrnController.onSubmit(mode: Mode = NormalMode)
+GET        /changeCrn                  controllers.CrnController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeCrn                  controllers.CrnController.onSubmit(mode: Mode = CheckMode)
+
+GET        /empref                        controllers.EmprefController.onPageLoad(mode: Mode = NormalMode)
+POST       /empref                        controllers.EmprefController.onSubmit(mode: Mode = NormalMode)
+GET        /changeEmpref                  controllers.EmprefController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeEmpref                  controllers.EmprefController.onSubmit(mode: Mode = CheckMode)
+
+GET        /hasInternationalTaxIdentifier                        controllers.HasInternationalTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
+POST       /hasInternationalTaxIdentifier                        controllers.HasInternationalTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
+GET        /changeHasInternationalTaxIdentifier                  controllers.HasInternationalTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeHasInternationalTaxIdentifier                  controllers.HasInternationalTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
+
+GET        /hasSecondaryContact                        controllers.HasSecondaryContactController.onPageLoad(mode: Mode = NormalMode)
+POST       /hasSecondaryContact                        controllers.HasSecondaryContactController.onSubmit(mode: Mode = NormalMode)
+GET        /changeHasSecondaryContact                  controllers.HasSecondaryContactController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeHasSecondaryContact                  controllers.HasSecondaryContactController.onSubmit(mode: Mode = CheckMode)
+
+GET        /hasTradingName                        controllers.HasTradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /hasTradingName                        controllers.HasTradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /changeHasTradingName                  controllers.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeHasTradingName                  controllers.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /hasUkTaxIdentifier                        controllers.HasUkTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
+POST       /hasUkTaxIdentifier                        controllers.HasUkTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
+GET        /changeHasUkTaxIdentifier                  controllers.HasUkTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeHasUkTaxIdentifier                  controllers.HasUkTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
+
+GET        /internationalAddress                        controllers.InternationalAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /internationalAddress                        controllers.InternationalAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /changeInternationalAddress                  controllers.InternationalAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeInternationalAddress                  controllers.InternationalAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /internationalTaxIdentifier                        controllers.InternationalTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
+POST       /internationalTaxIdentifier                        controllers.InternationalTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
+GET        /changeInternationalTaxIdentifier                  controllers.InternationalTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeInternationalTaxIdentifier                  controllers.InternationalTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
+
+GET        /primaryContactEmail                        controllers.PrimaryContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /primaryContactEmail                        controllers.PrimaryContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /changePrimaryContactEmail                  controllers.PrimaryContactEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /changePrimaryContactEmail                  controllers.PrimaryContactEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /primaryContactName                        controllers.PrimaryContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /primaryContactName                        controllers.PrimaryContactNameController.onSubmit(mode: Mode = NormalMode)
+GET        /changePrimaryContactName                  controllers.PrimaryContactNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /changePrimaryContactName                  controllers.PrimaryContactNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /primaryContactPhoneNumber                        controllers.PrimaryContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /primaryContactPhoneNumber                        controllers.PrimaryContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /changePrimaryContactPhoneNumber                  controllers.PrimaryContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /changePrimaryContactPhoneNumber                  controllers.PrimaryContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET        /registeredInUk                        controllers.RegisteredInUkController.onPageLoad(mode: Mode = NormalMode)
+POST       /registeredInUk                        controllers.RegisteredInUkController.onSubmit(mode: Mode = NormalMode)
+GET        /changeRegisteredInUk                  controllers.RegisteredInUkController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeRegisteredInUk                  controllers.RegisteredInUkController.onSubmit(mode: Mode = CheckMode)
+
+GET        /secondaryContactEmail                        controllers.SecondaryContactEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /secondaryContactEmail                        controllers.SecondaryContactEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /changeSecondaryContactEmail                  controllers.SecondaryContactEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeSecondaryContactEmail                  controllers.SecondaryContactEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /secondaryContactName                        controllers.SecondaryContactNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /secondaryContactName                        controllers.SecondaryContactNameController.onSubmit(mode: Mode = NormalMode)
+GET        /changeSecondaryContactName                  controllers.SecondaryContactNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeSecondaryContactName                  controllers.SecondaryContactNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /secondaryContactPhoneNumber                        controllers.SecondaryContactPhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /secondaryContactPhoneNumber                        controllers.SecondaryContactPhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /changeSecondaryContactPhoneNumber                  controllers.SecondaryContactPhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeSecondaryContactPhoneNumber                  controllers.SecondaryContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
+GET        /start                       controllers.StartController.onPageLoad()
+
+GET        /taxResidencyCountry                        controllers.TaxResidencyCountryController.onPageLoad(mode: Mode = NormalMode)
+POST       /taxResidencyCountry                        controllers.TaxResidencyCountryController.onSubmit(mode: Mode = NormalMode)
+GET        /changeTaxResidencyCountry                  controllers.TaxResidencyCountryController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeTaxResidencyCountry                  controllers.TaxResidencyCountryController.onSubmit(mode: Mode = CheckMode)
+
+GET        /taxResidentInUk                        controllers.TaxResidentInUkController.onPageLoad(mode: Mode = NormalMode)
+POST       /taxResidentInUk                        controllers.TaxResidentInUkController.onSubmit(mode: Mode = NormalMode)
+GET        /changeTaxResidentInUk                  controllers.TaxResidentInUkController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeTaxResidentInUk                  controllers.TaxResidentInUkController.onSubmit(mode: Mode = CheckMode)
+
+GET        /tradingName                        controllers.TradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /tradingName                        controllers.TradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /changeTradingName                  controllers.TradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeTradingName                  controllers.TradingNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /ukAddress                        controllers.UkAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /ukAddress                        controllers.UkAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /changeUkAddress                  controllers.UkAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeUkAddress                  controllers.UkAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /ukTaxIdentifiers                        controllers.UkTaxIdentifiersController.onPageLoad(mode: Mode = NormalMode)
+POST       /ukTaxIdentifiers                        controllers.UkTaxIdentifiersController.onSubmit(mode: Mode = NormalMode)
+GET        /changeUkTaxIdentifiers                  controllers.UkTaxIdentifiersController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeUkTaxIdentifiers                  controllers.UkTaxIdentifiersController.onSubmit(mode: Mode = CheckMode)
+
+GET        /utr                        controllers.UtrController.onPageLoad(mode: Mode = NormalMode)
+POST       /utr                        controllers.UtrController.onSubmit(mode: Mode = NormalMode)
+GET        /changeUtr                  controllers.UtrController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeUtr                  controllers.UtrController.onSubmit(mode: Mode = CheckMode)
+
+GET        /vrn                        controllers.VrnController.onPageLoad(mode: Mode = NormalMode)
+POST       /vrn                        controllers.VrnController.onSubmit(mode: Mode = NormalMode)
+GET        /changeVrn                  controllers.VrnController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeVrn                  controllers.VrnController.onSubmit(mode: Mode = CheckMode)
