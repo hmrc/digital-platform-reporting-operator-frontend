@@ -33,7 +33,7 @@ class HasUkTaxIdentifierController @Inject()(
                                          override val messagesApi: MessagesApi,
                                          sessionRepository: SessionRepository,
                                          identify: IdentifierAction,
-                                         getData: DataRetrievalAction,
+                                         getData: DataRetrievalActionProvider,
                                          requireData: DataRequiredAction,
                                          formProvider: HasUkTaxIdentifierFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
@@ -42,7 +42,7 @@ class HasUkTaxIdentifierController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(HasUkTaxIdentifierPage) match {
@@ -53,7 +53,7 @@ class HasUkTaxIdentifierController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

@@ -33,7 +33,7 @@ class VrnController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
                                         identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
+                                        getData: DataRetrievalActionProvider,
                                         requireData: DataRequiredAction,
                                         formProvider: VrnFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
@@ -42,7 +42,7 @@ class VrnController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(VrnPage) match {
@@ -53,7 +53,7 @@ class VrnController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

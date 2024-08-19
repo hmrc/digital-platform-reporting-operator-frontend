@@ -33,7 +33,7 @@ class BusinessTypeController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        sessionRepository: SessionRepository,
                                        identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
+                                       getData: DataRetrievalActionProvider,
                                        requireData: DataRequiredAction,
                                        formProvider: BusinessTypeFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
@@ -42,7 +42,7 @@ class BusinessTypeController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(BusinessTypePage) match {
@@ -53,7 +53,7 @@ class BusinessTypeController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
