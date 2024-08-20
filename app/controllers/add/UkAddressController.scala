@@ -63,7 +63,7 @@ class UkAddressController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest( view(formWithErrors, mode, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
 
         value =>
           for {
