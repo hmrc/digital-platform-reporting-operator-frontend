@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.CanPhoneSecondaryContactPage
+import pages.add.{BusinessNamePage, CanPhoneSecondaryContactPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
@@ -27,8 +27,10 @@ import viewmodels.implicits._
 object CanPhoneSecondaryContactSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(CanPhoneSecondaryContactPage).map {
-      answer =>
+    for {
+      answer       <- answers.get(CanPhoneSecondaryContactPage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         val value = if (answer) "site.yes" else "site.no"
 
@@ -37,7 +39,7 @@ object CanPhoneSecondaryContactSummary  {
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.CanPhoneSecondaryContactController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("canPhoneSecondaryContact.change.hidden"))
+              .withVisuallyHiddenText(messages("canPhoneSecondaryContact.change.hidden", businessName))
           )
         )
     }

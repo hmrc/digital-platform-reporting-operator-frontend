@@ -23,8 +23,8 @@ import play.api.data.Form
 
 class HasUkTaxIdentifierFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
+  def apply(businessName: String): Form[Boolean] =
     Form(
-      "value" -> boolean("hasUkTaxIdentifier.error.required")
+      "value" -> boolean("hasUkTaxIdentifier.error.required", args = Seq(businessName))
     )
 }

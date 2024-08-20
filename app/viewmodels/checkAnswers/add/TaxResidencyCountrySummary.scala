@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.TaxResidencyCountryPage
+import pages.add.{BusinessNamePage, TaxResidencyCountryPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -28,15 +28,17 @@ import viewmodels.implicits._
 object TaxResidencyCountrySummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(TaxResidencyCountryPage).map {
-      answer =>
+    for {
+      answer       <- answers.get(TaxResidencyCountryPage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         SummaryListRowViewModel(
           key     = "taxResidencyCountry.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.TaxResidencyCountryController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("taxResidencyCountry.change.hidden"))
+              .withVisuallyHiddenText(messages("taxResidencyCountry.change.hidden", businessName))
           )
         )
     }

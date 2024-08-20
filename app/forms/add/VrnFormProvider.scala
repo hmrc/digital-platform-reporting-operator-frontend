@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class VrnFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(businessName: String): Form[String] =
     Form(
-      "value" -> text("vrn.error.required")
-        .verifying(maxLength(100, "vrn.error.length"))
+      "value" -> text("vrn.error.required", args = Seq(businessName))
+        .verifying(maxLength(100, "vrn.error.length", args = businessName))
     )
 }

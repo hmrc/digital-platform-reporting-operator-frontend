@@ -24,7 +24,8 @@ class HasUkTaxIdentifierFormProviderSpec extends BooleanFieldBehaviours {
   val requiredKey = "hasUkTaxIdentifier.error.required"
   val invalidKey = "error.boolean"
 
-  val form = new HasUkTaxIdentifierFormProvider()()
+  val businessName = "name"
+  val form = new HasUkTaxIdentifierFormProvider()(businessName)
 
   ".value" - {
 
@@ -33,13 +34,13 @@ class HasUkTaxIdentifierFormProviderSpec extends BooleanFieldBehaviours {
     behave like booleanField(
       form,
       fieldName,
-      invalidError = FormError(fieldName, invalidKey)
+      invalidError = FormError(fieldName, invalidKey, Seq(businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

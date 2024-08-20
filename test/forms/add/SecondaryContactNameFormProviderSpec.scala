@@ -25,7 +25,8 @@ class SecondaryContactNameFormProviderSpec extends StringFieldBehaviours {
   val lengthKey = "secondaryContactName.error.length"
   val maxLength = 100
 
-  val form = new SecondaryContactNameFormProvider()()
+  val businessName = "name"
+  val form = new SecondaryContactNameFormProvider()(businessName)
 
   ".value" - {
 
@@ -41,13 +42,13 @@ class SecondaryContactNameFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

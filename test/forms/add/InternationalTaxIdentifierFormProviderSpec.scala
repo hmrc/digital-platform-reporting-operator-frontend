@@ -25,7 +25,8 @@ class InternationalTaxIdentifierFormProviderSpec extends StringFieldBehaviours {
   val lengthKey = "internationalTaxIdentifier.error.length"
   val maxLength = 10
 
-  val form = new InternationalTaxIdentifierFormProvider()()
+  val businessName = "name"
+  val form = new InternationalTaxIdentifierFormProvider()(businessName)
 
   ".value" - {
 
@@ -41,13 +42,13 @@ class InternationalTaxIdentifierFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

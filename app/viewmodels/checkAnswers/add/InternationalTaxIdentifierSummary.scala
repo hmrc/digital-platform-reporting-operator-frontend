@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.InternationalTaxIdentifierPage
+import pages.add.{BusinessNamePage, InternationalTaxIdentifierPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -28,15 +28,17 @@ import viewmodels.implicits._
 object InternationalTaxIdentifierSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(InternationalTaxIdentifierPage).map {
-      answer =>
+    for {
+      answer       <- answers.get(InternationalTaxIdentifierPage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         SummaryListRowViewModel(
           key     = "internationalTaxIdentifier.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.InternationalTaxIdentifierController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("internationalTaxIdentifier.change.hidden"))
+              .withVisuallyHiddenText(messages("internationalTaxIdentifier.change.hidden", businessName))
           )
         )
     }

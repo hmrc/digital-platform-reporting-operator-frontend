@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class TaxResidencyCountryFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(businessName: String): Form[String] =
     Form(
-      "value" -> text("taxResidencyCountry.error.required")
-        .verifying(maxLength(100, "taxResidencyCountry.error.length"))
+      "value" -> text("taxResidencyCountry.error.required", args = Seq(businessName))
+        .verifying(maxLength(100, "taxResidencyCountry.error.length", args = businessName))
     )
 }

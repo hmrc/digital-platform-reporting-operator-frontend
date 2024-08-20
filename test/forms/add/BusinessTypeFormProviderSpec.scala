@@ -22,7 +22,8 @@ import play.api.data.FormError
 
 class BusinessTypeFormProviderSpec extends OptionFieldBehaviours {
 
-  val form = new BusinessTypeFormProvider()()
+  val businessName = "name"
+  val form = new BusinessTypeFormProvider()(businessName)
 
   ".value" - {
 
@@ -33,13 +34,13 @@ class BusinessTypeFormProviderSpec extends OptionFieldBehaviours {
       form,
       fieldName,
       validValues  = BusinessType.values,
-      invalidError = FormError(fieldName, "error.invalid")
+      invalidError = FormError(fieldName, "error.invalid", Seq(businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

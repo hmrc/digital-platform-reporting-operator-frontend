@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.EmprefPage
+import pages.add.{BusinessNamePage, EmprefPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -28,15 +28,17 @@ import viewmodels.implicits._
 object EmprefSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EmprefPage).map {
-      answer =>
+    for {
+      answer       <- answers.get(EmprefPage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         SummaryListRowViewModel(
           key     = "empref.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.EmprefController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("empref.change.hidden"))
+              .withVisuallyHiddenText(messages("empref.change.hidden", businessName))
           )
         )
     }

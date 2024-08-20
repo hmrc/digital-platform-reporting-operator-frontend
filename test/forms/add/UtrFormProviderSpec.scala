@@ -25,7 +25,8 @@ class UtrFormProviderSpec extends StringFieldBehaviours {
   val lengthKey = "utr.error.length"
   val maxLength = 100
 
-  val form = new UtrFormProvider()()
+  val businessName = "name"
+  val form = new UtrFormProvider()(businessName)
 
   ".value" - {
 
@@ -41,13 +42,13 @@ class UtrFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

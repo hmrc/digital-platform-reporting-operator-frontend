@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class EmprefFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(businessName: String): Form[String] =
     Form(
-      "value" -> text("empref.error.required")
-        .verifying(maxLength(100, "empref.error.length"))
+      "value" -> text("empref.error.required", args = Seq(businessName))
+        .verifying(maxLength(100, "empref.error.length", args = businessName))
     )
 }

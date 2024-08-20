@@ -24,8 +24,8 @@ import models.BusinessType
 
 class BusinessTypeFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[BusinessType] =
+  def apply(businessName: String): Form[BusinessType] =
     Form(
-      "value" -> enumerable[BusinessType]("businessType.error.required")
+      "value" -> enumerable[BusinessType]("businessType.error.required", args = Seq(businessName))
     )
 }

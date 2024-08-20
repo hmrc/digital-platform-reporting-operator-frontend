@@ -25,8 +25,9 @@ import models.UkTaxIdentifiers
 
 class UkTaxIdentifiersFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Set[UkTaxIdentifiers]] =
+  def apply(businessName: String): Form[Set[UkTaxIdentifiers]] =
     Form(
-      "value" -> set(enumerable[UkTaxIdentifiers]("ukTaxIdentifiers.error.required")).verifying(nonEmptySet("ukTaxIdentifiers.error.required"))
+      "value" -> set(enumerable[UkTaxIdentifiers]("ukTaxIdentifiers.error.required", args = Seq(businessName)))
+        .verifying(nonEmptySet("ukTaxIdentifiers.error.required", businessName))
     )
 }

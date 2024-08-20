@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.BusinessTypePage
+import pages.add.{BusinessNamePage, BusinessTypePage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -29,8 +29,10 @@ import viewmodels.implicits._
 object BusinessTypeSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessTypePage).map {
-      answer =>
+    for {
+      answer       <- answers.get(BusinessTypePage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         val value = ValueViewModel(
           HtmlContent(
@@ -43,7 +45,7 @@ object BusinessTypeSummary  {
           value   = value,
           actions = Seq(
             ActionItemViewModel("site.change", routes.BusinessTypeController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("businessType.change.hidden"))
+              .withVisuallyHiddenText(messages("businessType.change.hidden", businessName))
           )
         )
     }

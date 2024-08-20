@@ -17,10 +17,11 @@
 package controllers.add
 
 import controllers.actions._
+import controllers.AnswerExtractor
 import forms.add.UkAddressFormProvider
 import javax.inject.Inject
 import models.Mode
-import pages.add.UkAddressPage
+import pages.add.{BusinessNamePage, UkAddressPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -38,33 +39,38 @@ class UkAddressController @Inject()(
                                       formProvider: UkAddressFormProvider,
                                       val controllerComponents: MessagesControllerComponents,
                                       view: UkAddressView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  val form = formProvider()
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
+    getAnswer(BusinessNamePage) { businessName =>
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
-    implicit request =>
+      val form = formProvider(businessName)
 
       val preparedForm = request.userAnswers.get(UkAddressPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+       Ok(view(preparedForm, mode, businessName))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
+    getAnswerAsync(BusinessNamePage) { businessName =>
+
+      val form = formProvider(businessName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(BadRequest( view(formWithErrors, mode, businessName))),
 
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(UkAddressPage.nextPage(mode, updatedAnswers))
       )
+    }
   }
 }

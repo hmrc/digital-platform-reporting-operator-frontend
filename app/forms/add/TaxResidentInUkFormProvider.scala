@@ -23,8 +23,8 @@ import play.api.data.Form
 
 class TaxResidentInUkFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Boolean] =
+  def apply(businessName: String): Form[Boolean] =
     Form(
-      "value" -> boolean("taxResidentInUk.error.required")
+      "value" -> boolean("taxResidentInUk.error.required", args = Seq(businessName))
     )
 }

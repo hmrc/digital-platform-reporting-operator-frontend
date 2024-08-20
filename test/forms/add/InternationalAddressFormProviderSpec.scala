@@ -21,7 +21,8 @@ import play.api.data.FormError
 
 class InternationalAddressFormProviderSpec extends StringFieldBehaviours {
 
-  val form = new InternationalAddressFormProvider()()
+  val businessName = "name"
+  val form = new InternationalAddressFormProvider()(businessName)
 
   ".line1" - {
 
@@ -40,13 +41,13 @@ class InternationalAddressFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 
@@ -67,13 +68,13 @@ class InternationalAddressFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

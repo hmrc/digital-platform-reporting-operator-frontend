@@ -17,8 +17,9 @@
 package forms.mappings
 
 import java.time.LocalDate
-
 import play.api.data.validation.{Constraint, Invalid, Valid}
+
+import scala.:+
 
 trait Constraints {
 
@@ -78,12 +79,12 @@ trait Constraints {
         Invalid(errorKey, regex)
     }
 
-  protected def maxLength(maximum: Int, errorKey: String): Constraint[String] =
+  protected def maxLength(maximum: Int, errorKey: String, args: Any*): Constraint[String] =
     Constraint {
       case str if str.length <= maximum =>
         Valid
       case _ =>
-        Invalid(errorKey, maximum)
+        Invalid(errorKey, maximum +: args: _*)
     }
 
   protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
@@ -102,11 +103,11 @@ trait Constraints {
         Valid
     }
 
-  protected def nonEmptySet(errorKey: String): Constraint[Set[_]] =
+  protected def nonEmptySet(errorKey: String, args: Any*): Constraint[Set[_]] =
     Constraint {
       case set if set.nonEmpty =>
         Valid
       case _ =>
-        Invalid(errorKey)
+        Invalid(errorKey, args: _*)
     }
 }

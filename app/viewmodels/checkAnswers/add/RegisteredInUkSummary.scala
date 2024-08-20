@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.RegisteredInUkPage
+import pages.add.{BusinessNamePage, RegisteredInUkPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
@@ -27,8 +27,10 @@ import viewmodels.implicits._
 object RegisteredInUkSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(RegisteredInUkPage).map {
-      answer =>
+    for {
+      answer       <- answers.get(RegisteredInUkPage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         val value = if (answer) "site.yes" else "site.no"
 
@@ -37,7 +39,7 @@ object RegisteredInUkSummary  {
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.RegisteredInUkController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("registeredInUk.change.hidden"))
+              .withVisuallyHiddenText(messages("registeredInUk.change.hidden", businessName))
           )
         )
     }
