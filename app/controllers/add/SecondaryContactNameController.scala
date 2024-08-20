@@ -17,10 +17,11 @@
 package controllers.add
 
 import controllers.actions._
+import controllers.AnswerExtractor
 import forms.add.SecondaryContactNameFormProvider
 import javax.inject.Inject
 import models.Mode
-import pages.add.SecondaryContactNamePage
+import pages.add.{BusinessNamePage, SecondaryContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -38,33 +39,38 @@ class SecondaryContactNameController @Inject()(
                                         formProvider: SecondaryContactNameFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: SecondaryContactNameView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                    )(implicit ec: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  val form = formProvider()
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
+    getAnswer(BusinessNamePage) { businessName =>
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
-    implicit request =>
+      val form = formProvider(businessName)
 
       val preparedForm = request.userAnswers.get(SecondaryContactNamePage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+       Ok(view(preparedForm, mode, businessName))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
+    getAnswerAsync(BusinessNamePage) { businessName =>
+
+      val form = formProvider(businessName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
 
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(SecondaryContactNamePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(SecondaryContactNamePage.nextPage(mode, updatedAnswers))
       )
+    }
   }
 }

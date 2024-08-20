@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class CrnFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(businessName: String): Form[String] =
     Form(
-      "value" -> text("crn.error.required")
-        .verifying(maxLength(100, "crn.error.length"))
+      "value" -> text("crn.error.required", args = Seq(businessName))
+        .verifying(maxLength(100, "crn.error.length", args = businessName))
     )
 }

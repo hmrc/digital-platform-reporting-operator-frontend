@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.ChrnPage
+import pages.add.{BusinessNamePage, ChrnPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -28,15 +28,17 @@ import viewmodels.implicits._
 object ChrnSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(ChrnPage).map {
-      answer =>
+    for {
+      answer       <- answers.get(ChrnPage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         SummaryListRowViewModel(
           key     = "chrn.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.ChrnController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("chrn.change.hidden"))
+              .withVisuallyHiddenText(messages("chrn.change.hidden", businessName))
           )
         )
     }

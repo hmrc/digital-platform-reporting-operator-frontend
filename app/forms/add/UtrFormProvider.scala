@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class UtrFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[String] =
+  def apply(businessName: String): Form[String] =
     Form(
-      "value" -> text("utr.error.required")
-        .verifying(maxLength(100, "utr.error.length"))
+      "value" -> text("utr.error.required", args = Seq(businessName))
+        .verifying(maxLength(100, "utr.error.length", args = businessName))
     )
 }

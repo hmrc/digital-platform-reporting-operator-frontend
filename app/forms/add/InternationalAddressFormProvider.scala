@@ -25,12 +25,12 @@ import models.InternationalAddress
 
 class InternationalAddressFormProvider @Inject() extends Mappings {
 
-   def apply(): Form[InternationalAddress] = Form(
+   def apply(businessName: String): Form[InternationalAddress] = Form(
      mapping(
-      "line1" -> text("internationalAddress.error.line1.required")
-        .verifying(maxLength(100, "internationalAddress.error.line1.length")),
-      "line2" -> text("internationalAddress.error.line2.required")
-        .verifying(maxLength(100, "internationalAddress.error.line2.length"))
+      "line1" -> text("internationalAddress.error.line1.required", args = Seq(businessName))
+        .verifying(maxLength(100, "internationalAddress.error.line1.length", args = businessName)),
+      "line2" -> text("internationalAddress.error.line2.required", args = Seq(businessName))
+        .verifying(maxLength(100, "internationalAddress.error.line2.length", args = businessName))
     )(InternationalAddress.apply)(x => Some((x.line1, x.line2)))
    )
  }

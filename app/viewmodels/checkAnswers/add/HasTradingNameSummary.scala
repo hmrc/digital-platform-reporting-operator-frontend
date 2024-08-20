@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.HasTradingNamePage
+import pages.add.{BusinessNamePage, HasTradingNamePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
@@ -27,8 +27,10 @@ import viewmodels.implicits._
 object HasTradingNameSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(HasTradingNamePage).map {
-      answer =>
+    for {
+      answer       <- answers.get(HasTradingNamePage)
+      businessName <- answers.get(BusinessNamePage)
+    } yield {
 
         val value = if (answer) "site.yes" else "site.no"
 
@@ -37,7 +39,7 @@ object HasTradingNameSummary  {
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.HasTradingNameController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("hasTradingName.change.hidden"))
+              .withVisuallyHiddenText(messages("hasTradingName.change.hidden", businessName))
           )
         )
     }

@@ -24,7 +24,8 @@ class CanPhonePrimaryContactFormProviderSpec extends BooleanFieldBehaviours {
   val requiredKey = "canPhonePrimaryContact.error.required"
   val invalidKey = "error.boolean"
 
-  val form = new CanPhonePrimaryContactFormProvider()()
+  val businessName = "name"
+  val form = new CanPhonePrimaryContactFormProvider()(businessName)
 
   ".value" - {
 
@@ -33,13 +34,13 @@ class CanPhonePrimaryContactFormProviderSpec extends BooleanFieldBehaviours {
     behave like booleanField(
       form,
       fieldName,
-      invalidError = FormError(fieldName, invalidKey)
+      invalidError = FormError(fieldName, invalidKey, Seq(businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }

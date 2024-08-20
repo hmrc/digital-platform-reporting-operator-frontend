@@ -25,7 +25,8 @@ class TaxResidencyCountryFormProviderSpec extends StringFieldBehaviours {
   val lengthKey = "taxResidencyCountry.error.length"
   val maxLength = 100
 
-  val form = new TaxResidencyCountryFormProvider()()
+  val businessName = "name"
+  val form = new TaxResidencyCountryFormProvider()(businessName)
 
   ".value" - {
 
@@ -41,13 +42,13 @@ class TaxResidencyCountryFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey)
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
 }
