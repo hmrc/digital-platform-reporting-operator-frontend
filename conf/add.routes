@@ -101,6 +101,7 @@ GET        /changeSecondaryContactPhoneNumber                  controllers.add.S
 POST       /changeSecondaryContactPhoneNumber                  controllers.add.SecondaryContactPhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET        /start                       controllers.add.StartController.onPageLoad()
+POST       /start                       controllers.add.StartController.onSubmit()
 
 GET        /taxResidencyCountry                        controllers.add.TaxResidencyCountryController.onPageLoad(mode: Mode = NormalMode)
 POST       /taxResidencyCountry                        controllers.add.TaxResidencyCountryController.onSubmit(mode: Mode = NormalMode)

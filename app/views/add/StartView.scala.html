@@ -15,10 +15,13 @@
  *@
 
 @import controllers.add.routes
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukDetails
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        formHelper: FormWithCSRF,
+        govukButton: GovukButton,
+        govukDetails: GovukDetails
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -26,4 +29,29 @@
 @layout(pageTitle = titleNoForm(messages("start.title"))) {
 
     <h1 class="govuk-heading-xl">@messages("start.heading")</h1>
+
+    <p class="govuk-body">@messages("start.p1")</p>
+
+    @govukDetails(Details(
+        summary = Text(messages("start.summary.title")),
+        content = Text(messages("start.summary.content"))
+    ))
+
+    <h2 class="govuk-heading-m">@messages("start.beforeYouContinue")</h2>
+
+    <p class="govuk-body">@messages("start.beforeYouContinue.p1")</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("start.beforeYouContinue.bullet1")</li>
+        <li>@messages("start.beforeYouContinue.bullet2")</li>
+        <li>@messages("start.beforeYouContinue.bullet3")</li>
+    </ul>
+
+    <p class="govuk-body">@messages("start.beforeYouContinue.p2")</p>
+
+    <p class="govuk-body">@messages("start.beforeYouContinue.p3")</p>
+
+    @formHelper(action = routes.StartController.onSubmit()) {
+        @govukButton(ButtonViewModel("start.addNow"))
+    }
 }

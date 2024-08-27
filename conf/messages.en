@@ -187,8 +187,19 @@ secondaryContactPhoneNumber.error.required = Enter secondaryContactPhoneNumber
 secondaryContactPhoneNumber.error.length = SecondaryContactPhoneNumber must be 100 characters or less
 secondaryContactPhoneNumber.change.hidden = SecondaryContactPhoneNumber
 
-start.title = start
-start.heading = start
+start.title = Adding a platform operator
+start.heading = Adding a platform operator
+start.p1 = In the next few screens you can enter the details of your platform operator. If you are a third party, you should enter the details of the platform operator you are reporting for.
+start.summary.title = What is a platform operator? (select here to expand)
+start.summary.content = A platform operator is a business that allows sellers to use their website or mobile app to connect to customers for the sale of goods and services. This could include taxi and private hire services, food delivery services, freelance work and the letting of short-term accommodation.
+start.beforeYouContinue = Before you continue
+start.beforeYouContinue.p1 = You will need the platform operator’s:
+start.beforeYouContinue.bullet1 = Tax identification number. This could be a Unique Taxpayer Reference (UTR), Company Registration Number (CRN), VAT Registration Number (VRN), Employer PAYE Reference or HMRC Charity Reference (CHRN)
+start.beforeYouContinue.bullet2 = registered business address
+start.beforeYouContinue.bullet3 = contact details
+start.beforeYouContinue.p2 = You can add one or more platform operators now. You can still add more later.
+start.beforeYouContinue.p3 = Adding a new platform operator takes around 10 minutes.
+start.addNow = Add now
 
 taxResidencyCountry.title = taxResidencyCountry
 taxResidencyCountry.heading = taxResidencyCountry

@@ -17,6 +17,9 @@
 package controllers.add
 
 import controllers.actions._
+import models.{NormalMode, UserAnswers}
+import pages.add.StartPage
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -26,14 +29,15 @@ import views.html.add.StartView
 class StartController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
-                                       getData: DataRetrievalActionProvider,
-                                       requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: StartView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
-    implicit request =>
+  def onPageLoad: Action[AnyContent] = identify { implicit request =>
       Ok(view())
+  }
+
+  def onSubmit: Action[AnyContent] = identify { implicit request =>
+    Redirect(StartPage.nextPage(NormalMode, UserAnswers(request.userId, None)))
   }
 }
