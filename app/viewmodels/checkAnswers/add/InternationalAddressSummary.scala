@@ -34,15 +34,22 @@ object InternationalAddressSummary  {
       businessName <- answers.get(BusinessNamePage)
     } yield {
 
-      val value = HtmlFormat.escape(answer.line1).toString + "<br/>" + HtmlFormat.escape(answer.line2).toString
+      val value: String = Seq(
+        Some(HtmlFormat.escape(answer.line1)),
+        answer.line2.map(HtmlFormat.escape),
+        Some(HtmlFormat.escape(answer.city)),
+        answer.region.map(HtmlFormat.escape),
+        answer.postal.map(HtmlFormat.escape),
+        Some(HtmlFormat.escape(answer.country.name))
+      ).flatten.map(_.toString).mkString("<br/>")
 
-        SummaryListRowViewModel(
-          key     = "internationalAddress.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.InternationalAddressController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("internationalAddress.change.hidden", businessName))
-          )
+      SummaryListRowViewModel(
+        key     = "internationalAddress.checkYourAnswersLabel",
+        value   = ValueViewModel(HtmlContent(value)),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.InternationalAddressController.onPageLoad(CheckMode).url)
+            .withVisuallyHiddenText(messages("internationalAddress.change.hidden", businessName))
         )
+      )
     }
 }

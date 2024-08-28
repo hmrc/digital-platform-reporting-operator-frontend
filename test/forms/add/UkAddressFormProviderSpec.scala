@@ -17,64 +17,183 @@
 package forms.add
 
 import forms.behaviours.StringFieldBehaviours
+import forms.Validation
+import models.Country
+import org.scalacheck.Gen
 import play.api.data.FormError
 
 class UkAddressFormProviderSpec extends StringFieldBehaviours {
 
-  val businessName = "name"
-  val form = new UkAddressFormProvider()(businessName)
+  private val businessName = "name"
+  private val form = new UkAddressFormProvider()(businessName)
 
   ".line1" - {
 
     val fieldName = "line1"
     val requiredKey = "ukAddress.error.line1.required"
     val lengthKey = "ukAddress.error.line1.length"
-    val maxLength = 100
+    val formatKey = "ukAddress.error.line1.format"
+    val maxLength = 35
 
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      safeTextInputsWithMaxLength(maxLength)
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.textInputPattern.toString))
     )
 
     behave like fieldWithMaxLength(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
+      requiredError = FormError(fieldName, requiredKey)
     )
   }
 
   ".line2" - {
 
     val fieldName = "line2"
-    val requiredKey = "ukAddress.error.line2.required"
     val lengthKey = "ukAddress.error.line2.length"
-    val maxLength = 100
+    val formatKey = "ukAddress.error.line2.format"
+    val maxLength = 35
 
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      safeTextInputsWithMaxLength(maxLength)
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.textInputPattern.toString))
     )
 
     behave like fieldWithMaxLength(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+    )
+  }
+
+  ".town" - {
+
+    val fieldName = "town"
+    val requiredKey = "ukAddress.error.town.required"
+    val lengthKey = "ukAddress.error.town.length"
+    val formatKey = "ukAddress.error.town.format"
+    val maxLength = 35
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      safeTextInputsWithMaxLength(maxLength)
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.textInputPattern.toString))
+    )
+
+    behave like fieldWithMaxLength(
+      form,
+      fieldName,
+      maxLength = maxLength,
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
+
+  ".county" - {
+
+    val fieldName = "county"
+    val lengthKey = "ukAddress.error.county.length"
+    val formatKey = "ukAddress.error.county.format"
+    val maxLength = 35
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      safeTextInputsWithMaxLength(maxLength)
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.textInputPattern.toString))
+    )
+
+    behave like fieldWithMaxLength(
+      form,
+      fieldName,
+      maxLength = maxLength,
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+    )
+  }
+
+  ".postCode" - {
+
+    val fieldName = "postCode"
+    val requiredKey = "ukAddress.error.postCode.required"
+    val formatKey = "ukAddress.error.postCode.format"
+    val maxLength = 8
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      ukPostcodeGen
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.ukPostcodePattern.toString))
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
+
+  ".country" - {
+    val fieldName = "country"
+    val requiredKey = "ukAddress.error.country.required"
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      Gen.oneOf(Country.ukCountries.map(_.code))
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
     )
   }
 }
