@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.{BusinessNamePage, HasInternationalTaxIdentifierPage}
+import pages.add.{BusinessNamePage, HasInternationalTaxIdentifierPage, TaxResidencyCountryPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
@@ -30,6 +30,7 @@ object HasInternationalTaxIdentifierSummary  {
     for {
       answer       <- answers.get(HasInternationalTaxIdentifierPage)
       businessName <- answers.get(BusinessNamePage)
+      country      <- answers.get(TaxResidencyCountryPage)
     } yield {
 
         val value = if (answer) "site.yes" else "site.no"
@@ -39,7 +40,7 @@ object HasInternationalTaxIdentifierSummary  {
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.HasInternationalTaxIdentifierController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("hasInternationalTaxIdentifier.change.hidden", businessName))
+              .withVisuallyHiddenText(messages("hasInternationalTaxIdentifier.change.hidden", businessName, country))
           )
         )
     }

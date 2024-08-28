@@ -27,10 +27,13 @@ object UkTaxIdentifiers extends Enumerable.Implicits {
 
   case object Utr extends WithName("utr") with UkTaxIdentifiers
   case object Crn extends WithName("crn") with UkTaxIdentifiers
+  case object Vrn extends WithName("vrn") with UkTaxIdentifiers
+  case object Empref extends WithName("empref") with UkTaxIdentifiers
+  case object Chrn extends WithName("chrn") with UkTaxIdentifiers
+
 
   val values: Seq[UkTaxIdentifiers] = Seq(
-    Utr,
-    Crn
+    Utr, Crn, Vrn, Empref, Chrn
   )
 
   def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =

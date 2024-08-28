@@ -23,7 +23,7 @@ import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.add.{BusinessNamePage, SecondaryContactPhoneNumberPage}
+import pages.add.{BusinessNamePage, SecondaryContactNamePage, SecondaryContactPhoneNumberPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,10 +36,15 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
 
   private val formProvider = new SecondaryContactPhoneNumberFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val contactName = "contact"
+  private val form = formProvider(contactName)
 
-  lazy val secondaryContactPhoneNumberRoute = routes.SecondaryContactPhoneNumberController.onPageLoad(NormalMode).url
+  private val baseAnswers =
+    emptyUserAnswers
+      .set(BusinessNamePage, businessName).success.value
+      .set(SecondaryContactNamePage, contactName).success.value
+
+  private lazy val secondaryContactPhoneNumberRoute = routes.SecondaryContactPhoneNumberController.onPageLoad(NormalMode).url
 
   "SecondaryContactPhoneNumber Controller" - {
 
@@ -55,7 +60,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val view = application.injector.instanceOf[SecondaryContactPhoneNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +78,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -116,7 +121,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 

@@ -16,18 +16,18 @@
 
 package controllers.add
 
-import controllers.actions._
 import controllers.AnswerExtractor
+import controllers.actions._
 import forms.add.InternationalTaxIdentifierFormProvider
-import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, InternationalTaxIdentifierPage}
+import pages.add.{InternationalTaxIdentifierPage, TaxResidencyCountryPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.InternationalTaxIdentifierView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InternationalTaxIdentifierController @Inject()(
@@ -43,27 +43,27 @@ class InternationalTaxIdentifierController @Inject()(
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(BusinessNamePage) { businessName =>
+    getAnswer(TaxResidencyCountryPage) { country =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(country)
 
       val preparedForm = request.userAnswers.get(InternationalTaxIdentifierPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName))
+       Ok(view(preparedForm, mode, country))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+    getAnswerAsync(TaxResidencyCountryPage) { country =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(country)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, country))),
 
         value =>
           for {

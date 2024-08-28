@@ -23,8 +23,8 @@ import play.api.data.Form
 
 class CanPhoneSecondaryContactFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String): Form[Boolean] =
+  def apply(contactName: String): Form[Boolean] =
     Form(
-      "value" -> boolean("canPhoneSecondaryContact.error.required", args = Seq(businessName))
+      "value" -> boolean("canPhoneSecondaryContact.error.required", args = Seq(contactName))
     )
 }

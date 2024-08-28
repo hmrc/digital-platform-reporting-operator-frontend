@@ -34,6 +34,18 @@ trait AnswerExtractor {
       .map(block(_))
       .getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
+  def getAnswers[A, B](queryA: Gettable[A],
+                       queryB: Gettable[B])
+                      (block: (A, B) => Result)
+                      (implicit request: DataRequest[AnyContent], evA: Reads[A], evB: Reads[B]): Result =
+    request.userAnswers
+      .get(queryA)
+      .flatMap { a =>
+        request.userAnswers
+          .get(queryB)
+          .map(block(a, _))
+      }.getOrElse(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+
   def getAnswerAsync[A](query: Gettable[A])
                        (block: A => Future[Result])
                        (implicit request: DataRequest[AnyContent], ev: Reads[A]): Future[Result] =
@@ -41,4 +53,16 @@ trait AnswerExtractor {
       .get(query)
       .map(block(_))
       .getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+
+  def getAnswersAsync[A, B](queryA: Gettable[A],
+                            queryB: Gettable[B])
+                           (block: (A, B) => Future[Result])
+                           (implicit request: DataRequest[AnyContent], evA: Reads[A], evB: Reads[B]): Future[Result] =
+    request.userAnswers
+      .get(queryA)
+      .flatMap { a =>
+        request.userAnswers
+          .get(queryB)
+          .map(block(a, _))
+      }.getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
 }

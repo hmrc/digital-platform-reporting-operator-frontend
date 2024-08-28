@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.{BusinessNamePage, UtrPage}
+import pages.add.{BusinessNamePage, BusinessTypePage, UtrPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -31,14 +31,15 @@ object UtrSummary  {
     for {
       answer       <- answers.get(UtrPage)
       businessName <- answers.get(BusinessNamePage)
+      businessType <- answers.get(BusinessTypePage)
     } yield {
 
         SummaryListRowViewModel(
-          key     = "utr.checkYourAnswersLabel",
+          key     = s"utr.${businessType.category}.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.UtrController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("utr.change.hidden", businessName))
+              .withVisuallyHiddenText(messages(s"utr.${businessType.category}.change.hidden", businessName))
           )
         )
     }

@@ -20,15 +20,19 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-sealed trait BusinessType
+sealed trait BusinessType {
+  val category: BusinessCategory
+}
 
 object BusinessType extends Enumerable.Implicits {
 
-  case object Limitedcompany extends WithName("limitedCompany") with BusinessType
-  case object Partnership extends WithName("partnership") with BusinessType
+  case object LimitedCompany extends WithName("limitedCompany") with BusinessType { override val category = BusinessCategory.Business }
+  case object Partnership extends WithName("partnership") with BusinessType { override val category = BusinessCategory.Partnership }
+  case object Llp extends WithName("llp") with BusinessType { override val category = BusinessCategory.Partnership }
+  case object AssociationOrTrust extends WithName("associationOrTrust") with BusinessType { override val category = BusinessCategory.Business }
 
   val values: Seq[BusinessType] = Seq(
-    Limitedcompany, Partnership
+    LimitedCompany, Partnership, Llp, AssociationOrTrust
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
@@ -42,4 +46,12 @@ object BusinessType extends Enumerable.Implicits {
 
   implicit val enumerable: Enumerable[BusinessType] =
     Enumerable(values.map(v => v.toString -> v): _*)
+}
+
+sealed trait BusinessCategory
+
+object BusinessCategory {
+
+  case object Business extends WithName("business") with BusinessCategory
+  case object Partnership extends WithName("partnership") with BusinessCategory
 }

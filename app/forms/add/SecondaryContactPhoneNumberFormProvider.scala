@@ -23,9 +23,9 @@ import play.api.data.Form
 
 class SecondaryContactPhoneNumberFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String): Form[String] =
+  def apply(contactName: String): Form[String] =
     Form(
-      "value" -> text("secondaryContactPhoneNumber.error.required", args = Seq(businessName))
-        .verifying(maxLength(100, "secondaryContactPhoneNumber.error.length", args = businessName))
+      "value" -> text("secondaryContactPhoneNumber.error.required", args = Seq(contactName))
+        .verifying(maxLength(100, "secondaryContactPhoneNumber.error.length", args = contactName))
     )
 }

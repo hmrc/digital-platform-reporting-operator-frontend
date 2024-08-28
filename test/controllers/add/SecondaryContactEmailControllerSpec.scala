@@ -23,7 +23,7 @@ import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.add.{BusinessNamePage, SecondaryContactEmailPage}
+import pages.add.{BusinessNamePage, SecondaryContactEmailPage, SecondaryContactNamePage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,10 +36,15 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new SecondaryContactEmailFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val contactName = "contact"
+  private val form = formProvider(contactName)
 
-  lazy val secondaryContactEmailRoute = routes.SecondaryContactEmailController.onPageLoad(NormalMode).url
+  private val baseAnswers =
+    emptyUserAnswers
+      .set(BusinessNamePage, businessName).success.value
+      .set(SecondaryContactNamePage, contactName).success.value
+
+  private lazy val secondaryContactEmailRoute = routes.SecondaryContactEmailController.onPageLoad(NormalMode).url
 
   "SecondaryContactEmail Controller" - {
 
@@ -55,7 +60,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SecondaryContactEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +78,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -116,7 +121,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 

@@ -25,7 +25,8 @@ class HasInternationalTaxIdentifierFormProviderSpec extends BooleanFieldBehaviou
   val invalidKey = "error.boolean"
 
   val businessName = "name"
-  val form = new HasInternationalTaxIdentifierFormProvider()(businessName)
+  val country = "country"
+  val form = new HasInternationalTaxIdentifierFormProvider()(businessName, country)
 
   ".value" - {
 
@@ -34,13 +35,13 @@ class HasInternationalTaxIdentifierFormProviderSpec extends BooleanFieldBehaviou
     behave like booleanField(
       form,
       fieldName,
-      invalidError = FormError(fieldName, invalidKey, Seq(businessName))
+      invalidError = FormError(fieldName, invalidKey, Seq(businessName, country))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName, country))
     )
   }
 }

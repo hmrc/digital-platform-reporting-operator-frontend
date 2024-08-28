@@ -23,8 +23,8 @@ import play.api.data.Form
 
 class HasInternationalTaxIdentifierFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String): Form[Boolean] =
+  def apply(businessName: String, country: String): Form[Boolean] =
     Form(
-      "value" -> boolean("hasInternationalTaxIdentifier.error.required", args = Seq(businessName))
+      "value" -> boolean("hasInternationalTaxIdentifier.error.required", args = Seq(businessName, country))
     )
 }

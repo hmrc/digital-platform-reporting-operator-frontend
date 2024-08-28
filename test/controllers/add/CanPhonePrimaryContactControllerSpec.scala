@@ -23,7 +23,7 @@ import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.add.{BusinessNamePage, CanPhonePrimaryContactPage}
+import pages.add.{BusinessNamePage, CanPhonePrimaryContactPage, PrimaryContactNamePage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,10 +36,15 @@ class CanPhonePrimaryContactControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new CanPhonePrimaryContactFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val contactName = "contact"
+  private val form = formProvider(contactName)
 
-  lazy val canPhonePrimaryContactRoute = routes.CanPhonePrimaryContactController.onPageLoad(NormalMode).url
+  private val baseAnswers =
+    emptyUserAnswers
+      .set(BusinessNamePage, businessName).success.value
+      .set(PrimaryContactNamePage, contactName).success.value
+
+  private lazy val canPhonePrimaryContactRoute = routes.CanPhonePrimaryContactController.onPageLoad(NormalMode).url
 
   "CanPhonePrimaryContact Controller" - {
 
@@ -55,7 +60,7 @@ class CanPhonePrimaryContactControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[CanPhonePrimaryContactView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +78,7 @@ class CanPhonePrimaryContactControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -116,7 +121,7 @@ class CanPhonePrimaryContactControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 

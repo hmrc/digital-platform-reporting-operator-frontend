@@ -23,7 +23,7 @@ import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.add.{BusinessNamePage, HasInternationalTaxIdentifierPage}
+import pages.add.{BusinessNamePage, HasInternationalTaxIdentifierPage, TaxResidencyCountryPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,10 +36,15 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
 
   private val formProvider = new HasInternationalTaxIdentifierFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val country = "country"
+  private val form = formProvider(businessName, country)
 
-  lazy val hasInternationalTaxIdentifierRoute = routes.HasInternationalTaxIdentifierController.onPageLoad(NormalMode).url
+  private val baseAnswers =
+    emptyUserAnswers
+      .set(BusinessNamePage, businessName).success.value
+      .set(TaxResidencyCountryPage, country).success.value
+
+  private lazy val hasInternationalTaxIdentifierRoute = routes.HasInternationalTaxIdentifierController.onPageLoad(NormalMode).url
 
   "HasInternationalTaxIdentifier Controller" - {
 
@@ -55,7 +60,7 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
         val view = application.injector.instanceOf[HasInternationalTaxIdentifierView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName, country)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +78,7 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessName, country)(request, messages(application)).toString
       }
     }
 
@@ -116,7 +121,7 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, country)(request, messages(application)).toString
       }
     }
 
