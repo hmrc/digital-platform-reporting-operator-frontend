@@ -18,8 +18,9 @@ package controllers.add
 
 import controllers.actions._
 import forms.add.BusinessNameFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import pages.add.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -34,7 +35,6 @@ class BusinessNameController @Inject()(
                                         sessionRepository: SessionRepository,
                                         identify: IdentifierAction,
                                         getData: DataRetrievalActionProvider,
-                                        requireData: DataRequiredAction,
                                         formProvider: BusinessNameFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: BusinessNameView
@@ -42,10 +42,10 @@ class BusinessNameController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None)) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(BusinessNamePage) match {
+      val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId, None)).get(BusinessNamePage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
@@ -53,7 +53,7 @@ class BusinessNameController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None)).async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -62,7 +62,7 @@ class BusinessNameController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessNamePage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId, None)).set(BusinessNamePage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(BusinessNamePage.nextPage(mode, updatedAnswers))
       )

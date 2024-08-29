@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package forms.add
+package pages.add
 
-import javax.inject.Inject
+import controllers.add.routes
+import models.{NormalMode, UserAnswers}
+import pages.Page
+import play.api.mvc.Call
 
-import forms.mappings.Mappings
-import play.api.data.Form
+case object StartPage extends Page {
 
-class HasInternationalTaxIdentifierFormProvider @Inject() extends Mappings {
+  override protected def nextPageNormalMode(answers: UserAnswers): Call =
+    routes.BusinessNameController.onPageLoad(NormalMode)
 
-  def apply(businessName: String, country: String): Form[Boolean] =
-    Form(
-      "value" -> boolean("hasInternationalTaxIdentifier.error.required", args = Seq(businessName, country))
-    )
+  override protected def nextPageCheckMode(answers: UserAnswers): Call =
+    routes.CheckYourAnswersController.onPageLoad()
 }

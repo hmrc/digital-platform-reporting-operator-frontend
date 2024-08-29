@@ -19,9 +19,10 @@ package controllers.add
 import controllers.actions._
 import controllers.AnswerExtractor
 import forms.add.HasInternationalTaxIdentifierFormProvider
+
 import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, HasInternationalTaxIdentifierPage}
+import pages.add.{BusinessNamePage, HasInternationalTaxIdentifierPage, TaxResidencyCountryPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,27 +44,27 @@ class HasInternationalTaxIdentifierController @Inject()(
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(BusinessNamePage) { businessName =>
+    getAnswers(BusinessNamePage, TaxResidencyCountryPage) { case (businessName, country) =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(businessName, country)
 
       val preparedForm = request.userAnswers.get(HasInternationalTaxIdentifierPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName))
+       Ok(view(preparedForm, mode, businessName, country))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+    getAnswersAsync(BusinessNamePage, TaxResidencyCountryPage) { case (businessName, country) =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(businessName, country)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, businessName, country))),
 
         value =>
           for {

@@ -17,7 +17,6 @@
 package controllers.add
 
 import base.SpecBase
-import controllers.{routes => baseRoutes}
 import forms.add.BusinessNameFormProvider
 import models.NormalMode
 import org.mockito.ArgumentMatchers.any
@@ -37,7 +36,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
   private val formProvider = new BusinessNameFormProvider()
   private val form = formProvider()
 
-  lazy val businessNameRoute = routes.BusinessNameController.onPageLoad(NormalMode).url
+  private lazy val businessNameRoute = routes.BusinessNameController.onPageLoad(NormalMode).url
 
   "BusinessName Controller" - {
 
@@ -118,7 +117,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must show the correct view for a GET if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
 
@@ -127,14 +126,23 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad().url
+        val view = application.injector.instanceOf[BusinessNameView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+    "must redirect to the next page for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = None)
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
 
       running(application) {
         val request =
@@ -144,7 +152,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual BusinessNamePage.nextPage(NormalMode, emptyUserAnswers).url
       }
     }
   }

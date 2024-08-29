@@ -19,9 +19,10 @@ package controllers.add
 import controllers.actions._
 import controllers.AnswerExtractor
 import forms.add.CanPhoneSecondaryContactFormProvider
+
 import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, CanPhoneSecondaryContactPage}
+import pages.add.{BusinessNamePage, CanPhoneSecondaryContactPage, SecondaryContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,27 +44,27 @@ class CanPhoneSecondaryContactController @Inject()(
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(BusinessNamePage) { businessName =>
+    getAnswers(BusinessNamePage, SecondaryContactNamePage) { case (businessName, contactName) =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(contactName)
 
       val preparedForm = request.userAnswers.get(CanPhoneSecondaryContactPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName))
+       Ok(view(preparedForm, mode, businessName, contactName))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+    getAnswersAsync(BusinessNamePage, SecondaryContactNamePage) { case (businessName, contactName) =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(contactName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, businessName, contactName))),
 
         value =>
           for {

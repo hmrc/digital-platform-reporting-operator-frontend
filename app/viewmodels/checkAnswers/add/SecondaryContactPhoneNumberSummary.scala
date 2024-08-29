@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.{BusinessNamePage, SecondaryContactPhoneNumberPage}
+import pages.add.{SecondaryContactNamePage, SecondaryContactPhoneNumberPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -29,8 +29,8 @@ object SecondaryContactPhoneNumberSummary  {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     for {
-      answer       <- answers.get(SecondaryContactPhoneNumberPage)
-      businessName <- answers.get(BusinessNamePage)
+      answer      <- answers.get(SecondaryContactPhoneNumberPage)
+      contactName <- answers.get(SecondaryContactNamePage)
     } yield {
 
         SummaryListRowViewModel(
@@ -38,7 +38,7 @@ object SecondaryContactPhoneNumberSummary  {
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.SecondaryContactPhoneNumberController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("secondaryContactPhoneNumber.change.hidden", businessName))
+              .withVisuallyHiddenText(messages("secondaryContactPhoneNumber.change.hidden", contactName))
           )
         )
     }

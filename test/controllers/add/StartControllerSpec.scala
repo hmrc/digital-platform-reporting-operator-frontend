@@ -17,6 +17,8 @@
 package controllers.add
 
 import base.SpecBase
+import models.NormalMode
+import pages.add.StartPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.add.StartView
@@ -27,7 +29,7 @@ class StartControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.StartController.onPageLoad().url)
@@ -38,6 +40,20 @@ class StartControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to the next page for a POST" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.StartController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual StartPage.nextPage(NormalMode, emptyUserAnswers).url
       }
     }
   }

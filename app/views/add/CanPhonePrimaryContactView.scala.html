@@ -24,7 +24,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, businessName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, businessName: String, contactName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("canPhonePrimaryContact.title"))) {
 
@@ -34,10 +34,14 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-xl">@messages("canPhonePrimaryContact.heading", contactName)</h1>
+
+        <p class="govuk-body">@messages("canPhonePrimaryContact.p1", businessName)</p>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("canPhonePrimaryContact.heading", businessName)).asPageHeading()
+                legend = LegendViewModel(messages("canPhonePrimaryContact.heading", contactName)).visuallyHidden()
             )
         )
 

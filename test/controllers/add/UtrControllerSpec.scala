@@ -19,11 +19,12 @@ package controllers.add
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.add.UtrFormProvider
-import models.NormalMode
+import models.{BusinessType, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
-import pages.add.{BusinessNamePage, UtrPage}
+import pages.add.{BusinessNamePage, BusinessTypePage, UtrPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -36,10 +37,15 @@ class UtrControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new UtrFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val businessType = Gen.oneOf(BusinessType.values).sample.value
+  private val form = formProvider(businessName, businessType)
 
-  lazy val utrRoute = routes.UtrController.onPageLoad(NormalMode).url
+  private val baseAnswers =
+    emptyUserAnswers
+      .set(BusinessNamePage, businessName).success.value
+      .set(BusinessTypePage, businessType).success.value
+
+  private lazy val utrRoute = routes.UtrController.onPageLoad(NormalMode).url
 
   "Utr Controller" - {
 
@@ -55,7 +61,7 @@ class UtrControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[UtrView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName, businessType)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +79,7 @@ class UtrControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName, businessType)(request, messages(application)).toString
       }
     }
 
@@ -116,7 +122,7 @@ class UtrControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, businessType)(request, messages(application)).toString
       }
     }
 

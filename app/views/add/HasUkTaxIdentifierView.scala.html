@@ -34,10 +34,14 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-xl">@messages("hasUkTaxIdentifier.heading", businessName)</h1>
+
+        <p class="govuk-body">@messages("hasUkTaxIdentifier.p1")</p>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("hasUkTaxIdentifier.heading", businessName)).asPageHeading()
+                legend = LegendViewModel(messages("hasUkTaxIdentifier.heading", businessName)).visuallyHidden()
             )
         )
 

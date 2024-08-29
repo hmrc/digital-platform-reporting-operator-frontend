@@ -17,15 +17,15 @@
 package forms.add
 
 import javax.inject.Inject
-
 import forms.mappings.Mappings
+import models.BusinessType
 import play.api.data.Form
 
 class UtrFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String): Form[String] =
+  def apply(businessName: String, businessType: BusinessType): Form[String] =
     Form(
-      "value" -> text("utr.error.required", args = Seq(businessName))
-        .verifying(maxLength(100, "utr.error.length", args = businessName))
+      "value" -> text(s"utr.${businessType.category}.error.required", args = Seq(businessName))
+        .verifying(maxLength(100, s"utr.${businessType.category}.error.length", args = businessName))
     )
 }

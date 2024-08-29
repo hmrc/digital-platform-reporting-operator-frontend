@@ -16,18 +16,18 @@
 
 package controllers.add
 
-import controllers.actions._
 import controllers.AnswerExtractor
+import controllers.actions._
 import forms.add.HasSecondaryContactFormProvider
-import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, HasSecondaryContactPage}
+import pages.add.{HasSecondaryContactPage, PrimaryContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.HasSecondaryContactView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HasSecondaryContactController @Inject()(
@@ -43,27 +43,27 @@ class HasSecondaryContactController @Inject()(
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(BusinessNamePage) { businessName =>
+    getAnswer(PrimaryContactNamePage) { primaryContactName =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(primaryContactName)
 
       val preparedForm = request.userAnswers.get(HasSecondaryContactPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName))
+       Ok(view(preparedForm, mode, primaryContactName))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+    getAnswerAsync(PrimaryContactNamePage) { primaryContactName =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(primaryContactName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, primaryContactName))),
 
         value =>
           for {

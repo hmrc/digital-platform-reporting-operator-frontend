@@ -19,9 +19,10 @@ package controllers.add
 import controllers.actions._
 import controllers.AnswerExtractor
 import forms.add.PrimaryContactEmailFormProvider
+
 import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
+import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,27 +44,27 @@ class PrimaryContactEmailController @Inject()(
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(BusinessNamePage) { businessName =>
+    getAnswers(BusinessNamePage, PrimaryContactNamePage) { case (businessName, contactName) =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(contactName)
 
       val preparedForm = request.userAnswers.get(PrimaryContactEmailPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName))
+       Ok(view(preparedForm, mode, businessName, contactName))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+    getAnswersAsync(BusinessNamePage, PrimaryContactNamePage) { case (businessName, contactName) =>
 
-      val form = formProvider(businessName)
+      val form = formProvider(contactName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, businessName, contactName))),
 
         value =>
           for {

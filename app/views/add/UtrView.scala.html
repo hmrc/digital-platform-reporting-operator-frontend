@@ -25,9 +25,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, businessName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, businessName: String, businessType: BusinessType)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("utr.title"))) {
+@layout(pageTitle = title(form, messages(s"utr.${businessType.category}.title"))) {
 
     @formHelper(action = routes.UtrController.onSubmit(mode)) {
 
@@ -38,9 +38,10 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("utr.heading", businessName)).asPageHeading()
+                label = LabelViewModel(messages(s"utr.${businessType.category}.heading", businessName)).asPageHeading()
             )
             .withWidth(Full)
+            .withHint(HintViewModel(messages(s"utr.${businessType.category}.hint")))
         )
 
         @govukButton(

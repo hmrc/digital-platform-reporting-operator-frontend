@@ -17,16 +17,20 @@
 package forms.add
 
 import forms.behaviours.StringFieldBehaviours
+import models.BusinessType
+import org.scalacheck.Gen
 import play.api.data.FormError
 
 class UtrFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "utr.error.required"
-  val lengthKey = "utr.error.length"
-  val maxLength = 100
 
-  val businessName = "name"
-  val form = new UtrFormProvider()(businessName)
+  private val businessName = "name"
+  private val businessType = Gen.oneOf(BusinessType.values).sample.value
+  private val form = new UtrFormProvider()(businessName, businessType)
+
+  private val requiredKey = s"utr.${businessType.category}.error.required"
+  private val lengthKey = s"utr.${businessType.category}.error.length"
+  private val maxLength = 100
 
   ".value" - {
 
