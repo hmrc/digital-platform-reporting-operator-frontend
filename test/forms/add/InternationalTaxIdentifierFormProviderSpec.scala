@@ -17,16 +17,17 @@
 package forms.add
 
 import forms.behaviours.StringFieldBehaviours
+import models.Country
 import play.api.data.FormError
 
 class InternationalTaxIdentifierFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "internationalTaxIdentifier.error.required"
-  val lengthKey = "internationalTaxIdentifier.error.length"
-  val maxLength = 10
+  private val requiredKey = "internationalTaxIdentifier.error.required"
+  private val lengthKey = "internationalTaxIdentifier.error.length"
+  private val maxLength = 10
 
-  val country = "country"
-  val form = new InternationalTaxIdentifierFormProvider()(country)
+  private val country = Country.internationalCountries.head
+  private val form = new InternationalTaxIdentifierFormProvider()(country)
 
   ".value" - {
 
@@ -42,13 +43,13 @@ class InternationalTaxIdentifierFormProviderSpec extends StringFieldBehaviours {
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, country))
+      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, country.name))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(country))
+      requiredError = FormError(fieldName, requiredKey, Seq(country.name))
     )
   }
 }

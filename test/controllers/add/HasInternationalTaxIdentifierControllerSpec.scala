@@ -19,7 +19,7 @@ package controllers.add
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.add.HasInternationalTaxIdentifierFormProvider
-import models.NormalMode
+import models.{Country, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,7 +36,7 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
 
   private val formProvider = new HasInternationalTaxIdentifierFormProvider()
   private val businessName = "name"
-  private val country = "country"
+  private val country = Country.internationalCountries.head
   private val form = formProvider(businessName, country)
 
   private val baseAnswers =

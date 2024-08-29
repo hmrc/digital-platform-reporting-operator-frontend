@@ -40,7 +40,7 @@ object HasInternationalTaxIdentifierSummary  {
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.HasInternationalTaxIdentifierController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("hasInternationalTaxIdentifier.change.hidden", businessName, country))
+              .withVisuallyHiddenText(messages("hasInternationalTaxIdentifier.change.hidden", businessName, country.name))
           )
         )
     }

@@ -17,14 +17,14 @@
 package forms.add
 
 import javax.inject.Inject
-
 import forms.mappings.Mappings
+import models.Country
 import play.api.data.Form
 
 class HasInternationalTaxIdentifierFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String, country: String): Form[Boolean] =
+  def apply(businessName: String, country: Country): Form[Boolean] =
     Form(
-      "value" -> boolean("hasInternationalTaxIdentifier.error.required", args = Seq(businessName, country))
+      "value" -> boolean("hasInternationalTaxIdentifier.error.required", args = Seq(businessName, country.name))
     )
 }
