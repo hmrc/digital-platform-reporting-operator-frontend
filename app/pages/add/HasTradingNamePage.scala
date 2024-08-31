@@ -16,8 +16,9 @@
 
 package pages.add
 
-import controllers.routes
-import models.UserAnswers
+import controllers.add.routes
+import controllers.{routes => baseRoutes}
+import models.{CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +29,19 @@ case object HasTradingNamePage extends AddQuestionPage[Boolean] {
   override def toString: String = "hasTradingName"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    answers.get(this).map {
+      case true  => routes.TradingNameController.onPageLoad(NormalMode)
+      case false => routes.TaxResidentInUkController.onPageLoad(NormalMode)
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  protected override def nextPageCheckMode(answers: UserAnswers): Call =
+    answers.get(this).map {
+      case true =>
+        answers.get(TradingNamePage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad())
+          .getOrElse(routes.TradingNameController.onPageLoad(CheckMode))
+
+      case false =>
+        routes.CheckYourAnswersController.onPageLoad()
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 }

@@ -30,9 +30,9 @@ class UkAddressPageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Primary Contact Name" in {
 
-        UkAddressPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        UkAddressPage.nextPage(NormalMode, emptyAnswers) mustEqual routes.PrimaryContactNameController.onPageLoad(NormalMode)
       }
     }
 

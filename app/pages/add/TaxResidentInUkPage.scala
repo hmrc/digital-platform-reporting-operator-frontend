@@ -16,8 +16,9 @@
 
 package pages.add
 
-import controllers.routes
-import models.UserAnswers
+import controllers.add.routes
+import controllers.{routes => baseRoutes}
+import models.{CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +29,21 @@ case object TaxResidentInUkPage extends AddQuestionPage[Boolean] {
   override def toString: String = "taxResidentInUk"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    answers.get(this).map {
+      case true  => routes.HasUkTaxIdentifierController.onPageLoad(NormalMode)
+      case false => routes.TaxResidencyCountryController.onPageLoad(NormalMode)
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override protected def nextPageCheckMode(answers: UserAnswers): Call =
+    answers.get(this).map {
+      case true =>
+        answers.get(HasUkTaxIdentifierPage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad())
+          .getOrElse(routes.HasUkTaxIdentifierController.onPageLoad(CheckMode))
+
+      case false =>
+        answers.get(TaxResidencyCountryPage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad())
+          .getOrElse(routes.TaxResidencyCountryController.onPageLoad(CheckMode))
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 }

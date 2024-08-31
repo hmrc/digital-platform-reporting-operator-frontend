@@ -17,12 +17,20 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{BusinessType, CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.UkTaxIdentifiers._
+import org.scalacheck.Gen
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class UkTaxIdentifiersPageSpec extends AnyFreeSpec with Matchers {
+class UkTaxIdentifiersPageSpec
+  extends AnyFreeSpec
+    with Matchers
+    with TryValues
+    with OptionValues
+    with ScalaCheckPropertyChecks {
 
   ".nextPage" - {
 
@@ -30,17 +38,229 @@ class UkTaxIdentifiersPageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Business Type when UTR is chosen" in {
 
-        UkTaxIdentifiersPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+          identifiers <- Gen.listOf(Gen.oneOf(values))
+        } yield identifiers.toSet + Utr
+
+        forAll(identifierGen) { identifiers =>
+
+          val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+          UkTaxIdentifiersPage.nextPage(NormalMode, answers) mustEqual routes.BusinessTypeController.onPageLoad(NormalMode)
+        }
+      }
+
+      "must go to CRN when CRN is selected and UTR is not selected" in {
+
+        val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+          identifiers <- Gen.listOf(Gen.oneOf(values))
+        } yield identifiers.toSet + Crn - Utr
+
+        forAll(identifierGen) { identifiers =>
+
+          val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+          UkTaxIdentifiersPage.nextPage(NormalMode, answers) mustEqual routes.CrnController.onPageLoad(NormalMode)
+        }
+      }
+
+      "must go to VRN when VRN is selected and neither UTR nor CRN is selected" in {
+
+        val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+          identifiers <- Gen.listOf(Gen.oneOf(values))
+        } yield identifiers.toSet + Vrn - Crn - Utr
+
+        forAll(identifierGen) { identifiers =>
+
+          val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+          UkTaxIdentifiersPage.nextPage(NormalMode, answers) mustEqual routes.VrnController.onPageLoad(NormalMode)
+        }
+      }
+
+      "must go to EMPREF when EMPREF is selected and neither UTR, CRN nor VRN is selected" in {
+
+        val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+          maybeChrn <- Gen.option(Chrn)
+        } yield maybeChrn.map(Set[UkTaxIdentifiers](_)).getOrElse(Set.empty[UkTaxIdentifiers]) + Empref
+
+        forAll(identifierGen) { identifiers =>
+
+          val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+          UkTaxIdentifiersPage.nextPage(NormalMode, answers) mustEqual routes.EmprefController.onPageLoad(NormalMode)
+        }
+      }
+
+      "must go to CHRN when only CHRN is selected" in {
+
+        val answers = emptyAnswers.set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Chrn)).success.value
+        UkTaxIdentifiersPage.nextPage(NormalMode, answers) mustEqual routes.ChrnController.onPageLoad(NormalMode)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Business Type when UTR is selected and Business Type is not answered" in {
 
-        UkTaxIdentifiersPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+          identifiers <- Gen.listOf(Gen.oneOf(values))
+        } yield identifiers.toSet + Utr
+
+        forAll(identifierGen) { identifiers =>
+
+          val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+          UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.BusinessTypeController.onPageLoad(CheckMode)
+        }
+      }
+
+      "must go to CRN when CRN is selected and has not been answered" - {
+
+        "and UTR is not selected" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet + Crn - Utr
+
+          forAll(identifierGen) { identifiers =>
+
+            val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.CrnController.onPageLoad(CheckMode)
+          }
+        }
+
+        "and UTR is selected and business type has been answered" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet + Crn + Utr
+
+          forAll(identifierGen) { identifiers =>
+
+            val answers =
+              emptyAnswers
+                .set(UkTaxIdentifiersPage, identifiers).success.value
+                .set(BusinessTypePage, BusinessType.Llp).success.value
+
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.CrnController.onPageLoad(CheckMode)
+          }
+        }
+      }
+
+      "must go to VRN when VRN is selected and has not been answered" - {
+
+        "and UTR and CRN are not selected" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet + Vrn - Crn - Utr
+
+          forAll(identifierGen) { identifiers =>
+
+            val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.VrnController.onPageLoad(CheckMode)
+          }
+        }
+
+        "and UTR and CRN are selected, and Business Type and CRN are answered" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet + Vrn + Crn + Utr
+
+          forAll(identifierGen) { identifiers =>
+
+            val answers =
+              emptyAnswers
+                .set(UkTaxIdentifiersPage, identifiers).success.value
+                .set(BusinessTypePage, BusinessType.Llp).success.value
+                .set(CrnPage, "crn").success.value
+
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.VrnController.onPageLoad(CheckMode)
+          }
+        }
+      }
+
+      "must go to EMPREF when EMPREF is selected and has not been answered" - {
+
+        "and UTR, CRN and VRN are not selected" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet + Empref - Crn - Utr - Vrn
+
+          forAll(identifierGen) { identifiers =>
+
+            val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.EmprefController.onPageLoad(CheckMode)
+          }
+        }
+
+        "and UTR, CRN and VRN are selected and Business Type, CRN and VRN are answered" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet + Empref + Vrn + Crn + Utr
+
+          forAll(identifierGen) { identifiers =>
+
+            val answers =
+              emptyAnswers
+                .set(UkTaxIdentifiersPage, identifiers).success.value
+                .set(BusinessTypePage, BusinessType.Llp).success.value
+                .set(CrnPage, "crn").success.value
+                .set(VrnPage, "vrn").success.value
+
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.EmprefController.onPageLoad(CheckMode)
+          }
+        }
+      }
+
+      "must go to CHRN when CHRN is selected and has not been answered" - {
+
+        "and UTR, CRN, VRN and EMPREF are not selected" in {
+
+          val answers = emptyAnswers.set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Chrn)).success.value
+          UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.ChrnController.onPageLoad(CheckMode)
+        }
+
+        "and UTR, CRN, VRN and EMPREF are selected and Business Type, CRN, VRN and EMPREF are answered" in {
+
+          val answers =
+            emptyAnswers
+              .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr, Crn, Vrn, Empref, Chrn)).success.value
+              .set(BusinessTypePage, BusinessType.Llp).success.value
+              .set(CrnPage, "crn").success.value
+              .set(VrnPage, "vrn").success.value
+              .set(EmprefPage, "empref").success.value
+
+          UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.ChrnController.onPageLoad(CheckMode)
+        }
+      }
+
+      "must go to Check Answers" - {
+
+        "when all selected options have been answered" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet
+
+          forAll(identifierGen) { identifiers =>
+
+            val baseAnswers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+
+            val answers = identifiers.foldLeft(baseAnswers) { (acc, next) =>
+              next match {
+                case Utr    => acc.set(BusinessTypePage, BusinessType.Partnership).success.value
+                case Crn    => acc.set(CrnPage, "crn").success.value
+                case Vrn    => acc.set(VrnPage, "vrn").success.value
+                case Empref => acc.set(EmprefPage, "empref").success.value
+                case Chrn   => acc.set(ChrnPage, "chrn").success.value
+              }
+            }
+
+            UkTaxIdentifiersPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+          }
+        }
       }
     }
   }

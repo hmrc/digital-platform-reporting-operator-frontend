@@ -17,12 +17,20 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.UkTaxIdentifiers.{Chrn, Crn, Empref, Utr, Vrn, values}
+import models.{BusinessType, CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
+import org.scalacheck.Gen
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class EmprefPageSpec extends AnyFreeSpec with Matchers {
+class EmprefPageSpec
+  extends AnyFreeSpec
+    with Matchers
+    with TryValues
+    with OptionValues
+    with ScalaCheckPropertyChecks {
 
   ".nextPage" - {
 
@@ -30,17 +38,52 @@ class EmprefPageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to CHRN if CHRN was selected" in {
 
-        EmprefPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val answers = emptyAnswers.set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr, Crn, Vrn, Empref, Chrn)).success.value
+        EmprefPage.nextPage(NormalMode, answers) mustEqual routes.ChrnController.onPageLoad(NormalMode)
+      }
+
+      "must go to Registered in UK when no later tax identifiers were selected" in {
+
+        val answers = emptyAnswers.set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr, Crn, Vrn, Empref)).success.value
+        EmprefPage.nextPage(NormalMode, answers) mustEqual routes.RegisteredInUkController.onPageLoad(NormalMode)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to CHRN when CHRN is selected and has not been answered" in {
 
-        EmprefPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        val answers = emptyAnswers.set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr, Crn, Vrn, Chrn)).success.value
+        EmprefPage.nextPage(CheckMode, answers) mustEqual routes.ChrnController.onPageLoad(CheckMode)
+      }
+
+      "must go to Check Answers" - {
+
+        "when all selected options have been answered" in {
+
+          val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
+            identifiers <- Gen.listOf(Gen.oneOf(values))
+          } yield identifiers.toSet
+
+          forAll(identifierGen) { identifiers =>
+
+            val baseAnswers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
+
+            val answers = identifiers.foldLeft(baseAnswers) { (acc, next) =>
+              next match {
+                case Utr    => acc.set(BusinessTypePage, BusinessType.Partnership).success.value
+                case Crn    => acc.set(CrnPage, "crn").success.value
+                case Vrn    => acc.set(VrnPage, "vrn").success.value
+                case Empref => acc.set(EmprefPage, "empref").success.value
+                case Chrn   => acc.set(ChrnPage, "chrn").success.value
+              }
+            }
+
+            EmprefPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+          }
+        }
       }
     }
   }

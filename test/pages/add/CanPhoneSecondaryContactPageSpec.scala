@@ -17,12 +17,12 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class CanPhoneSecondaryContactPageSpec extends AnyFreeSpec with Matchers {
+class CanPhoneSecondaryContactPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
@@ -30,17 +30,44 @@ class CanPhoneSecondaryContactPageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Secondary Contact Phone Number when the answer is yes" in {
 
-        CanPhoneSecondaryContactPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val answers = emptyAnswers.set(CanPhoneSecondaryContactPage, true).success.value
+        CanPhoneSecondaryContactPage.nextPage(NormalMode, answers) mustEqual routes.SecondaryContactPhoneNumberController.onPageLoad(NormalMode)
+      }
+
+      "must go to Check Your Answers when the answer is no" in {
+
+        val answers = emptyAnswers.set(CanPhoneSecondaryContactPage, false).success.value
+        CanPhoneSecondaryContactPage.nextPage(NormalMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers" - {
 
-        CanPhoneSecondaryContactPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        "when the answer is no" in {
+
+          val answers = emptyAnswers.set(CanPhoneSecondaryContactPage, false).success.value
+          CanPhoneSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "when the answer is yes and Secondary Contact Phone Number is answered" in {
+
+          val answers =
+            emptyAnswers
+              .set(CanPhoneSecondaryContactPage, true).success.value
+              .set(SecondaryContactPhoneNumberPage, "phone").success.value
+
+          CanPhoneSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
+      }
+
+      "must go to Secondary Contact Phone Number when the answer is yes and Secondary Contact Phone Number is not answered" in {
+
+        val answers = emptyAnswers.set(CanPhoneSecondaryContactPage, true).success.value
+        CanPhoneSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.SecondaryContactPhoneNumberController.onPageLoad(CheckMode)
       }
     }
   }

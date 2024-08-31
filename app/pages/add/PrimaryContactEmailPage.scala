@@ -16,8 +16,8 @@
 
 package pages.add
 
-import controllers.routes
-import models.UserAnswers
+import controllers.add.routes
+import models.{NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +28,5 @@ case object PrimaryContactEmailPage extends AddQuestionPage[String] {
   override def toString: String = "primaryContactEmail"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    routes.CanPhonePrimaryContactController.onPageLoad(NormalMode)
 }

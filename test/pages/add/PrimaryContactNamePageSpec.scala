@@ -17,7 +17,6 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -30,9 +29,9 @@ class PrimaryContactNamePageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Primary Contact Email Address" in {
 
-        PrimaryContactNamePage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        PrimaryContactNamePage.nextPage(NormalMode, emptyAnswers) mustEqual routes.PrimaryContactEmailController.onPageLoad(NormalMode)
       }
     }
 

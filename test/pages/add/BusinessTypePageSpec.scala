@@ -17,12 +17,12 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class BusinessTypePageSpec extends AnyFreeSpec with Matchers {
+class BusinessTypePageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
@@ -30,17 +30,23 @@ class BusinessTypePageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to UTR" in {
 
-        BusinessTypePage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        BusinessTypePage.nextPage(NormalMode, emptyAnswers) mustEqual routes.UtrController.onPageLoad(NormalMode)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers when UTR has been answered" in {
 
-        BusinessTypePage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        val answers = emptyAnswers.set(UtrPage, "utr").success.value
+        BusinessTypePage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go to UTR when UTR has not been answered" in {
+
+        BusinessTypePage.nextPage(CheckMode, emptyAnswers) mustEqual routes.UtrController.onPageLoad(CheckMode)
       }
     }
   }

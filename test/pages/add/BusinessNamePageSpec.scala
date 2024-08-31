@@ -30,9 +30,9 @@ class BusinessNamePageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Has Trading Name" in {
 
-        BusinessNamePage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        BusinessNamePage.nextPage(NormalMode, emptyAnswers) mustEqual routes.HasTradingNameController.onPageLoad(NormalMode)
       }
     }
 

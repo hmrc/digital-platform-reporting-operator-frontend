@@ -16,8 +16,8 @@
 
 package pages.add
 
-import controllers.routes
-import models.{Country, UserAnswers}
+import controllers.add.routes
+import models.{Country, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +28,5 @@ case object TaxResidencyCountryPage extends AddQuestionPage[Country] {
   override def toString: String = "taxResidencyCountry"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    routes.HasInternationalTaxIdentifierController.onPageLoad(NormalMode)
 }

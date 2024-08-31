@@ -16,8 +16,9 @@
 
 package pages.add
 
-import controllers.routes
-import models.UserAnswers
+import controllers.add.routes
+import controllers.{routes => baseRoutes}
+import models.{CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +29,21 @@ case object RegisteredInUkPage extends AddQuestionPage[Boolean] {
   override def toString: String = "registeredInUk"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    answers.get(this).map {
+      case true  => routes.UkAddressController.onPageLoad(NormalMode)
+      case false => routes.InternationalAddressController.onPageLoad(NormalMode)
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override protected def nextPageCheckMode(answers: UserAnswers): Call =
+    answers.get(this).map {
+      case true =>
+        answers.get(UkAddressPage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad())
+          .getOrElse(routes.UkAddressController.onPageLoad(CheckMode))
+
+      case false =>
+        answers.get(InternationalAddressPage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad())
+          .getOrElse(routes.InternationalAddressController.onPageLoad(CheckMode))
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 }
