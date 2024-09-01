@@ -24,9 +24,9 @@ import org.scalatest.{OptionValues, TryValues}
 
 class HasSecondaryContactPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -69,6 +69,43 @@ class HasSecondaryContactPageSpec extends AnyFreeSpec with Matchers with TryValu
         val answers = emptyAnswers.set(HasSecondaryContactPage, true).success.value
         HasSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.SecondaryContactNameController.onPageLoad(CheckMode)
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove secondary contact details when the answer is no" in {
+
+      val answers =
+        emptyAnswers
+          .set(SecondaryContactNamePage, "name").success.value
+          .set(SecondaryContactEmailPage, "email").success.value
+          .set(CanPhoneSecondaryContactPage, true).success.value
+          .set(SecondaryContactPhoneNumberPage, "phone").success.value
+
+      val result = answers.set(HasSecondaryContactPage, false).success.value
+
+      result.get(SecondaryContactNamePage)        must not be defined
+      result.get(SecondaryContactEmailPage)       must not be defined
+      result.get(CanPhoneSecondaryContactPage)    must not be defined
+      result.get(SecondaryContactPhoneNumberPage) must not be defined
+    }
+
+    "must not remove secondary contact details when the answer is yes" in {
+
+      val answers =
+        emptyAnswers
+          .set(SecondaryContactNamePage, "name").success.value
+          .set(SecondaryContactEmailPage, "email").success.value
+          .set(CanPhoneSecondaryContactPage, true).success.value
+          .set(SecondaryContactPhoneNumberPage, "phone").success.value
+
+      val result = answers.set(HasSecondaryContactPage, true).success.value
+
+      result.get(SecondaryContactNamePage)        mustBe defined
+      result.get(SecondaryContactEmailPage)       mustBe defined
+      result.get(CanPhoneSecondaryContactPage)    mustBe defined
+      result.get(SecondaryContactPhoneNumberPage) mustBe defined
     }
   }
 }

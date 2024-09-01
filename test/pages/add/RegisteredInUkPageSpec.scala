@@ -17,17 +17,16 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, Country, InternationalAddress, NormalMode, UkAddress, UserAnswers}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
 class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -80,6 +79,36 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
         val answers = emptyAnswers.set(RegisteredInUkPage, false).success.value
         RegisteredInUkPage.nextPage(CheckMode, answers) mustEqual routes.InternationalAddressController.onPageLoad(CheckMode)
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove UK address when the answer is no" in {
+
+      val answers =
+        emptyAnswers
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, None, Country.internationalCountries.head)).success.value
+
+      val result = answers.set(RegisteredInUkPage, false).success.value
+
+      result.get(UkAddressPage) must not be defined
+      result.get(InternationalAddressPage) mustBe defined
+    }
+
+
+    "must remove International address when the answer is yes" in {
+
+      val answers =
+        emptyAnswers
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, None, Country.internationalCountries.head)).success.value
+
+      val result = answers.set(RegisteredInUkPage, true).success.value
+
+      result.get(UkAddressPage) mustBe defined
+      result.get(InternationalAddressPage) must not be defined
     }
   }
 }

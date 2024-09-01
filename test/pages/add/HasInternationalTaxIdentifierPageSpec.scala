@@ -24,9 +24,9 @@ import org.scalatest.{OptionValues, TryValues}
 
 class HasInternationalTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -69,6 +69,27 @@ class HasInternationalTaxIdentifierPageSpec extends AnyFreeSpec with Matchers wi
         val answers = emptyAnswers.set(HasInternationalTaxIdentifierPage, true).success.value
         HasInternationalTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.InternationalTaxIdentifierController.onPageLoad(CheckMode)
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove International Tax Identifier when the answer is no" in {
+
+      val answers = emptyAnswers.set(InternationalTaxIdentifierPage, "id").success.value
+
+      val result = answers.set(HasInternationalTaxIdentifierPage, false).success.value
+
+      result.get(InternationalTaxIdentifierPage) must not be defined
+    }
+
+    "must not remove International Tax Identifier when the answer is yes" in {
+
+      val answers = emptyAnswers.set(InternationalTaxIdentifierPage, "id").success.value
+
+      val result = answers.set(HasInternationalTaxIdentifierPage, true).success.value
+
+      result.get(InternationalTaxIdentifierPage) mustBe defined
     }
   }
 }

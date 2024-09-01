@@ -24,9 +24,9 @@ import org.scalatest.{OptionValues, TryValues}
 
 class HasTradingNamePageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -69,6 +69,27 @@ class HasTradingNamePageSpec extends AnyFreeSpec with Matchers with TryValues wi
         val answers = emptyAnswers.set(HasTradingNamePage, true).success.value
         HasTradingNamePage.nextPage(CheckMode, answers) mustEqual routes.TradingNameController.onPageLoad(CheckMode)
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove Trading Name when the answer is no" in {
+
+      val answers = emptyAnswers.set(TradingNamePage, "name").success.value
+
+      val result = answers.set(HasTradingNamePage, false).success.value
+
+      result.get(TradingNamePage) must not be defined
+    }
+
+    "must not remove Trading Name when the answer is yes" in {
+
+      val answers = emptyAnswers.set(TradingNamePage, "name").success.value
+
+      val result = answers.set(HasTradingNamePage, true).success.value
+
+      result.get(TradingNamePage) mustBe defined
     }
   }
 }

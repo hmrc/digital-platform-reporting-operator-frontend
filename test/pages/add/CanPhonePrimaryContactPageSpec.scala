@@ -24,9 +24,9 @@ import org.scalatest.{OptionValues, TryValues}
 
 class CanPhonePrimaryContactPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -69,6 +69,27 @@ class CanPhonePrimaryContactPageSpec extends AnyFreeSpec with Matchers with TryV
         val answers = emptyAnswers.set(CanPhonePrimaryContactPage, true).success.value
         CanPhonePrimaryContactPage.nextPage(CheckMode, answers) mustEqual routes.PrimaryContactPhoneNumberController.onPageLoad(CheckMode)
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove Primary Contact Phone Number when the answer is no" in {
+
+      val answers = emptyAnswers.set(PrimaryContactPhoneNumberPage, "phone").success.value
+
+      val result = answers.set(CanPhonePrimaryContactPage, false).success.value
+
+      result.get(PrimaryContactPhoneNumberPage) must not be defined
+    }
+
+    "must not remove Primary Contact Phone Number when the answer is yes" in {
+
+      val answers = emptyAnswers.set(PrimaryContactPhoneNumberPage, "phone").success.value
+
+      val result = answers.set(CanPhonePrimaryContactPage, true).success.value
+
+      result.get(PrimaryContactPhoneNumberPage) mustBe defined
     }
   }
 }

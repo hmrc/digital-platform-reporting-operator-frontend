@@ -17,16 +17,17 @@
 package pages.add
 
 import controllers.add.routes
-import models.{CheckMode, Country, NormalMode, UserAnswers}
+import models.{BusinessType, CheckMode, Country, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.UkTaxIdentifiers._
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 
 class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -79,6 +80,71 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
         val answers = emptyAnswers.set(TaxResidentInUkPage, false).success.value
         TaxResidentInUkPage.nextPage(CheckMode, answers) mustEqual routes.TaxResidencyCountryController.onPageLoad(CheckMode)
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove Tax Residency Country, Has International Tax Identifier, and International Tax Identifier when the answer is yes" in {
+
+      val answers =
+        emptyAnswers
+          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(HasInternationalTaxIdentifierPage, true).success.value
+          .set(InternationalTaxIdentifierPage, "id").success.value
+          .set(HasUkTaxIdentifierPage, true).success.value
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(VrnPage, "vrn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(ChrnPage, "chrn").success.value
+
+      val result = answers.set(TaxResidentInUkPage, true).success.value
+
+      result.get(TaxResidencyCountryPage)           must not be defined
+      result.get(HasInternationalTaxIdentifierPage) must not be defined
+      result.get(InternationalTaxIdentifierPage)    must not be defined
+      result.get(HasUkTaxIdentifierPage)            mustBe defined
+      result.get(UkTaxIdentifiersPage)              mustBe defined
+      result.get(BusinessTypePage)                  mustBe defined
+      result.get(UtrPage)                           mustBe defined
+      result.get(CrnPage)                           mustBe defined
+      result.get(VrnPage)                           mustBe defined
+      result.get(EmprefPage)                        mustBe defined
+      result.get(ChrnPage)                          mustBe defined
+    }
+
+    "must remove Has UK Tax Identifier, UK Tax Identifiers, and Business Type when the answer is no" in {
+
+      val answers =
+        emptyAnswers
+          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(HasInternationalTaxIdentifierPage, true).success.value
+          .set(InternationalTaxIdentifierPage, "id").success.value
+          .set(HasUkTaxIdentifierPage, true).success.value
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(VrnPage, "vrn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(ChrnPage, "chrn").success.value
+
+      val result = answers.set(TaxResidentInUkPage, false).success.value
+
+      result.get(TaxResidencyCountryPage)           mustBe defined
+      result.get(HasInternationalTaxIdentifierPage) mustBe defined
+      result.get(InternationalTaxIdentifierPage)    mustBe defined
+      result.get(HasUkTaxIdentifierPage)            must not be defined
+      result.get(UkTaxIdentifiersPage)              must not be defined
+      result.get(BusinessTypePage)                  must not be defined
+      result.get(UtrPage)                           must not be defined
+      result.get(CrnPage)                           must not be defined
+      result.get(VrnPage)                           must not be defined
+      result.get(EmprefPage)                        must not be defined
+      result.get(ChrnPage)                          must not be defined
     }
   }
 }

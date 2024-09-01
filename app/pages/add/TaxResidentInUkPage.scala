@@ -22,6 +22,8 @@ import models.{CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
+import scala.util.Try
+
 case object TaxResidentInUkPage extends AddQuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
@@ -46,4 +48,24 @@ case object TaxResidentInUkPage extends AddQuestionPage[Boolean] {
           .map(_ => routes.CheckYourAnswersController.onPageLoad())
           .getOrElse(routes.TaxResidencyCountryController.onPageLoad(CheckMode))
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
+    value.map {
+      case true =>
+        userAnswers
+          .remove(TaxResidencyCountryPage)
+          .flatMap(_.remove(HasInternationalTaxIdentifierPage))
+          .flatMap(_.remove(InternationalTaxIdentifierPage))
+
+      case false =>
+        userAnswers
+        .remove(HasUkTaxIdentifierPage)
+          .flatMap(_.remove(UkTaxIdentifiersPage))
+          .flatMap(_.remove(BusinessTypePage))
+          .flatMap(_.remove(UtrPage))
+          .flatMap(_.remove(CrnPage))
+          .flatMap(_.remove(VrnPage))
+          .flatMap(_.remove(EmprefPage))
+          .flatMap(_.remove(ChrnPage))
+    }.getOrElse(super.cleanup(value, userAnswers))
 }

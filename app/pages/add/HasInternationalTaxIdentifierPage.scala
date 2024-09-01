@@ -22,6 +22,8 @@ import models.{CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
+import scala.util.Try
+
 case object HasInternationalTaxIdentifierPage extends AddQuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
@@ -44,4 +46,7 @@ case object HasInternationalTaxIdentifierPage extends AddQuestionPage[Boolean] {
       case false =>
         routes.CheckYourAnswersController.onPageLoad()
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
+    if (value.contains(false)) userAnswers.remove(InternationalTaxIdentifierPage) else super.cleanup(value, userAnswers)
 }

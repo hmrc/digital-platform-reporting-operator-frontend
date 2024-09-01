@@ -18,10 +18,12 @@ package pages.add
 
 import controllers.add.routes
 import controllers.{routes => baseRoutes}
-import models.{CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
 import models.UkTaxIdentifiers._
+import models.{CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
+
+import scala.util.{Success, Try}
 
 case object UkTaxIdentifiersPage extends AddQuestionPage[Set[UkTaxIdentifiers]] {
 
@@ -54,4 +56,33 @@ case object UkTaxIdentifiersPage extends AddQuestionPage[Set[UkTaxIdentifiers]] 
         routes.CheckYourAnswersController.onPageLoad()
       }
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def cleanup(value: Option[Set[UkTaxIdentifiers]], userAnswers: UserAnswers): Try[UserAnswers] = {
+    value.map { identifiers =>
+      maybeRemoveUtr(userAnswers, identifiers)
+        .flatMap(maybeRemoveCrn(_, identifiers))
+        .flatMap(maybeRemoveVrn(_, identifiers))
+        .flatMap(maybeRemoveEmpref(_, identifiers))
+        .flatMap(maybeRemoveChrn(_, identifiers))
+    }.getOrElse(super.cleanup(value, userAnswers))
+  }
+
+  private def maybeRemoveUtr(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
+    if (identifiers.contains(Utr)) {
+      Success(answers)
+    } else {
+      answers.remove(BusinessTypePage).flatMap(_.remove(UtrPage))
+    }
+
+  private def maybeRemoveCrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
+    if (identifiers.contains(Crn)) Success(answers) else answers.remove(CrnPage)
+
+  private def maybeRemoveVrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
+    if (identifiers.contains(Vrn)) Success(answers) else answers.remove(VrnPage)
+
+  private def maybeRemoveEmpref(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
+    if (identifiers.contains(Empref)) Success(answers) else answers.remove(EmprefPage)
+
+  private def maybeRemoveChrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
+    if (identifiers.contains(Chrn)) Success(answers) else answers.remove(ChrnPage)
 }

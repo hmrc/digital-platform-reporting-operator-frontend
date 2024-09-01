@@ -32,9 +32,9 @@ class UkTaxIdentifiersPageSpec
     with OptionValues
     with ScalaCheckPropertyChecks {
 
-  ".nextPage" - {
+  private val emptyAnswers = UserAnswers("id")
 
-    val emptyAnswers = UserAnswers("id")
+  ".nextPage" - {
 
     "in Normal Mode" - {
 
@@ -262,6 +262,78 @@ class UkTaxIdentifiersPageSpec
           }
         }
       }
+    }
+  }
+
+  ".cleanup" - {
+
+    val baseAnswers =
+      emptyAnswers
+        .set(BusinessTypePage, BusinessType.Llp).success.value
+        .set(UtrPage, "utr").success.value
+        .set(CrnPage, "crn").success.value
+        .set(VrnPage, "vrn").success.value
+        .set(EmprefPage, "empref").success.value
+        .set(ChrnPage, "chrn").success.value
+
+    "must remove Business Type and UTR when UTR is not selected" in {
+
+      val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Utr).success.value
+
+      result.get(BusinessTypePage) must not be defined
+      result.get(UtrPage)          must not be defined
+      result.get(CrnPage)          mustBe defined
+      result.get(VrnPage)          mustBe defined
+      result.get(EmprefPage)       mustBe defined
+      result.get(ChrnPage)         mustBe defined
+    }
+
+    "must remove CRN when CRN is not selected" in {
+
+      val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Crn).success.value
+
+      result.get(CrnPage)          must not be defined
+      result.get(BusinessTypePage) mustBe defined
+      result.get(UtrPage)          mustBe defined
+      result.get(VrnPage)          mustBe defined
+      result.get(EmprefPage)       mustBe defined
+      result.get(ChrnPage)         mustBe defined
+    }
+
+    "must remove VRN when VRN is not selected" in {
+
+      val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Vrn).success.value
+
+      result.get(VrnPage)          must not be defined
+      result.get(BusinessTypePage) mustBe defined
+      result.get(UtrPage)          mustBe defined
+      result.get(CrnPage)          mustBe defined
+      result.get(EmprefPage)       mustBe defined
+      result.get(ChrnPage)         mustBe defined
+    }
+
+    "must remove EMPREF when EMPREF is not selected" in {
+
+      val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Empref).success.value
+
+      result.get(EmprefPage)       must not be defined
+      result.get(BusinessTypePage) mustBe defined
+      result.get(UtrPage)          mustBe defined
+      result.get(CrnPage)          mustBe defined
+      result.get(VrnPage)          mustBe defined
+      result.get(ChrnPage)         mustBe defined
+    }
+
+    "must remove CHRN when CHRN is not selected" in {
+
+      val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Chrn).success.value
+
+      result.get(ChrnPage)         must not be defined
+      result.get(BusinessTypePage) mustBe defined
+      result.get(UtrPage)          mustBe defined
+      result.get(CrnPage)          mustBe defined
+      result.get(VrnPage)          mustBe defined
+      result.get(EmprefPage)       mustBe defined
     }
   }
 }

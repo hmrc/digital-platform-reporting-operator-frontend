@@ -99,9 +99,10 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
+        val expectedAnswers = baseAnswers.set(HasInternationalTaxIdentifierPage, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual HasInternationalTaxIdentifierPage.nextPage(NormalMode, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual HasInternationalTaxIdentifierPage.nextPage(NormalMode, expectedAnswers).url
       }
     }
 

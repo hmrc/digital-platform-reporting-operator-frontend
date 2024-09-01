@@ -94,9 +94,10 @@ class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
+        val expectedAnswers = baseAnswers.set(HasUkTaxIdentifierPage, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual HasUkTaxIdentifierPage.nextPage(NormalMode, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual HasUkTaxIdentifierPage.nextPage(NormalMode, expectedAnswers).url
       }
     }
 
