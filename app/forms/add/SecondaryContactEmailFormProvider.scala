@@ -16,8 +16,9 @@
 
 package forms.add
 
-import javax.inject.Inject
+import forms.Validation
 
+import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
@@ -26,6 +27,9 @@ class SecondaryContactEmailFormProvider @Inject() extends Mappings {
   def apply(contactName: String): Form[String] =
     Form(
       "value" -> text("secondaryContactEmail.error.required", args = Seq(contactName))
-        .verifying(maxLength(100, "secondaryContactEmail.error.length", args = contactName))
+        .verifying(firstError(
+          maxLength(132, "secondaryContactEmail.error.length", args = contactName),
+          regexp(Validation.emailPattern.toString, "secondaryContactEmail.error.format")
+        ))
     )
 }

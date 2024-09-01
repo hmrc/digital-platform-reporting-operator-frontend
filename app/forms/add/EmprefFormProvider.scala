@@ -16,8 +16,9 @@
 
 package forms.add
 
-import javax.inject.Inject
+import forms.Validation
 
+import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
@@ -26,6 +27,6 @@ class EmprefFormProvider @Inject() extends Mappings {
   def apply(businessName: String): Form[String] =
     Form(
       "value" -> text("empref.error.required", args = Seq(businessName))
-        .verifying(maxLength(100, "empref.error.length", args = businessName))
+        .verifying(regexp(Validation.emprefPattern.toString, "empref.error.format", args = businessName))
     )
 }

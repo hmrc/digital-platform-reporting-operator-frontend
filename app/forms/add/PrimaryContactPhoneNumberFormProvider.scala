@@ -26,6 +26,9 @@ class PrimaryContactPhoneNumberFormProvider @Inject() extends Mappings {
   def apply(contactName: String): Form[String] =
     Form(
       "value" -> text("primaryContactPhoneNumber.error.required", args = Seq(contactName))
-        .verifying(maxLength(100, "primaryContactPhoneNumber.error.length", args = contactName))
+        .verifying(firstError(
+          maxLength(24, "primaryContactPhoneNumber.error.length"),
+          validPhoneNumber("primaryContactPhoneNumber.error.format")
+        ))
     )
 }

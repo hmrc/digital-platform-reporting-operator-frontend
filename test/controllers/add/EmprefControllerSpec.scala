@@ -61,7 +61,7 @@ class EmprefControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(EmprefPage, "answer").success.value
+      val userAnswers = baseAnswers.set(EmprefPage, "123/AB456").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -73,7 +73,7 @@ class EmprefControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("123/AB456"), NormalMode, businessName)(request, messages(application)).toString
       }
     }
 
@@ -91,7 +91,7 @@ class EmprefControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, emprefRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "123/AB456"))
 
         val result = route(application, request).value
 
@@ -141,7 +141,7 @@ class EmprefControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, emprefRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "123/AB456"))
 
         val result = route(application, request).value
 

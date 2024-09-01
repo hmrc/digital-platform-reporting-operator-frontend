@@ -16,6 +16,7 @@
 
 package forms.add
 
+import forms.Validation
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.FormError
 
@@ -23,7 +24,8 @@ class TradingNameFormProviderSpec extends StringFieldBehaviours {
 
   val requiredKey = "tradingName.error.required"
   val lengthKey = "tradingName.error.length"
-  val maxLength = 100
+  val formatKey = "tradingName.error.format"
+  val maxLength = 80
 
   val businessName = "name"
   val form = new TradingNameFormProvider()(businessName)
@@ -35,7 +37,14 @@ class TradingNameFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      safeTextInputsWithMaxLength(maxLength)
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.textInputPattern.toString))
     )
 
     behave like fieldWithMaxLength(

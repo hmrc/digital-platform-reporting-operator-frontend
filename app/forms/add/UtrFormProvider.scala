@@ -16,6 +16,8 @@
 
 package forms.add
 
+import forms.Validation
+
 import javax.inject.Inject
 import forms.mappings.Mappings
 import models.BusinessType
@@ -26,6 +28,6 @@ class UtrFormProvider @Inject() extends Mappings {
   def apply(businessName: String, businessType: BusinessType): Form[String] =
     Form(
       "value" -> text(s"utr.${businessType.category}.error.required", args = Seq(businessName))
-        .verifying(maxLength(100, s"utr.${businessType.category}.error.length", args = businessName))
+        .verifying(regexp(Validation.utrPattern.toString, s"utr.${businessType.category}.error.format", args = businessName))
     )
 }

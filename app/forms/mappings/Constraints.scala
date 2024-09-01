@@ -16,9 +16,11 @@
 
 package forms.mappings
 
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import java.time.LocalDate
+import scala.util.Try
 
 trait Constraints {
 
@@ -70,12 +72,12 @@ trait Constraints {
         }
     }
 
-  protected def regexp(regex: String, errorKey: String): Constraint[String] =
+  protected def regexp(regex: String, errorKey: String, args: Any*): Constraint[String] =
     Constraint {
       case str if str.matches(regex) =>
         Valid
       case _ =>
-        Invalid(errorKey, regex)
+        Invalid(errorKey, regex +: args: _*)
     }
 
   protected def maxLength(maximum: Int, errorKey: String, args: Any*): Constraint[String] =
@@ -108,5 +110,17 @@ trait Constraints {
         Valid
       case _ =>
         Invalid(errorKey, args: _*)
+    }
+
+  protected def validPhoneNumber(errorKey: String): Constraint[String] =
+    Constraint { input =>
+
+      val util = PhoneNumberUtil.getInstance
+
+      Try(
+        util.isPossibleNumber(util.parse(input, "GB")))
+        .map(_ => Valid)
+        .getOrElse(Invalid(errorKey)
+        )
     }
 }

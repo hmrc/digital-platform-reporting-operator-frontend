@@ -61,7 +61,7 @@ class ChrnControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(ChrnPage, "answer").success.value
+      val userAnswers = baseAnswers.set(ChrnPage, "X00000").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -73,7 +73,7 @@ class ChrnControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("X00000"), NormalMode, businessName)(request, messages(application)).toString
       }
     }
 
@@ -91,7 +91,7 @@ class ChrnControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, chrnRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "X00000"))
 
         val result = route(application, request).value
 
@@ -141,7 +141,7 @@ class ChrnControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, chrnRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "X00000"))
 
         val result = route(application, request).value
 

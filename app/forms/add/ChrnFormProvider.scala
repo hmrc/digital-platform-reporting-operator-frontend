@@ -16,8 +16,9 @@
 
 package forms.add
 
-import javax.inject.Inject
+import forms.Validation
 
+import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
@@ -26,6 +27,6 @@ class ChrnFormProvider @Inject() extends Mappings {
   def apply(businessName: String): Form[String] =
     Form(
       "value" -> text("chrn.error.required", args = Seq(businessName))
-        .verifying(maxLength(100, "chrn.error.length", args = businessName))
+        .verifying(regexp(Validation.chrnPattern.toString, "chrn.error.format", args = businessName))
     )
 }

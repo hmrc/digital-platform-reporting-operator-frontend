@@ -66,7 +66,7 @@ class PrimaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(PrimaryContactPhoneNumberPage, "answer").success.value
+      val userAnswers = baseAnswers.set(PrimaryContactPhoneNumberPage, "07777 777777").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -78,7 +78,7 @@ class PrimaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("07777 777777"), NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -96,7 +96,7 @@ class PrimaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar
       running(application) {
         val request =
           FakeRequest(POST, primaryContactPhoneNumberRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "07777 777777"))
 
         val result = route(application, request).value
 
@@ -146,7 +146,7 @@ class PrimaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSugar
       running(application) {
         val request =
           FakeRequest(POST, primaryContactPhoneNumberRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "07777 777777"))
 
         val result = route(application, request).value
 

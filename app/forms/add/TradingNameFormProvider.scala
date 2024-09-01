@@ -16,8 +16,9 @@
 
 package forms.add
 
-import javax.inject.Inject
+import forms.Validation
 
+import javax.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 
@@ -26,6 +27,9 @@ class TradingNameFormProvider @Inject() extends Mappings {
   def apply(businessName: String): Form[String] =
     Form(
       "value" -> text("tradingName.error.required", args = Seq(businessName))
-        .verifying(maxLength(100, "tradingName.error.length", args = businessName))
+        .verifying(firstError(
+          maxLength(80, "tradingName.error.length", args = businessName),
+          regexp(Validation.textInputPattern.toString, "tradingName.error.format")
+        ))
     )
 }
