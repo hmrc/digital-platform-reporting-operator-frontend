@@ -38,7 +38,7 @@ object InternationalTaxIdentifierSummary  {
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.InternationalTaxIdentifierController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("internationalTaxIdentifier.change.hidden", country))
+              .withVisuallyHiddenText(messages("internationalTaxIdentifier.change.hidden", country.name))
           )
         )
     }

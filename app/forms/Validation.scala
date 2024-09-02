@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package forms.add
+package forms
 
-import javax.inject.Inject
-import forms.mappings.Mappings
-import models.Country
-import play.api.data.Form
+import scala.util.matching.Regex
 
-class HasInternationalTaxIdentifierFormProvider @Inject() extends Mappings {
+object Validation {
 
-  def apply(businessName: String, country: Country): Form[Boolean] =
-    Form(
-      "value" -> boolean("hasInternationalTaxIdentifier.error.required", args = Seq(businessName, country.name))
-    )
+  val textInputPattern: Regex = """[0-9A-Za-zÀ-ÅÇ-ÖØ-Ýà-åç-öø-ýÿĀ-ľŁ-ňŊ-őŔ-ſ'’ \-.,_&]+""".r.anchored
+  val ukPostcodePattern: Regex = """[a-zA-Z]{1,2}[0-9][0-9a-zA-Z]? ?[0-9][a-zA-Z]{2}""".r.anchored
+  val emailPattern: Regex = "^.+@.+[.].+$".r.anchored
+  val utrPattern: Regex = "[Kk]?(?:\\d{10}|\\d{13})[kK]".r.anchored
 }

@@ -15,14 +15,18 @@
  *@
 
 @import controllers.add.routes
+@import models.Country._
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import viewmodels.InputWidth._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukSelect : GovukSelect
 )
 
 @(form: Form[_], mode: Mode, businessName: String)(implicit request: Request[_], messages: Messages)
@@ -51,6 +55,40 @@
                 label = LabelViewModel(messages("internationalAddress.line2"))
             )
             .withWidth(Full)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("city"),
+                label = LabelViewModel(messages("internationalAddress.city"))
+            )
+            .withWidth(TwoThirds)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("region"),
+                label = LabelViewModel(messages("internationalAddress.region"))
+            )
+            .withWidth(TwoThirds)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("postal"),
+                label = LabelViewModel(messages("internationalAddress.postal"))
+            )
+            .withWidth(Fixed10)
+        )
+
+        @govukSelect(
+            SelectViewModel(
+                field = form("country"),
+                items = selectItems(internationalCountries),
+                label = LabelViewModel(messages("internationalAddress.country"))
+            )
+            .withCssClass("govuk-input")
+            .asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = true)))
         )
 
         @govukButton(

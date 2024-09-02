@@ -17,6 +17,7 @@
 package forms.add
 
 import forms.behaviours.BooleanFieldBehaviours
+import models.Country
 import play.api.data.FormError
 
 class HasInternationalTaxIdentifierFormProviderSpec extends BooleanFieldBehaviours {
@@ -25,7 +26,7 @@ class HasInternationalTaxIdentifierFormProviderSpec extends BooleanFieldBehaviou
   val invalidKey = "error.boolean"
 
   val businessName = "name"
-  val country = "country"
+  val country = Country.internationalCountries.head
   val form = new HasInternationalTaxIdentifierFormProvider()(businessName, country)
 
   ".value" - {
@@ -35,13 +36,13 @@ class HasInternationalTaxIdentifierFormProviderSpec extends BooleanFieldBehaviou
     behave like booleanField(
       form,
       fieldName,
-      invalidError = FormError(fieldName, invalidKey, Seq(businessName, country))
+      invalidError = FormError(fieldName, invalidKey, Seq(businessName, country.name))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(businessName, country))
+      requiredError = FormError(fieldName, requiredKey, Seq(businessName, country.name))
     )
   }
 }

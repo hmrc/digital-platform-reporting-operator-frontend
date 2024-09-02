@@ -31,7 +31,6 @@ object UkTaxIdentifiers extends Enumerable.Implicits {
   case object Empref extends WithName("empref") with UkTaxIdentifiers
   case object Chrn extends WithName("chrn") with UkTaxIdentifiers
 
-
   val values: Seq[UkTaxIdentifiers] = Seq(
     Utr, Crn, Vrn, Empref, Chrn
   )

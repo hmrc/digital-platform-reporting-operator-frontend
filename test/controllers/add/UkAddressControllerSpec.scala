@@ -19,7 +19,7 @@ package controllers.add
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.add.UkAddressFormProvider
-import models.{NormalMode, UkAddress}
+import models.{Country, NormalMode, UkAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -42,7 +42,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val ukAddressRoute = routes.UkAddressController.onPageLoad(NormalMode).url
 
-  private val validAnswer = UkAddress("value 1", "value 2")
+  private val validAnswer = UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)
   private val userAnswers = baseAnswers.set(UkAddressPage, validAnswer).success.value
 
   "UkAddress Controller" - {
@@ -75,7 +75,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(UkAddress("value 1", "value 2")), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)), NormalMode, businessName)(request, messages(application)).toString
       }
     }
 
@@ -93,7 +93,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, ukAddressRoute)
-            .withFormUrlEncodedBody(("line1", "value 1"), ("line2", "value 2"))
+            .withFormUrlEncodedBody(("line1", "line 1"), ("town", "town"), ("postCode", "AA1 1AA"), ("country", Country.ukCountries.head.code))
 
         val result = route(application, request).value
 
@@ -143,7 +143,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, ukAddressRoute)
-            .withFormUrlEncodedBody(("line1", "value 1"), ("line2", "value 2"))
+            .withFormUrlEncodedBody(("line1", "line 1"), ("town", "town 2"), ("postCode", "AA1 1AA"), ("country", Country.ukCountries.head.code))
 
         val result = route(application, request).value
 
