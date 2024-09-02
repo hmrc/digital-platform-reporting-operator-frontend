@@ -66,7 +66,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(SecondaryContactEmailPage, "answer").success.value
+      val userAnswers = baseAnswers.set(SecondaryContactEmailPage, "foo@example.com").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -78,7 +78,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("foo@example.com"), NormalMode, businessName, contactName)(request, messages(application)).toString
       }
     }
 
@@ -96,7 +96,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, secondaryContactEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "foo@example.com"))
 
         val result = route(application, request).value
 
@@ -146,7 +146,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, secondaryContactEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", "foo@example.com"))
 
         val result = route(application, request).value
 

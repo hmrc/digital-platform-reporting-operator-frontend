@@ -40,7 +40,7 @@
                 field = form("value"),
                 label = LabelViewModel(messages(s"utr.${businessType.category}.heading", businessName)).asPageHeading()
             )
-            .withWidth(Full)
+            .withWidth(Fixed10)
             .withHint(HintViewModel(messages(s"utr.${businessType.category}.hint")))
         )
 

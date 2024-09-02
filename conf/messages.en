@@ -53,6 +53,7 @@ businessName.heading = What is the platform operator’s registered business nam
 businessName.checkYourAnswersLabel = Registered business name
 businessName.error.required = Enter the platform operator’s business name
 businessName.error.length = Business name must be {0} characters or less
+businessName.error.format = Business name must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 businessName.change.hidden = the registered business name
 
 businessType.title = What type of business is the platform operator?
@@ -84,7 +85,7 @@ chrn.heading = What is {0}’s HMRC Charity Reference (CHRN)?
 chrn.hint = This is up to 5 numbers, and will start with two letters or an ‘X’. It will be on the letter issued by HMRC confirming recognition as a charity, or approving registration as a CASC. The number may also be on other correspondence from HMRC Charities.
 chrn.checkYourAnswersLabel = HMRC Charity Reference (CHRN)
 chrn.error.required = Enter the HMRC Charity Reference (CHRN) for {0}
-chrn.error.length = HMRC Charity Reference (CHRN) must be {0} characters or less
+chrn.error.format = Enter an HMRC Charity Reference (CHRN) in the correct format, for example AB12345
 chrn.change.hidden = the HMRC Charity Reference (CHRN) for {0}
 
 crn.title = What is the platform operator’s Company Registration Number (CRN)?
@@ -92,7 +93,7 @@ crn.heading = What is {0}’s Company Registration Number (CRN)?
 crn.hint = This is 8 characters, like AB123456. It may also be called ‘company number’ or ‘Companies House number’.
 crn.checkYourAnswersLabel = Company Registration Number (CRN)
 crn.error.required = Enter the Company Registration Number (CRN) for {0}
-crn.error.length = Company Registration Number (CRN) must be {0} characters or less
+crn.error.format = Enter a Company Registration Number (CRN) in the correct format
 crn.change.hidden = the Company Registration Number (CRN) for {0}
 
 empref.title = What is the platform operator’s Employer PAYE Reference (EMPREF or BROCS)?
@@ -100,7 +101,7 @@ empref.heading = What is {0}’s Employer PAYE Reference (EMPREF or BROCS)?
 empref.hint = This is a 3 digit tax office number, a forward slash, and a tax office employer reference, like 123/AB456. It may be called ‘Employer PAYE reference’ or ‘PAYE reference’. It will be on a P60 from {0}.
 empref.checkYourAnswersLabel = Employer PAYE Reference (EMPREF or BROCS)
 empref.error.required = Enter the Employer PAYE Reference (EMPREF or BROCS) for {0}
-empref.error.length = Employer PAYE Reference (EMPREF or BROCS) must be {0} characters or less
+empref.error.format = Enter an Employer PAYE Reference (EMPREF or BROCS) in the correct format
 empref.change.hidden = the Employer PAYE Reference (EMPREF or BROCS) for {0}
 
 hasInternationalTaxIdentifier.title = Does the platform operator have a tax identification number issued by the country they are tax residentin?
@@ -158,6 +159,7 @@ internationalTaxIdentifier.hint = 	Enter the combination of numbers and letters 
 internationalTaxIdentifier.checkYourAnswersLabel = Tax identification number
 internationalTaxIdentifier.error.required = Enter the tax identification number issued by {0}
 internationalTaxIdentifier.error.length = Tax identification number must be {0} characters or less
+internationalTaxIdentifier.error.format = Tax identification number must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 internationalTaxIdentifier.change.hidden = the tax identification number issued by {0}
 
 primaryContactEmail.title = What is the email address for the person or team we can contact?
@@ -166,6 +168,7 @@ primaryContactEmail.p1 = We will use this email address to send confirmation of 
 primaryContactEmail.checkYourAnswersLabel = Email address
 primaryContactEmail.error.required = Enter the email address for {0}
 primaryContactEmail.error.length = Email address must be [0} characters or less
+primaryContactEmail.error.format = Enter an email address in the correct format, like name@example.com
 primaryContactEmail.change.hidden = the email address for {0}
 
 primaryContactName.title = What is the name of the person or team we should contact at the platform operator?
@@ -174,6 +177,7 @@ primaryContactName.hint = For example, ‘Ashley Smith’ or ‘Tax Team’.
 primaryContactName.checkYourAnswersLabel = First contact name
 primaryContactName.error.required = Enter the name of the person or team at {0} we should contact
 primaryContactName.error.length = name must be {0} characters or less
+primaryContactName.error.format = Name must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 primaryContactName.change.hidden = the name of the person or team at {0} we should contact
 
 primaryContactPhoneNumber.title = What is the telephone number for the person or team we can contact?
@@ -182,6 +186,7 @@ primaryContactPhoneNumber.hint = For international numbers, include the country 
 primaryContactPhoneNumber.checkYourAnswersLabel = Telephone number
 primaryContactPhoneNumber.error.required = Enter the telephone number for {0}
 primaryContactPhoneNumber.error.length = Telephone number must be {0} characters or less
+primaryContactPhoneNumber.error.format = Enter a telephone number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 primaryContactPhoneNumber.change.hidden = the telephone number for {0}
 
 registeredInUk.title = Is the platform operator’s registered address in the UK, Jersey, Guernsey or the Isle of Man?
@@ -196,6 +201,7 @@ secondaryContactEmail.p1 = We will use this email address to send confirmation o
 secondaryContactEmail.checkYourAnswersLabel = Email address
 secondaryContactEmail.error.required = Enter the email address for {0}
 secondaryContactEmail.error.length = Email address must be [0} characters or less
+secondaryContactEmail.error.format = Enter an email address in the correct format, like name@example.com
 secondaryContactEmail.change.hidden = the email address for {0}
 
 secondaryContactName.title = What is the name of the second person or team we should contact at the platform operator?
@@ -204,6 +210,7 @@ secondaryContactName.hint = For example, ‘Ashley Smith’ or ‘Tax Team’.
 secondaryContactName.checkYourAnswersLabel = First contact name
 secondaryContactName.error.required = Enter the name of the person or team at {0} we should contact
 secondaryContactName.error.length = name must be {0} characters or less
+secondaryContactName.error.format = Name must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 secondaryContactName.change.hidden = the name of the person or team at {0} we should contact
 
 secondaryContactPhoneNumber.title = What is the telephone number for the second person or team we can contact?
@@ -212,6 +219,7 @@ secondaryContactPhoneNumber.hint = For international numbers, include the countr
 secondaryContactPhoneNumber.checkYourAnswersLabel = Telephone number
 secondaryContactPhoneNumber.error.required = Enter the telephone number for {0}
 secondaryContactPhoneNumber.error.length = Telephone number must be {0} characters or less
+secondaryContactPhoneNumber.error.format = Enter a telephone number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 secondaryContactPhoneNumber.change.hidden = the telephone number for {0}
 
 start.title = Adding a platform operator
@@ -290,14 +298,14 @@ utr.business.heading = What is {0}’s Corporation Tax Unique Taxpayer Reference
 utr.business.hint = A UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 utr.business.checkYourAnswersLabel =  Corporation Tax Unique Taxpayer Reference (UTR)
 utr.business.error.required = Enter the  Corporation Tax Unique Taxpayer Reference (UTR) for {0}
-utr.business.error.length =  Corporation Tax Unique Taxpayer Reference (UTR) must be {0} characters or less
+utr.business.error.format = Enter a  Corporation Tax Unique Taxpayer Reference (UTR) in the correct format
 utr.business.change.hidden = the  Corporation Tax Unique Taxpayer Reference (UTR) for {0}
 utr.partnership.title = What is the platform operator’s Partnership Unique Taxpayer Reference (UTR)? 
 utr.partnership.heading = What is {0}’s Partnership Unique Taxpayer Reference (UTR)?
 utr.partnership.hint = A UTR can be 10 or 13 digits long. You can find it in your Business Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 utr.partnership.checkYourAnswersLabel =  Partnership Unique Taxpayer Reference (UTR)
 utr.partnership.error.required = Enter the  Partnership Unique Taxpayer Reference (UTR) for {0}
-utr.partnership.error.length =  Partnership Unique Taxpayer Reference (UTR) must be {0} characters or less
+utr.partnership.error.format = Enter a Partnership Unique Taxpayer Reference (UTR) in the correct format
 utr.partnership.change.hidden = the  Partnership Unique Taxpayer Reference (UTR) for {0}
 
 vrn.title = What is the platform operator’s VAT Registration Number (VRN)?
@@ -305,5 +313,5 @@ vrn.heading = What is {0}’s VAT Registration Number (VRN)?
 vrn.hint = This is 9 numbers, sometimes with ‘GB’ at the start, for example 123456789 or GB123456789. You can find it on {0}’s VAT registration certificate.
 vrn.checkYourAnswersLabel = VAT Registration Number (VRN)
 vrn.error.required = Enter the VAT Registration Number (VRN) for {0}
-vrn.error.length = VAT Registration Number (VRN) must be {0} characters or less
+vrn.error.format = Enter a VAT Registration Number (VRN) in the correct format
 vrn.change.hidden = the VAT Registration Number (VRN) for {0}

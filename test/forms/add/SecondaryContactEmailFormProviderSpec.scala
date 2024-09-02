@@ -16,17 +16,24 @@
 
 package forms.add
 
+import forms.Validation
 import forms.behaviours.StringFieldBehaviours
+import org.scalacheck.Gen
 import play.api.data.FormError
 
 class SecondaryContactEmailFormProviderSpec extends StringFieldBehaviours {
 
   val requiredKey = "secondaryContactEmail.error.required"
   val lengthKey = "secondaryContactEmail.error.length"
-  val maxLength = 100
+  val formatKey = "secondaryContactEmail.error.format"
+  val maxLength = 132
 
   val contactName = "name"
   val form = new SecondaryContactEmailFormProvider()(contactName)
+
+  private val basicEmail = Gen.const("foo@example.com")
+  private val emailWithSpecialChars = Gen.const("!#$%&'*-+/=?^_`{}~123@foo-bar.example.com")
+  private val validData = Gen.oneOf(basicEmail, emailWithSpecialChars)
 
   ".value" - {
 
@@ -35,7 +42,7 @@ class SecondaryContactEmailFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      validData
     )
 
     behave like fieldWithMaxLength(
@@ -50,5 +57,16 @@ class SecondaryContactEmailFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey, Seq(contactName))
     )
+
+    "must not allow invalid email addresses" in {
+
+      val noAt = "fooexample.com"
+      val noUserName = "@example.com"
+      val noDomain = "foo@example"
+      val invalidData = Gen.oneOf(noAt, noUserName, noDomain).sample.value
+
+      val result = form.bind(Map("value" -> invalidData)).apply(fieldName)
+      result.errors mustEqual Seq(FormError(fieldName, formatKey, Seq(Validation.emailPattern.toString)))
+    }
   }
 }

@@ -16,6 +16,8 @@
 
 package forms.add
 
+import forms.Validation
+
 import javax.inject.Inject
 import forms.mappings.Mappings
 import models.Country
@@ -26,6 +28,9 @@ class InternationalTaxIdentifierFormProvider @Inject() extends Mappings {
   def apply(country: Country): Form[String] =
     Form(
       "value" -> text("internationalTaxIdentifier.error.required", args = Seq(country.name))
-        .verifying(maxLength(10, "internationalTaxIdentifier.error.length", args = country.name))
+        .verifying(firstError(
+          maxLength(25, "internationalTaxIdentifier.error.length", args = country.name),
+          regexp(Validation.textInputPattern.toString, "internationalTaxIdentifier.error.format")
+        ))
     )
 }

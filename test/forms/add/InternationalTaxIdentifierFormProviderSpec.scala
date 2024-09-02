@@ -16,6 +16,7 @@
 
 package forms.add
 
+import forms.Validation
 import forms.behaviours.StringFieldBehaviours
 import models.Country
 import play.api.data.FormError
@@ -24,7 +25,8 @@ class InternationalTaxIdentifierFormProviderSpec extends StringFieldBehaviours {
 
   private val requiredKey = "internationalTaxIdentifier.error.required"
   private val lengthKey = "internationalTaxIdentifier.error.length"
-  private val maxLength = 10
+  private val formatKey = "internationalTaxIdentifier.error.format"
+  private val maxLength = 25
 
   private val country = Country.internationalCountries.head
   private val form = new InternationalTaxIdentifierFormProvider()(country)
@@ -36,7 +38,14 @@ class InternationalTaxIdentifierFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      safeTextInputsWithMaxLength(maxLength)
+    )
+
+    behave like fieldThatDoesNotBindInvalidData(
+      form,
+      fieldName,
+      unsafeTextInputsWithMaxLength(maxLength),
+      FormError(fieldName, formatKey, Seq(Validation.textInputPattern.toString))
     )
 
     behave like fieldWithMaxLength(

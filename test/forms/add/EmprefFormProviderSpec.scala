@@ -16,14 +16,16 @@
 
 package forms.add
 
+import forms.Validation
 import forms.behaviours.StringFieldBehaviours
+import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
 import play.api.data.FormError
 
 class EmprefFormProviderSpec extends StringFieldBehaviours {
 
   val requiredKey = "empref.error.required"
-  val lengthKey = "empref.error.length"
-  val maxLength = 100
+  val formatKey = "empref.error.format"
 
   val businessName = "name"
   val form = new EmprefFormProvider()(businessName)
@@ -32,18 +34,27 @@ class EmprefFormProviderSpec extends StringFieldBehaviours {
 
     val fieldName = "value"
 
+    val validReferences = for {
+      firstChars <- Gen.listOfN(3, Gen.numChar)
+      secondChars <- Gen.listOfN(5, Gen.alphaNumChar)
+    } yield firstChars.mkString + "/" + secondChars.mkString
+
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      validReferences
     )
 
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, businessName))
-    )
+    "must not bind invalid values" in {
+
+      forAll(arbitrary[String]) { input =>
+
+        whenever(input.trim.nonEmpty && !input.trim.matches(Validation.emprefPattern.toString)) {
+          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+          result.errors must contain only FormError(fieldName, formatKey, Seq(Validation.emprefPattern.toString, businessName))
+        }
+      }
+    }
 
     behave like mandatoryField(
       form,

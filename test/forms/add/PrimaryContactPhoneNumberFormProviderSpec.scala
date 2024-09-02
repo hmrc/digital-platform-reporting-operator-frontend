@@ -17,12 +17,14 @@
 package forms.add
 
 import forms.behaviours.StringFieldBehaviours
+import org.scalacheck.Gen
 import play.api.data.FormError
 
 class PrimaryContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
   val requiredKey = "primaryContactPhoneNumber.error.required"
   val lengthKey = "primaryContactPhoneNumber.error.length"
+  val formatKey = "primaryContactPhoneNumber.error.format"
   val maxLength = 100
 
   val contactName = "name"
@@ -35,14 +37,7 @@ class PrimaryContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
-    )
-
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength, contactName))
+      Gen.oneOf("07777777777", "+1 (555) 000 0000", "07777 777777   ")
     )
 
     behave like mandatoryField(
@@ -50,5 +45,14 @@ class PrimaryContactPhoneNumberFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey, Seq(contactName))
     )
+
+    "must fail to bind an invalid phone number" in {
+      form.bind(Map(fieldName -> "invalid")).error("value").value.message mustEqual formatKey
+    }
+
+    "must fail to bind phone numbers longer than 24 characters" in {
+      val result = form.bind(Map(fieldName -> "+44 7777 777777 ext. 1234"))
+      result.error("value").value.message mustEqual lengthKey
+    }
   }
 }
