@@ -17,31 +17,107 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{BusinessType, CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
-class HasUkTaxIdentifierPageSpec extends AnyFreeSpec with Matchers {
+class HasUkTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
+
+  private val emptyAnswers = UserAnswers("id")
 
   ".nextPage" - {
 
-    val emptyAnswers = UserAnswers("id")
-
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to UK Tax Identifier when the answer is yes" in {
 
-        HasUkTaxIdentifierPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val answers = emptyAnswers.set(HasUkTaxIdentifierPage, true).success.value
+        HasUkTaxIdentifierPage.nextPage(NormalMode, answers) mustEqual routes.UkTaxIdentifiersController.onPageLoad(NormalMode)
+      }
+
+      "must go to Registered in UK when the answer is no" in {
+
+        val answers = emptyAnswers.set(HasUkTaxIdentifierPage, false).success.value
+        HasUkTaxIdentifierPage.nextPage(NormalMode, answers) mustEqual routes.RegisteredInUkController.onPageLoad(NormalMode)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers" - {
 
-        HasUkTaxIdentifierPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        "when the answer is no" in {
+
+          val answers = emptyAnswers.set(HasUkTaxIdentifierPage, false).success.value
+          HasUkTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "when the answer is yes and UK Tax Identifier has been answered" in {
+
+          val answers =
+            emptyAnswers
+              .set(HasUkTaxIdentifierPage, true).success.value
+              .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](UkTaxIdentifiers.Chrn)).success.value
+
+          HasUkTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
       }
+
+      "must go to UK Tax Identifiers when the answer is yes and UK Tax Identifiers has not been answered" in {
+
+        val answers = emptyAnswers.set(HasUkTaxIdentifierPage, true).success.value
+        HasUkTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.UkTaxIdentifiersController.onPageLoad(CheckMode)
+      }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove UK tax identifier details when the answer is no" in {
+
+      val answers =
+        emptyAnswers
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(VrnPage, "vrn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(ChrnPage, "chrn").success.value
+
+      val result = answers.set(HasUkTaxIdentifierPage, false).success.value
+
+      result.get(UkTaxIdentifiersPage) must not be defined
+      result.get(BusinessTypePage)     must not be defined
+      result.get(UtrPage)              must not be defined
+      result.get(CrnPage)              must not be defined
+      result.get(VrnPage)              must not be defined
+      result.get(EmprefPage)           must not be defined
+      result.get(ChrnPage)             must not be defined
+    }
+
+    "must not remove UK tax identifier details when the answer is yes" in {
+
+      val answers =
+        emptyAnswers
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(VrnPage, "vrn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(ChrnPage, "chrn").success.value
+
+      val result = answers.set(HasUkTaxIdentifierPage, true).success.value
+
+      result.get(UkTaxIdentifiersPage) mustBe defined
+      result.get(BusinessTypePage)     mustBe defined
+      result.get(UtrPage)              mustBe defined
+      result.get(CrnPage)              mustBe defined
+      result.get(VrnPage)              mustBe defined
+      result.get(EmprefPage)           mustBe defined
+      result.get(ChrnPage)             mustBe defined
     }
   }
 }

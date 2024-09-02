@@ -17,31 +17,95 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
-class HasSecondaryContactPageSpec extends AnyFreeSpec with Matchers {
+class HasSecondaryContactPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
+
+  private val emptyAnswers = UserAnswers("id")
 
   ".nextPage" - {
 
-    val emptyAnswers = UserAnswers("id")
-
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Secondary Contact Name when the answer is yes" in {
 
-        HasSecondaryContactPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val answers = emptyAnswers.set(HasSecondaryContactPage, true).success.value
+        HasSecondaryContactPage.nextPage(NormalMode, answers) mustEqual routes.SecondaryContactNameController.onPageLoad(NormalMode)
+      }
+
+      "must go to Check Answers when the answer is no" in {
+
+        val answers = emptyAnswers.set(HasSecondaryContactPage, false).success.value
+        HasSecondaryContactPage.nextPage(NormalMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers" - {
 
-        HasSecondaryContactPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        "when the answer is no" in {
+
+          val answers = emptyAnswers.set(HasSecondaryContactPage, false).success.value
+          HasSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "when the answer is yes and Secondary Contact Name is answered" in {
+
+          val answers =
+            emptyAnswers
+              .set(HasSecondaryContactPage, false).success.value
+              .set(SecondaryContactNamePage, "name").success.value
+
+          HasSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
       }
+
+      "must go to Secondary Contact Name when the answer is yes and Secondary Contact Name is not answered" in {
+
+        val answers = emptyAnswers.set(HasSecondaryContactPage, true).success.value
+        HasSecondaryContactPage.nextPage(CheckMode, answers) mustEqual routes.SecondaryContactNameController.onPageLoad(CheckMode)
+      }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove secondary contact details when the answer is no" in {
+
+      val answers =
+        emptyAnswers
+          .set(SecondaryContactNamePage, "name").success.value
+          .set(SecondaryContactEmailPage, "email").success.value
+          .set(CanPhoneSecondaryContactPage, true).success.value
+          .set(SecondaryContactPhoneNumberPage, "phone").success.value
+
+      val result = answers.set(HasSecondaryContactPage, false).success.value
+
+      result.get(SecondaryContactNamePage)        must not be defined
+      result.get(SecondaryContactEmailPage)       must not be defined
+      result.get(CanPhoneSecondaryContactPage)    must not be defined
+      result.get(SecondaryContactPhoneNumberPage) must not be defined
+    }
+
+    "must not remove secondary contact details when the answer is yes" in {
+
+      val answers =
+        emptyAnswers
+          .set(SecondaryContactNamePage, "name").success.value
+          .set(SecondaryContactEmailPage, "email").success.value
+          .set(CanPhoneSecondaryContactPage, true).success.value
+          .set(SecondaryContactPhoneNumberPage, "phone").success.value
+
+      val result = answers.set(HasSecondaryContactPage, true).success.value
+
+      result.get(SecondaryContactNamePage)        mustBe defined
+      result.get(SecondaryContactEmailPage)       mustBe defined
+      result.get(CanPhoneSecondaryContactPage)    mustBe defined
+      result.get(SecondaryContactPhoneNumberPage) mustBe defined
     }
   }
 }

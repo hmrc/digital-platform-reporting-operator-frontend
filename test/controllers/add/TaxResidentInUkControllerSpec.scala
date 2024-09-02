@@ -94,9 +94,10 @@ class TaxResidentInUkControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
+        val expectedAnswers = baseAnswers.set(TaxResidentInUkPage, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual TaxResidentInUkPage.nextPage(NormalMode, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual TaxResidentInUkPage.nextPage(NormalMode, expectedAnswers).url
       }
     }
 

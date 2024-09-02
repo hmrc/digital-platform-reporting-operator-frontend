@@ -16,8 +16,10 @@
 
 package pages.add
 
-import controllers.routes
-import models.UserAnswers
+import controllers.add.routes
+import controllers.{routes => baseRoutes}
+import models.UkTaxIdentifiers.{Chrn, Empref}
+import models.{CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +30,20 @@ case object VrnPage extends AddQuestionPage[String] {
   override def toString: String = "vrn"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    answers.get(UkTaxIdentifiersPage).map {
+      case x if x.contains(Empref) => routes.EmprefController.onPageLoad(NormalMode)
+      case x if x.contains(Chrn)   => routes.ChrnController.onPageLoad(NormalMode)
+      case _                       => routes.RegisteredInUkController.onPageLoad(NormalMode)
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override protected def nextPageCheckMode(answers: UserAnswers): Call =
+    answers.get(UkTaxIdentifiersPage).map { identifiers =>
+      if (identifiers.contains(Empref) && answers.get(EmprefPage).isEmpty) {
+        routes.EmprefController.onPageLoad(CheckMode)
+      } else if (identifiers.contains(Chrn) && answers.get(ChrnPage).isEmpty) {
+        routes.ChrnController.onPageLoad(CheckMode)
+      } else {
+        routes.CheckYourAnswersController.onPageLoad()
+      }
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 }

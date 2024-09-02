@@ -94,9 +94,10 @@ class HasSecondaryContactControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
+        val expectedAnswers = baseAnswers.set(HasSecondaryContactPage, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual HasSecondaryContactPage.nextPage(NormalMode, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual HasSecondaryContactPage.nextPage(NormalMode, expectedAnswers).url
       }
     }
 

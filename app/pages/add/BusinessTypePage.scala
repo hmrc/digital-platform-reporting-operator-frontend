@@ -16,8 +16,8 @@
 
 package pages.add
 
-import controllers.routes
-import models.{BusinessType, UserAnswers}
+import controllers.add.routes
+import models.{BusinessType, CheckMode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +28,10 @@ case object BusinessTypePage extends AddQuestionPage[BusinessType] {
   override def toString: String = "businessType"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    routes.UtrController.onPageLoad(NormalMode)
+
+  override protected def nextPageCheckMode(answers: UserAnswers): Call =
+    answers.get(UtrPage)
+      .map(_ => routes.CheckYourAnswersController.onPageLoad())
+      .getOrElse(routes.UtrController.onPageLoad(CheckMode))
 }

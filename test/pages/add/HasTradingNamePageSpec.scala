@@ -17,31 +17,79 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
-class HasTradingNamePageSpec extends AnyFreeSpec with Matchers {
+class HasTradingNamePageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
+
+  private val emptyAnswers = UserAnswers("id")
 
   ".nextPage" - {
 
-    val emptyAnswers = UserAnswers("id")
-
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to Trading Name when the answer is yes" in {
 
-        HasTradingNamePage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val answers = emptyAnswers.set(HasTradingNamePage, true).success.value
+        HasTradingNamePage.nextPage(NormalMode, answers) mustEqual routes.TradingNameController.onPageLoad(NormalMode)
+      }
+
+      "must go to Tax Resident in UK when the answer is no" in {
+
+        val answers = emptyAnswers.set(HasTradingNamePage, false).success.value
+        HasTradingNamePage.nextPage(NormalMode, answers) mustEqual routes.TaxResidentInUkController.onPageLoad(NormalMode)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers" - {
 
-        HasTradingNamePage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        "when the answer is no" in {
+
+          val answers = emptyAnswers.set(HasTradingNamePage, false).success.value
+          HasTradingNamePage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "when the answer is yes and Trading Name is already answered" in {
+
+          val answers =
+            emptyAnswers
+              .set(HasTradingNamePage, true).success.value
+              .set(TradingNamePage, "name").success.value
+
+          HasTradingNamePage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
       }
+
+      "must go to Trading Name when the answer is yes and Trading Name has not been answered" in {
+
+        val answers = emptyAnswers.set(HasTradingNamePage, true).success.value
+        HasTradingNamePage.nextPage(CheckMode, answers) mustEqual routes.TradingNameController.onPageLoad(CheckMode)
+      }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove Trading Name when the answer is no" in {
+
+      val answers = emptyAnswers.set(TradingNamePage, "name").success.value
+
+      val result = answers.set(HasTradingNamePage, false).success.value
+
+      result.get(TradingNamePage) must not be defined
+    }
+
+    "must not remove Trading Name when the answer is yes" in {
+
+      val answers = emptyAnswers.set(TradingNamePage, "name").success.value
+
+      val result = answers.set(HasTradingNamePage, true).success.value
+
+      result.get(TradingNamePage) mustBe defined
     }
   }
 }

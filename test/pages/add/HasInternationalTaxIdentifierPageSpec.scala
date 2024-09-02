@@ -17,31 +17,79 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
-class HasInternationalTaxIdentifierPageSpec extends AnyFreeSpec with Matchers {
+class HasInternationalTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
+
+  private val emptyAnswers = UserAnswers("id")
 
   ".nextPage" - {
 
-    val emptyAnswers = UserAnswers("id")
-
     "in Normal Mode" - {
 
-      "must go to Index" in {
+      "must go to International Tax Identifier when the answer is yes" in {
 
-        HasInternationalTaxIdentifierPage.nextPage(NormalMode, emptyAnswers) mustEqual baseRoutes.IndexController.onPageLoad()
+        val answers = emptyAnswers.set(HasInternationalTaxIdentifierPage, true).success.value
+        HasInternationalTaxIdentifierPage.nextPage(NormalMode, answers) mustEqual routes.InternationalTaxIdentifierController.onPageLoad(NormalMode)
+      }
+
+      "must go to Registered in UK when the answer is yes" in {
+
+        val answers = emptyAnswers.set(HasInternationalTaxIdentifierPage, false).success.value
+        HasInternationalTaxIdentifierPage.nextPage(NormalMode, answers) mustEqual routes.RegisteredInUkController.onPageLoad(NormalMode)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers" - {
 
-        HasInternationalTaxIdentifierPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        "when the answer is no" in {
+
+          val answers = emptyAnswers.set(HasInternationalTaxIdentifierPage, false).success.value
+          HasInternationalTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
+
+        "when the answer is yes and International Tax Identifier has been answered" in {
+
+          val answers =
+            emptyAnswers
+              .set(HasInternationalTaxIdentifierPage, false).success.value
+              .set(InternationalTaxIdentifierPage, "foo").success.value
+
+          HasInternationalTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        }
       }
+
+      "must go to International Tax Identifier when the answer is ues and International Tax Identifier has not been answered" in {
+
+        val answers = emptyAnswers.set(HasInternationalTaxIdentifierPage, true).success.value
+        HasInternationalTaxIdentifierPage.nextPage(CheckMode, answers) mustEqual routes.InternationalTaxIdentifierController.onPageLoad(CheckMode)
+      }
+    }
+  }
+
+  ".cleanup" - {
+
+    "must remove International Tax Identifier when the answer is no" in {
+
+      val answers = emptyAnswers.set(InternationalTaxIdentifierPage, "id").success.value
+
+      val result = answers.set(HasInternationalTaxIdentifierPage, false).success.value
+
+      result.get(InternationalTaxIdentifierPage) must not be defined
+    }
+
+    "must not remove International Tax Identifier when the answer is yes" in {
+
+      val answers = emptyAnswers.set(InternationalTaxIdentifierPage, "id").success.value
+
+      val result = answers.set(HasInternationalTaxIdentifierPage, true).success.value
+
+      result.get(InternationalTaxIdentifierPage) mustBe defined
     }
   }
 }

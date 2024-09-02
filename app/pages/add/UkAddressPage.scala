@@ -16,8 +16,8 @@
 
 package pages.add
 
-import controllers.routes
-import models.{UkAddress, UserAnswers}
+import controllers.add.routes
+import models.{NormalMode, UkAddress, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -28,5 +28,5 @@ case object UkAddressPage extends AddQuestionPage[UkAddress] {
   override def toString: String = "ukAddress"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.IndexController.onPageLoad()
+    routes.PrimaryContactNameController.onPageLoad(NormalMode)
 }
