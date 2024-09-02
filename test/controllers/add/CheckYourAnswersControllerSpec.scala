@@ -18,8 +18,10 @@ package controllers.add
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
+import pages.add.{BusinessNamePage, HasSecondaryContactPage, PrimaryContactNamePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.add.CheckYourAnswersView
 
@@ -27,20 +29,65 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
   "Check Your Answers Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" - {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "when there is a second contact" in {
 
-      running(application) {
-        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+        val answers =
+          emptyUserAnswers
+            .set(BusinessNamePage, "business").success.value
+            .set(PrimaryContactNamePage, "name").success.value
+            .set(HasSecondaryContactPage, true).success.value
 
-        val result = route(application, request).value
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
 
-        val view = application.injector.instanceOf[CheckYourAnswersView]
-        val list = SummaryListViewModel(Seq.empty)
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[CheckYourAnswersView]
+
+          val businessNameRow = BusinessNameSummary.row(answers)(messages(application)).value
+          val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(messages(application)).value
+          val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(messages(application)).value
+
+          val platformOperatorList = SummaryListViewModel(Seq(businessNameRow))
+          val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow))
+          val secondaryContactList = SummaryListViewModel(Seq(hasSecondaryContactRow))
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
+        }
+      }
+
+      "when there is no second contact" in {
+
+        val answers =
+          emptyUserAnswers
+            .set(BusinessNamePage, "business").success.value
+            .set(PrimaryContactNamePage, "name").success.value
+            .set(HasSecondaryContactPage, false).success.value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[CheckYourAnswersView]
+
+          val businessNameRow = BusinessNameSummary.row(answers)(messages(application)).value
+          val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(messages(application)).value
+          val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(messages(application)).value
+
+          val platformOperatorList = SummaryListViewModel(Seq(businessNameRow))
+          val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow, hasSecondaryContactRow))
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, None)(request, messages(application)).toString
+        }
       }
     }
 

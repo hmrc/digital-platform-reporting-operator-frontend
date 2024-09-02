@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.{HasSecondaryContactPage, SecondaryContactNamePage}
+import pages.add.{HasSecondaryContactPage, PrimaryContactNamePage, SecondaryContactNamePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
@@ -29,7 +29,7 @@ object HasSecondaryContactSummary  {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     for {
       answer      <- answers.get(HasSecondaryContactPage)
-      contactName <- answers.get(SecondaryContactNamePage)
+      contactName <- answers.get(PrimaryContactNamePage)
     } yield {
 
         val value = if (answer) "site.yes" else "site.no"

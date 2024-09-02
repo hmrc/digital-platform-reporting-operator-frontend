@@ -31,8 +31,12 @@ index.title = digital-platform-reporting-operator-frontend
 index.heading = digital-platform-reporting-operator-frontend
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
+checkYourAnswers.add.title = Check your answers
+checkYourAnswers.add.heading = Check your answers
+checkYourAnswers.add.platformOperator = Platform operator details
+checkYourAnswers.add.contactDetails = Contact details
+checkYourAnswers.add.primaryContact = First contact
+checkYourAnswers.add.secondaryContact = Second contact
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service

@@ -18,9 +18,13 @@ package controllers.add
 
 import com.google.inject.Inject
 import controllers.actions._
-import play.api.i18n.{I18nSupport, MessagesApi}
+import models.UserAnswers
+import pages.add.HasSecondaryContactPage
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.checkAnswers.add._
 import viewmodels.govuk.summarylist._
 import views.html.add.CheckYourAnswersView
 
@@ -36,10 +40,66 @@ class CheckYourAnswersController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
     implicit request =>
 
-      val list = SummaryListViewModel(
-        rows = Seq.empty
+      val platformOperatorList = SummaryListViewModel(
+        rows = Seq(
+          BusinessNameSummary.row(request.userAnswers),
+          HasTradingNameSummary.row(request.userAnswers),
+          TradingNameSummary.row(request.userAnswers),
+          TaxResidentInUkSummary.row(request.userAnswers),
+          HasUkTaxIdentifierSummary.row(request.userAnswers),
+          UkTaxIdentifiersSummary.row(request.userAnswers),
+          BusinessTypeSummary.row(request.userAnswers),
+          UtrSummary.row(request.userAnswers),
+          CrnSummary.row(request.userAnswers),
+          VrnSummary.row(request.userAnswers),
+          EmprefSummary.row(request.userAnswers),
+          ChrnSummary.row(request.userAnswers),
+          TaxResidencyCountrySummary.row(request.userAnswers),
+          HasInternationalTaxIdentifierSummary.row(request.userAnswers),
+          InternationalTaxIdentifierSummary.row(request.userAnswers),
+          RegisteredInUkSummary.row(request.userAnswers),
+          UkAddressSummary.row(request.userAnswers),
+          InternationalAddressSummary.row(request.userAnswers),
+        ).flatten
       )
 
-      Ok(view(list))
+      Ok(view(platformOperatorList, primaryContactList(request.userAnswers), secondaryContactList(request.userAnswers)))
   }
+
+  private def primaryContactList(answers: UserAnswers)(implicit messages: Messages): SummaryList =
+    if (answers.get(HasSecondaryContactPage).contains(false)) {
+      SummaryListViewModel(
+        rows = Seq(
+          PrimaryContactNameSummary.row(answers),
+          PrimaryContactEmailSummary.row(answers),
+          CanPhonePrimaryContactSummary.row(answers),
+          PrimaryContactPhoneNumberSummary.row(answers),
+          HasSecondaryContactSummary.row(answers)
+        ).flatten
+      )
+    } else {
+      SummaryListViewModel(
+        rows = Seq(
+          PrimaryContactNameSummary.row(answers),
+          PrimaryContactEmailSummary.row(answers),
+          CanPhonePrimaryContactSummary.row(answers),
+          PrimaryContactPhoneNumberSummary.row(answers)
+        ).flatten
+      )
+    }
+
+  private def secondaryContactList(answers: UserAnswers)(implicit messages: Messages): Option[SummaryList] =
+    if(answers.get(HasSecondaryContactPage).contains(true)) {
+      Some(SummaryListViewModel(
+        rows = Seq(
+          HasSecondaryContactSummary.row(answers),
+          SecondaryContactNameSummary.row(answers),
+          SecondaryContactEmailSummary.row(answers),
+          CanPhoneSecondaryContactSummary.row(answers),
+          SecondaryContactPhoneNumberSummary.row(answers),
+        ).flatten
+      ))
+    } else {
+      None
+    }
 }

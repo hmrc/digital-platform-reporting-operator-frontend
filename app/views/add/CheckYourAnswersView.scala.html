@@ -17,15 +17,34 @@
 @import controllers.add.routes
 
 @this(
-    layout: templates.Layout,
-    govukSummaryList: GovukSummaryList
+        layout: templates.Layout,
+        govukSummaryList: GovukSummaryList
 )
 
-@(list: SummaryList)(implicit request: Request[_], messages: Messages)
+@(platformOperatorList: SummaryList, primaryContactList: SummaryList, secondaryContactList: Option[SummaryList])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.add.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
+    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.add.heading")</h1>
 
-    @govukSummaryList(list)
+    <h2 class="govuk-heading-m">@messages("checkYourAnswers.add.platformOperator")</h2>
+
+    @govukSummaryList(platformOperatorList)
+
+    @secondaryContactList.map { secondaryContact =>
+
+        <h2 class="govuk-heading-m">@messages("checkYourAnswers.add.contactDetails")</h2>
+
+        <h3 class="govuk-heading-s">@messages("checkYourAnswers.add.primaryContact")</h3>
+
+        @govukSummaryList(primaryContactList)
+
+        <h3 class="govuk-heading-s">@messages("checkYourAnswers.add.secondaryContact")</h3>
+
+        @govukSummaryList(secondaryContact)
+    }.getOrElse {
+        <h2 class="govuk-heading-m">@messages("checkYourAnswers.add.contactDetails")</h2>
+
+        @govukSummaryList(primaryContactList)
+    }
 }
