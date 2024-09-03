@@ -39,7 +39,7 @@ class AnswerExtractorSpec extends SpecBase {
   }
 
   private def buildRequest(answers: UserAnswers): DataRequest[AnyContent] =
-    DataRequest(IdentifierRequest(FakeRequest(), "id"), answers.userId, answers)
+    DataRequest(IdentifierRequest(FakeRequest(), "id", "dprsid"), answers.userId, "dprsId", answers)
 
   private class TestController extends AnswerExtractor {
 
