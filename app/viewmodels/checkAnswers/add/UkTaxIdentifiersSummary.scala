@@ -37,7 +37,7 @@ object UkTaxIdentifiersSummary  {
         val value = ValueViewModel(
           HtmlContent(
             identifiers.map {
-              identifier => HtmlFormat.escape(messages(s"ukTaxIdentifiers.$identifier")).toString
+              identifier => HtmlFormat.escape(messages(s"ukTaxIdentifiers.checkAnswers.$identifier")).toString
             }
             .mkString(",<br>")
           )
