@@ -16,7 +16,7 @@
 
 package services
 
-import cats.data.EitherNec
+import cats.data.{EitherNec, NonEmptyChain}
 import cats.implicits._
 import models.{UkTaxIdentifiers, UserAnswers}
 import models.UkTaxIdentifiers._
@@ -148,4 +148,11 @@ class UserAnswersService @Inject() {
           AddressDetails(address.line1, address.line2, Some(address.city), address.region, address.postal, Some(address.country.code))
         }
     }
+}
+
+object UserAnswersService {
+
+  final case class BuildCreatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
+    override def getMessage: String = s"unable to build Create Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
+  }
 }
