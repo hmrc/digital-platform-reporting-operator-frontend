@@ -324,3 +324,8 @@ vrn.checkYourAnswersLabel = VAT Registration Number (VRN)
 vrn.error.required = Enter the VAT Registration Number (VRN) for {0}
 vrn.error.format = Enter a VAT Registration Number (VRN) in the correct format
 vrn.change.hidden = the VAT Registration Number (VRN) for {0}
+
+platformOperatorAdded.title = Platform operator added
+platformOperatorAdded.panel.heading = {0} added
+platformOperatorAdded.panel.content = The platform operator ID is {0}
+platformOperatorAdded.p1 = {0} has been successfully added as a platform operator.
