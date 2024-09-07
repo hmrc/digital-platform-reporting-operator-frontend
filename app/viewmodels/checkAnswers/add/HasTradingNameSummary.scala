@@ -35,7 +35,7 @@ object HasTradingNameSummary  {
         val value = if (answer) "site.yes" else "site.no"
 
         SummaryListRowViewModel(
-          key     = "hasTradingName.checkYourAnswersLabel",
+          key     = messages("hasTradingName.checkYourAnswersLabel", businessName),
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.HasTradingNameController.onPageLoad(CheckMode).url)

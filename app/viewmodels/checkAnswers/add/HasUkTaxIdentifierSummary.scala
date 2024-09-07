@@ -35,7 +35,7 @@ object HasUkTaxIdentifierSummary  {
         val value = if (answer) "site.yes" else "site.no"
 
         SummaryListRowViewModel(
-          key     = "hasUkTaxIdentifier.checkYourAnswersLabel",
+          key     = messages("hasUkTaxIdentifier.checkYourAnswersLabel", businessName),
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.HasUkTaxIdentifierController.onPageLoad(CheckMode).url)

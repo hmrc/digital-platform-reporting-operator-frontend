@@ -17,15 +17,38 @@
 package controllers.add
 
 import base.SpecBase
+import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
-import pages.add.{BusinessNamePage, HasSecondaryContactPage, PrimaryContactNamePage}
+import models.requests.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
+import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.{Country, NormalMode, UkAddress, UserAnswers}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.Mockito.{never, times, verify, when}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import pages.add._
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import queries.PlatformOperatorAddedQuery
+import repositories.SessionRepository
+import viewmodels.PlatformOperatorAddedViewModel
 import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.add.CheckYourAnswersView
 
-class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
+import scala.concurrent.Future
+
+class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockConnector = mock[PlatformOperatorConnector]
+  private val mockRepository = mock[SessionRepository]
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockConnector, mockRepository)
+    super.beforeEach()
+  }
 
   "Check Your Answers Controller" - {
 
@@ -102,6 +125,134 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "for a POST" - {
+
+      "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" in {
+
+        val answers =
+          emptyUserAnswers
+            .set(BusinessNamePage, "business").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(TaxResidentInUkPage, true).success.value
+            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "name").success.value
+            .set(PrimaryContactEmailPage, "email").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+
+        val response = PlatformOperatorCreatedResponse("operator id")
+
+        val expectedRequest = CreatePlatformOperatorRequest(
+          subscriptionId = "dprsId",
+          operatorName = "business",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+        )
+
+        val expectedOperatorInfo = PlatformOperatorAddedViewModel("operator id", "business")
+        val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
+        when(mockRepository.set(any())) thenReturn Future.successful(true)
+
+        val app =
+          applicationBuilder(Some(answers))
+            .overrides(
+              bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SessionRepository].toInstance(mockRepository)
+            )
+            .build()
+
+        running(app) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+          val result = route(app, request).value
+
+          status(result) mustEqual SEE_OTHER
+
+          redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(NormalMode, answers).url
+          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockRepository, times(1)).set(answersCaptor.capture())
+
+          val savedAnswers = answersCaptor.getValue
+          savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual expectedOperatorInfo
+        }
+      }
+
+      "must return a failed future when creating the operator fails" in {
+
+        val answers =
+          emptyUserAnswers
+            .set(BusinessNamePage, "business").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(TaxResidentInUkPage, true).success.value
+            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "name").success.value
+            .set(PrimaryContactEmailPage, "email").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+
+        val expectedRequest = CreatePlatformOperatorRequest(
+          subscriptionId = "dprsId",
+          operatorName = "business",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+        )
+
+        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.failed(new Exception("foo"))
+
+        val app =
+          applicationBuilder(Some(answers))
+            .overrides(
+              bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SessionRepository].toInstance(mockRepository)
+            )
+            .build()
+
+        running(app) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+          route(app, request).value.failed.futureValue
+          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockRepository, never()).set(any())
+        }
+      }
+
+      "must return a failed future when a payload cannot be built" in {
+
+        val answers = emptyUserAnswers.set(BusinessNamePage, "business").success.value
+
+        val app =
+          applicationBuilder(Some(answers))
+            .overrides(
+              bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SessionRepository].toInstance(mockRepository)
+            )
+            .build()
+
+        running(app) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+          route(app, request).value.failed.futureValue
+          route(app, request).value.failed.futureValue
+          verify(mockConnector, never()).createPlatformOperator(any())(any())
+          verify(mockRepository, never()).set(any())
+        }
       }
     }
   }

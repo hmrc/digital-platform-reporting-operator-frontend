@@ -35,7 +35,7 @@ object HasSecondaryContactSummary  {
         val value = if (answer) "site.yes" else "site.no"
 
         SummaryListRowViewModel(
-          key     = "hasSecondaryContact.checkYourAnswersLabel",
+          key     = messages("hasSecondaryContact.checkYourAnswersLabel", contactName),
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.HasSecondaryContactController.onPageLoad(CheckMode).url)

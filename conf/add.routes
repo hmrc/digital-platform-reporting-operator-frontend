@@ -1,4 +1,5 @@
-GET         /check-your-answers                          controllers.add.CheckYourAnswersController.onPageLoad()
+GET        /check-your-answers                          controllers.add.CheckYourAnswersController.onPageLoad()
+POST       /check-your-answers                          controllers.add.CheckYourAnswersController.onSubmit()
 
 GET        /business-name                        controllers.add.BusinessNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /business-name                        controllers.add.BusinessNameController.onSubmit(mode: Mode = NormalMode)
@@ -137,3 +138,6 @@ GET        /vrn                        controllers.add.VrnController.onPageLoad(
 POST       /vrn                        controllers.add.VrnController.onSubmit(mode: Mode = NormalMode)
 GET        /change-vrn                  controllers.add.VrnController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-vrn                  controllers.add.VrnController.onSubmit(mode: Mode = CheckMode)
+
+GET        /added-successfully          controllers.add.PlatformOperatorAddedController.onPageLoad
+POST       /added-successfully          controllers.add.PlatformOperatorAddedController.onSubmit

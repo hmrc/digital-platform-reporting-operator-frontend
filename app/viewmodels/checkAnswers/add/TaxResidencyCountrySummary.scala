@@ -34,7 +34,7 @@ object TaxResidencyCountrySummary  {
     } yield {
 
         SummaryListRowViewModel(
-          key     = "taxResidencyCountry.checkYourAnswersLabel",
+          key     = messages("taxResidencyCountry.checkYourAnswersLabel", businessName),
           value   = ValueViewModel(HtmlFormat.escape(answer.name).toString),
           actions = Seq(
             ActionItemViewModel("site.change", routes.TaxResidencyCountryController.onPageLoad(CheckMode).url)

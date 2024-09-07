@@ -41,7 +41,7 @@ object BusinessTypeSummary  {
         )
 
         SummaryListRowViewModel(
-          key     = "businessType.checkYourAnswersLabel",
+          key     = messages("businessType.checkYourAnswersLabel", businessName),
           value   = value,
           actions = Seq(
             ActionItemViewModel("site.change", routes.BusinessTypeController.onPageLoad(CheckMode).url)

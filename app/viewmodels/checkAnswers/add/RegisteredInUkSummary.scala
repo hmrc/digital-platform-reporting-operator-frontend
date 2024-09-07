@@ -35,7 +35,7 @@ object RegisteredInUkSummary  {
         val value = if (answer) "site.yes" else "site.no"
 
         SummaryListRowViewModel(
-          key     = "registeredInUk.checkYourAnswersLabel",
+          key     = messages("registeredInUk.checkYourAnswersLabel", businessName),
           value   = ValueViewModel(value),
           actions = Seq(
             ActionItemViewModel("site.change", routes.RegisteredInUkController.onPageLoad(CheckMode).url)
