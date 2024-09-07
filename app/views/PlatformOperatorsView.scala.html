@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package pages.add
+@import controllers.add.{routes => addRoutes}
 
-import controllers.routes
-import models.UserAnswers
-import pages.Page
-import play.api.mvc.Call
+@this(
+        layout: templates.Layout
+)
 
-case object PlatformOperatorAddedPage extends Page {
+@()(implicit request: Request[_], messages: Messages)
 
-  override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.PlatformOperatorsController.onPageLoad
+@layout(pageTitle = titleNoForm(messages("platformOperators.title"))) {
 
-  override protected def nextPageCheckMode(answers: UserAnswers): Call =
-    routes.PlatformOperatorsController.onPageLoad
+    <h1 class="govuk-heading-xl">@messages("platformOperators.heading")</h1>
+
+    <a href="@addRoutes.StartController.onPageLoad().url" class="govuk-link">@messages("platformOperators.add")</a>
 }

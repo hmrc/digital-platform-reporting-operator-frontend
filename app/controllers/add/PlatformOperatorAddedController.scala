@@ -33,8 +33,7 @@ class PlatformOperatorAddedController @Inject()(
                                                  getData: DataRetrievalActionProvider,
                                                  requireData: DataRequiredAction,
                                                  val controllerComponents: MessagesControllerComponents,
-                                                 view: PlatformOperatorAddedView,
-                                                 page: PlatformOperatorAddedPage
+                                                 view: PlatformOperatorAddedView
                                                ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
@@ -46,6 +45,6 @@ class PlatformOperatorAddedController @Inject()(
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    Redirect(page.nextPage(NormalMode, request.userAnswers))
+    Redirect(PlatformOperatorAddedPage.nextPage(NormalMode, request.userAnswers))
   }
 }

@@ -56,10 +56,9 @@ class PlatformOperatorAddedControllerSpec extends SpecBase {
         val request = FakeRequest(POST, routes.PlatformOperatorAddedController.onSubmit.url)
 
         val result = route(application, request).value
-        val page = application.injector.instanceOf[PlatformOperatorAddedPage]
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual page.nextPage(NormalMode, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual PlatformOperatorAddedPage.nextPage(NormalMode, emptyUserAnswers).url
       }
     }
   }
