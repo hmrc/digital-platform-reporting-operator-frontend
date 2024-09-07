@@ -65,15 +65,7 @@ class UserAnswersService @Inject() {
 
   private def getUkTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] =
     answers.getEither(UkTaxIdentifiersPage).flatMap { identifiers =>
-      (
-        if (identifiers.contains(Utr))    getUkTin(Utr, answers).map(Some(_)) else Right(None),
-        if (identifiers.contains(Crn))    getUkTin(Crn, answers).map(Some(_)) else Right(None),
-        if (identifiers.contains(Vrn))    getUkTin(Vrn, answers).map(Some(_)) else Right(None),
-        if (identifiers.contains(Empref)) getUkTin(Empref, answers).map(Some(_)) else Right(None),
-        if (identifiers.contains(Chrn))   getUkTin(Chrn, answers).map(Some(_)) else Right(None)
-      ).parMapN { (utr, crn, vrn, empref, chrn) =>
-        Seq(utr, crn, vrn, empref, chrn).flatten
-      }
+      identifiers.toSeq.parTraverse(getUkTin(_, answers))
     }
 
   private def getUkTin(identifier: UkTaxIdentifiers, answers: UserAnswers): EitherNec[Query, TinDetails] = {

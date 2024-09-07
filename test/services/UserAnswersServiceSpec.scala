@@ -59,11 +59,11 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           subscriptionId = "dprsId",
           operatorName = "name",
           tinDetails = Seq(
-            TinDetails("utr", TinType.Utr, "GB"),
+            TinDetails("chrn", TinType.Chrn, "GB"),
             TinDetails("crn", TinType.Crn, "GB"),
-            TinDetails("vrn", TinType.Vrn, "GB"),
             TinDetails("empref", TinType.Empref, "GB"),
-            TinDetails("chrn", TinType.Chrn, "GB")
+            TinDetails("utr", TinType.Utr, "GB"),
+            TinDetails("vrn", TinType.Vrn, "GB")
           ),
           businessName = None,
           tradingName = None,
@@ -74,7 +74,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
 
-        result.value mustEqual expectedResult
+        result.value.copy(tinDetails = result.value.tinDetails.sortBy(_.tin)) mustEqual expectedResult
       }
 
       "with international TIN details" in {
