@@ -20,8 +20,8 @@ import cats.data.{EitherNec, NonEmptyChain}
 import cats.implicits._
 import models.{UkTaxIdentifiers, UserAnswers}
 import models.UkTaxIdentifiers._
-import models.requests.operator._
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
+import models.operator.requests.CreatePlatformOperatorRequest
 import pages.add._
 import queries.Query
 

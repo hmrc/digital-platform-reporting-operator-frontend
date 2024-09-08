@@ -17,17 +17,40 @@
 package controllers
 
 import base.SpecBase
+import connectors.PlatformOperatorConnector
+import models.operator.responses.ViewPlatformOperatorsResponse
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
+import org.mockito.Mockito.when
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import viewmodels.PlatformOperatorsViewModel
 import views.html.PlatformOperatorsView
 
-class PlatformOperatorsControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockConnector = mock[PlatformOperatorConnector]
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockConnector)
+    super.beforeEach()
+  }
 
   "PlatformOperators Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(ViewPlatformOperatorsResponse(Seq.empty))
+
+      val application =
+        applicationBuilder(userAnswers = None)
+          .overrides(bind[PlatformOperatorConnector].toInstance(mockConnector))
+          .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.PlatformOperatorsController.onPageLoad.url)
@@ -35,9 +58,10 @@ class PlatformOperatorsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[PlatformOperatorsView]
+        val viewModel = PlatformOperatorsViewModel(Seq.empty)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
       }
     }
   }

@@ -19,12 +19,13 @@ package controllers.add
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
-import models.requests.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.responses.PlatformOperatorCreatedResponse
+import models.operator.{AddressDetails, ContactDetails}
 import models.{Country, NormalMode, UkAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add._

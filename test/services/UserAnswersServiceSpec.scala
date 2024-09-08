@@ -16,8 +16,8 @@
 
 package services
 
-import models.requests.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
+import models.operator.requests.CreatePlatformOperatorRequest
 import models.{Country, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.{EitherValues, OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec

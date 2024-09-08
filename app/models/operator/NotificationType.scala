@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package viewmodels
+package models.operator
 
-import models.operator.requests.CreatePlatformOperatorRequest
-import play.api.libs.json.{Json, OFormat}
+import enumeratum._
 
-final case class PlatformOperatorAddedViewModel(operatorId: String,
-                                                operatorName: String)
+sealed abstract class NotificationType(override val entryName: String) extends EnumEntry
 
-object PlatformOperatorAddedViewModel {
+object NotificationType extends PlayEnum[NotificationType] {
 
-  implicit lazy val format: OFormat[PlatformOperatorAddedViewModel] = Json.format
+  override val values: IndexedSeq[NotificationType] = findValues
 
-  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorAddedViewModel =
-    PlatformOperatorAddedViewModel(operatorId, createRequest.operatorName)
+  case object Rpo extends NotificationType("RPO")
+  case object Epo extends NotificationType("EPO")
 }

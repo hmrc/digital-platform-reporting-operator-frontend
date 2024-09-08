@@ -15,16 +15,23 @@
  *@
 
 @import controllers.add.{routes => addRoutes}
+@import viewmodels.PlatformOperatorsViewModel
 
 @this(
-        layout: templates.Layout
+        layout: templates.Layout,
+        govukSummaryList: GovukSummaryList
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(platformOperators: PlatformOperatorsViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("platformOperators.title"))) {
+@layout(pageTitle = titleNoForm(messages("platformOperators.title")), showBackLink = false) {
 
     <h1 class="govuk-heading-xl">@messages("platformOperators.heading")</h1>
 
-    <a href="@addRoutes.StartController.onPageLoad().url" class="govuk-link">@messages("platformOperators.add")</a>
+    @govukSummaryList(platformOperators.summaryList)
+
+    <p class="govuk-body">
+        <a href="@addRoutes.StartController.onPageLoad().url" class="govuk-link">@messages("platformOperators.add")</a>
+    </p>
+
 }

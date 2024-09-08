@@ -16,24 +16,29 @@
 
 package controllers
 
+import connectors.PlatformOperatorConnector
 import controllers.actions._
-import models.{NormalMode, UserAnswers}
-import pages.add.StartPage
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.PlatformOperatorsViewModel
 import views.html.PlatformOperatorsView
+
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class PlatformOperatorsController @Inject()(
                                              override val messagesApi: MessagesApi,
                                              identify: IdentifierAction,
                                              val controllerComponents: MessagesControllerComponents,
-                                             view: PlatformOperatorsView
-                                           ) extends FrontendBaseController with I18nSupport {
+                                             view: PlatformOperatorsView,
+                                             connector: PlatformOperatorConnector
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+  def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
+    connector.viewPlatformOperators.map { platformOperators =>
+      val viewModel = PlatformOperatorsViewModel(platformOperators)
+      Ok(view(viewModel))
+    }
   }
 }

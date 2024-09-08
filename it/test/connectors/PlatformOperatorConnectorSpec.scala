@@ -17,9 +17,10 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
-import models.requests.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, ViewPlatformOperatorFailure}
+import models.operator.{AddressDetails, ContactDetails}
+import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.responses._
 import org.scalatest.{BeforeAndAfterEach, EitherValues}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -105,6 +106,64 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
         val failure = result.asInstanceOf[CreatePlatformOperatorFailure]
         failure.status mustEqual INTERNAL_SERVER_ERROR
       }
+    }
+  }
+
+  ".viewPlatformOperators" - {
+
+    "must return platform operator details when the server returns OK" in {
+
+      val serverResponse = ViewPlatformOperatorsResponse(platformOperators = Seq(
+        PlatformOperator(
+          operatorId = "operatorId",
+          operatorName = "operatorName",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "primaryContactName", "primaryEmail"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line1", None, None, None, Some("postCode"), None),
+          notifications = Seq.empty
+        )
+      ))
+
+      wireMockServer.stubFor(
+        get(urlPathEqualTo("/digital-platform-reporting/platform-operator"))
+          .withHeader("Authorization", equalTo("authToken"))
+          .willReturn(
+            ok(Json.toJson(serverResponse).toString)
+          )
+      )
+
+      val result = connector.viewPlatformOperators.futureValue
+      result mustEqual serverResponse
+    }
+
+    "must return empty platform operator details when the server returns NOT_FOUND" in {
+
+      wireMockServer.stubFor(
+        get(urlPathEqualTo("/digital-platform-reporting/platform-operator"))
+          .withHeader("Authorization", equalTo("authToken"))
+          .willReturn(notFound())
+      )
+
+      val result = connector.viewPlatformOperators.futureValue
+      result mustEqual ViewPlatformOperatorsResponse(Seq.empty)
+    }
+
+    "must return a failed future when the server returns an error" in {
+
+      wireMockServer.stubFor(
+        get(urlPathEqualTo("/digital-platform-reporting/platform-operator"))
+          .withHeader("Authorization", equalTo("authToken"))
+          .willReturn(serverError())
+      )
+
+      val result = connector.viewPlatformOperators.failed.futureValue
+      result mustBe a[ViewPlatformOperatorFailure]
+
+      val failure = result.asInstanceOf[ViewPlatformOperatorFailure]
+      failure.status mustEqual INTERNAL_SERVER_ERROR
     }
   }
 }

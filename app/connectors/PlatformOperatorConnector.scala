@@ -17,11 +17,11 @@
 package connectors
 
 import config.Service
-import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
-import models.requests.operator.PlatformOperatorCreatedResponse
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, ViewPlatformOperatorFailure}
+import models.operator.responses.{PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
+import models.operator.requests.CreatePlatformOperatorRequest
 import play.api.Configuration
-import play.api.http.Status.OK
+import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -48,11 +48,26 @@ class PlatformOperatorConnector @Inject() (
           case status => Future.failed(CreatePlatformOperatorFailure(status))
         }
       }
+
+  def viewPlatformOperators(implicit hc: HeaderCarrier): Future[ViewPlatformOperatorsResponse] =
+    httpClient.get(url"$digitalPlatformReporting/digital-platform-reporting/platform-operator")
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK        => Future.successful(response.json.as[ViewPlatformOperatorsResponse])
+          case NOT_FOUND => Future.successful(ViewPlatformOperatorsResponse(Seq.empty))
+          case status    => Future.failed(ViewPlatformOperatorFailure(status))
+        }
+      }
 }
 
 object PlatformOperatorConnector {
 
   final case class CreatePlatformOperatorFailure(status: Int) extends Throwable {
     override def getMessage: String = s"Create platform operator failed with status: $status"
+  }
+
+  final case class ViewPlatformOperatorFailure(status: Int) extends Throwable {
+    override def getMessage: String = s"View platform operator failed with status: $status"
   }
 }

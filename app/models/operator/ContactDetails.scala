@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package models.requests.operator
+package models.operator
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class TinDetails(
-                             tin: String,
-                             tinType: TinType,
-                             issuedBy: String
-                           )
 
-object TinDetails {
+final case class ContactDetails(
+                                 phoneNumber: Option[String],
+                                 contactName: String,
+                                 emailAddress: String
+                               )
 
-  implicit lazy val format: OFormat[TinDetails] = Json.format
+object ContactDetails {
+
+  implicit lazy val format: OFormat[ContactDetails] = Json.format
 }

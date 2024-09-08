@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package viewmodels
+package models.operator
 
-import models.operator.requests.CreatePlatformOperatorRequest
 import play.api.libs.json.{Json, OFormat}
 
-final case class PlatformOperatorAddedViewModel(operatorId: String,
-                                                operatorName: String)
+final case class AddressDetails(
+                                 line1: String,
+                                 line2: Option[String],
+                                 line3: Option[String],
+                                 line4: Option[String],
+                                 postCode: Option[String],
+                                 countryCode: Option[String]
+                               )
 
-object PlatformOperatorAddedViewModel {
-
-  implicit lazy val format: OFormat[PlatformOperatorAddedViewModel] = Json.format
-
-  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorAddedViewModel =
-    PlatformOperatorAddedViewModel(operatorId, createRequest.operatorName)
+object AddressDetails {
+  
+  implicit lazy val format: OFormat[AddressDetails] = Json.format
 }

@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package models.requests.operator
+package models.operator.responses
 
+import models.operator.NotificationType
 import play.api.libs.json.{Json, OFormat}
 
-final case class AddressDetails(
-                                 line1: String,
-                                 line2: Option[String],
-                                 line3: Option[String],
-                                 line4: Option[String],
-                                 postCode: Option[String],
-                                 countryCode: Option[String]
-                               )
+import java.time.Instant
 
-object AddressDetails {
-  
-  implicit lazy val format: OFormat[AddressDetails] = Json.format
+final case class NotificationDetails(notificationType: NotificationType,
+                                     isActiveSeller: Boolean,
+                                     isDueDiligence: Boolean,
+                                     firstPeriod: String,
+                                     receivedDateTime: Instant)
+
+object NotificationDetails {
+
+  implicit lazy val defaultFormat: OFormat[NotificationDetails] = Json.format
 }
