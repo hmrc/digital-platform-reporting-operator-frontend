@@ -18,8 +18,8 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
-import models.requests.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
+import models.operator.requests.CreatePlatformOperatorRequest
 import org.scalatest.{BeforeAndAfterEach, EitherValues}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec

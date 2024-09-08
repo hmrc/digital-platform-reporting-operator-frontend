@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package models.requests.operator
+package models.operator
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class PlatformOperatorCreatedResponse(operatorId: String)
+final case class TinDetails(
+                             tin: String,
+                             tinType: TinType,
+                             issuedBy: String
+                           )
 
-object PlatformOperatorCreatedResponse {
+object TinDetails {
 
-  implicit lazy val format: OFormat[PlatformOperatorCreatedResponse] = Json.format
+  implicit lazy val format: OFormat[TinDetails] = Json.format
 }

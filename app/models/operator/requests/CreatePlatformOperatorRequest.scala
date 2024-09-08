@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package models.requests.operator.requests
+package models.operator.requests
 
-import models.requests.operator.{AddressDetails, ContactDetails, TinDetails}
+import models.operator.{AddressDetails, ContactDetails, TinDetails}
 import play.api.libs.json.{Json, OFormat}
 
 final case class CreatePlatformOperatorRequest(

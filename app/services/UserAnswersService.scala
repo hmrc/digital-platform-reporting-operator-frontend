@@ -20,8 +20,8 @@ import cats.data.{EitherNec, NonEmptyChain}
 import cats.implicits._
 import models.{UkTaxIdentifiers, UserAnswers}
 import models.UkTaxIdentifiers._
-import models.requests.operator._
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType, requests}
+import models.operator.requests.CreatePlatformOperatorRequest
 import pages.add._
 import queries.Query
 
@@ -39,7 +39,7 @@ class UserAnswersService @Inject() {
       getSecondaryContact(answers),
       getAddressDetails(answers)
     ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
-      CreatePlatformOperatorRequest(dprsId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails)
+      requests.CreatePlatformOperatorRequest(dprsId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails)
     }
 
   private def getTradingName(answers: UserAnswers): EitherNec[Query, Option[String]] =

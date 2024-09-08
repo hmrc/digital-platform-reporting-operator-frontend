@@ -19,8 +19,8 @@ package controllers.add
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
-import models.requests.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.{AddressDetails, ContactDetails, PlatformOperatorCreatedResponse}
+import models.operator.requests.CreatePlatformOperatorRequest
 import models.{Country, NormalMode, UkAddress, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.{ArgumentCaptor, Mockito}

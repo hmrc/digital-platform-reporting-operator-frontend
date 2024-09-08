@@ -18,8 +18,8 @@ package connectors
 
 import config.Service
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
-import models.requests.operator.PlatformOperatorCreatedResponse
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.PlatformOperatorCreatedResponse
+import models.operator.requests.CreatePlatformOperatorRequest
 import play.api.Configuration
 import play.api.http.Status.OK
 import play.api.libs.json.Json

@@ -16,7 +16,7 @@
 
 package viewmodels
 
-import models.requests.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests.CreatePlatformOperatorRequest
 import play.api.libs.json.{Json, OFormat}
 
 final case class PlatformOperatorAddedViewModel(operatorId: String,

@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package models.requests.operator
+package models.operator
 
-import enumeratum._
+import play.api.libs.json.{Json, OFormat}
 
-sealed abstract class TinType(override val entryName: String) extends EnumEntry
+final case class AddressDetails(
+                                 line1: String,
+                                 line2: Option[String],
+                                 line3: Option[String],
+                                 line4: Option[String],
+                                 postCode: Option[String],
+                                 countryCode: Option[String]
+                               )
 
-object TinType extends PlayEnum[TinType] {
-
-  override val values: IndexedSeq[TinType] = findValues
-
-  case object Crn extends TinType("CRN")
-  case object Utr extends TinType("UTR")
-  case object Vrn extends TinType("VRN")
-  case object Empref extends TinType("EMPREF")
-  case object Brocs extends TinType("BROCS")
-  case object Chrn extends TinType("CHRN")
-  case object Other extends TinType("OTHER")
+object AddressDetails {
+  
+  implicit lazy val format: OFormat[AddressDetails] = Json.format
 }
