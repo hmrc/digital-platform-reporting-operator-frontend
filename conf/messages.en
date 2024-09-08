@@ -10,6 +10,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
+site.view = View
 
 date.day = Day
 date.month = Month
@@ -333,3 +334,4 @@ platformOperatorAdded.p1 = {0} has been successfully added as a platform operato
 platformOperators.title = Platform operators
 platformOperators.heading = Platform operators
 platformOperators.add = Add a new platform operator
+platformOperators.view.hidden = the details for {0}
