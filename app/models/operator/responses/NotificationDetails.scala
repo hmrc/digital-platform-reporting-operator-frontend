@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package models.operator
+package models.operator.responses
 
+import models.operator.NotificationType
 import play.api.libs.json.{Json, OFormat}
 
-final case class PlatformOperatorCreatedResponse(operatorId: String)
+import java.time.Instant
 
-object PlatformOperatorCreatedResponse {
+final case class NotificationDetails(notificationType: NotificationType,
+                                     isActiveSeller: Boolean,
+                                     isDueDiligence: Boolean,
+                                     firstPeriod: String,
+                                     receivedDateTime: Instant)
 
-  implicit lazy val format: OFormat[PlatformOperatorCreatedResponse] = Json.format
+object NotificationDetails {
+
+  implicit lazy val defaultFormat: OFormat[NotificationDetails] = Json.format
 }
