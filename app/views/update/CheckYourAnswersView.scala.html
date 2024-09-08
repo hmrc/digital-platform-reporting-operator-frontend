@@ -1,0 +1,50 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.update.routes
+
+@this(
+        layout: templates.Layout,
+        govukSummaryList: GovukSummaryList
+)
+
+@(platformOperatorList: SummaryList, primaryContactList: SummaryList, secondaryContactList: Option[SummaryList])(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.update.title"))) {
+
+    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.update.heading")</h1>
+
+    <h2 class="govuk-heading-m">@messages("checkYourAnswers.update.platformOperator")</h2>
+
+    @govukSummaryList(platformOperatorList)
+
+    @secondaryContactList.map { secondaryContact =>
+
+        <h2 class="govuk-heading-m">@messages("checkYourAnswers.update.contactDetails")</h2>
+
+        <h3 class="govuk-heading-s">@messages("checkYourAnswers.update.primaryContact")</h3>
+
+        @govukSummaryList(primaryContactList)
+
+        <h3 class="govuk-heading-s">@messages("checkYourAnswers.update.secondaryContact")</h3>
+
+        @govukSummaryList(secondaryContact)
+    }.getOrElse {
+        <h2 class="govuk-heading-m">@messages("checkYourAnswers.update.contactDetails")</h2>
+
+        @govukSummaryList(primaryContactList)
+    }
+}

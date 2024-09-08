@@ -37,6 +37,7 @@ trait SpecBase
     with IntegrationPatience {
 
   val userAnswersId: String = "id"
+  val operatorId: String = "operatorId"
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

@@ -21,7 +21,7 @@ import models.UserAnswers
 import pages.Page
 import play.api.mvc.Call
 
-case object CheckYourAnswersPage extends Page {
+case object CheckYourAnswersPage extends AddPage {
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     routes.PlatformOperatorAddedController.onPageLoad

@@ -21,7 +21,7 @@ import models.{NormalMode, UserAnswers}
 import pages.Page
 import play.api.mvc.Call
 
-case object StartPage extends Page {
+case object StartPage extends AddPage {
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     routes.BusinessNameController.onPageLoad(NormalMode)

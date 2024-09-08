@@ -16,12 +16,20 @@
 
 package pages.add
 
-import models.UserAnswers
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import play.api.mvc.Call
 
 trait AddPage extends Page {
 
-  protected override def nextPageCheckMode(answers: UserAnswers): Call =
+  final def nextPage(mode: Mode, answers: UserAnswers): Call =
+    mode match {
+      case NormalMode => nextPageNormalMode(answers)
+      case CheckMode  => nextPageCheckMode(answers)
+    }
+
+  protected def nextPageNormalMode(answers: UserAnswers): Call
+
+  protected def nextPageCheckMode(answers: UserAnswers): Call =
     controllers.add.routes.CheckYourAnswersController.onPageLoad()
 }
