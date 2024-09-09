@@ -17,7 +17,7 @@
 package controllers.update
 
 import controllers.actions._
-import forms.update.BusinessNameFormProvider
+import forms.BusinessNameFormProvider
 import models.UserAnswers
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}

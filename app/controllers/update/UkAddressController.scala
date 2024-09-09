@@ -18,7 +18,7 @@ package controllers.update
 
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.update.UkAddressFormProvider
+import forms.UkAddressFormProvider
 import pages.update.{BusinessNamePage, UkAddressPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

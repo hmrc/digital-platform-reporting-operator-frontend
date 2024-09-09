@@ -18,7 +18,7 @@ package controllers.update
 
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.update.TaxResidentInUkFormProvider
+import forms.TaxResidentInUkFormProvider
 import pages.update.{BusinessNamePage, TaxResidentInUkPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

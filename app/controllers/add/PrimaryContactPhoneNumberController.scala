@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.actions._
 import controllers.AnswerExtractor
-import forms.add.PrimaryContactPhoneNumberFormProvider
+import forms.PrimaryContactPhoneNumberFormProvider
 
 import javax.inject.Inject
 import models.Mode

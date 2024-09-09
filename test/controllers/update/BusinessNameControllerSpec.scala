@@ -17,7 +17,7 @@
 package controllers.update
 
 import base.SpecBase
-import forms.update.BusinessNameFormProvider
+import forms.BusinessNameFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar

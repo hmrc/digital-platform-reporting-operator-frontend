@@ -18,7 +18,7 @@ package controllers.update
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.update.HasInternationalTaxIdentifierFormProvider
+import forms.HasInternationalTaxIdentifierFormProvider
 import models.Country
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

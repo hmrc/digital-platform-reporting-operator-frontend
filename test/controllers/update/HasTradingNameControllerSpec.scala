@@ -18,7 +18,7 @@ package controllers.update
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.update.HasTradingNameFormProvider
+import forms.HasTradingNameFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar

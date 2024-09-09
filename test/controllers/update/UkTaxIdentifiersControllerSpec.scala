@@ -18,7 +18,7 @@ package controllers.update
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.update.UkTaxIdentifiersFormProvider
+import forms.UkTaxIdentifiersFormProvider
 import models.UkTaxIdentifiers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

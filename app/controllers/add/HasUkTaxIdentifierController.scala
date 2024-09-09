@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.actions._
 import controllers.AnswerExtractor
-import forms.add.HasUkTaxIdentifierFormProvider
+import forms.HasUkTaxIdentifierFormProvider
 import javax.inject.Inject
 import models.Mode
 import pages.add.{BusinessNamePage, HasUkTaxIdentifierPage}

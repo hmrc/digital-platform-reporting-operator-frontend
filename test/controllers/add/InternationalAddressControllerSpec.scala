@@ -18,7 +18,7 @@ package controllers.add
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.add.InternationalAddressFormProvider
+import forms.InternationalAddressFormProvider
 import models.{Country, InternationalAddress, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

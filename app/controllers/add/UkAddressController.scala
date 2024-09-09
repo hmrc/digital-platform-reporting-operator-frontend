@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.actions._
 import controllers.AnswerExtractor
-import forms.add.UkAddressFormProvider
+import forms.UkAddressFormProvider
 import javax.inject.Inject
 import models.Mode
 import pages.add.{BusinessNamePage, UkAddressPage}

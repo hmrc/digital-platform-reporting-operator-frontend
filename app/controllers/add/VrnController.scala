@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.actions._
 import controllers.AnswerExtractor
-import forms.add.VrnFormProvider
+import forms.VrnFormProvider
 import javax.inject.Inject
 import models.Mode
 import pages.add.{BusinessNamePage, VrnPage}

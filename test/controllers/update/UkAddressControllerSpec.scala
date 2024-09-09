@@ -18,7 +18,7 @@ package controllers.update
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.update.UkAddressFormProvider
+import forms.UkAddressFormProvider
 import models.{Country, UkAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

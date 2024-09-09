@@ -18,7 +18,7 @@ package controllers.update
 
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.update.PrimaryContactEmailFormProvider
+import forms.PrimaryContactEmailFormProvider
 import pages.update.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

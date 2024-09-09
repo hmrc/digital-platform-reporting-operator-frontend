@@ -18,7 +18,7 @@ package controllers.update
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.update.BusinessTypeFormProvider
+import forms.BusinessTypeFormProvider
 import models.BusinessType
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
