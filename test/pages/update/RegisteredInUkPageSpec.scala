@@ -46,7 +46,7 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
         val answers =
           emptyAnswers
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, None, Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", Country.internationalCountries.head)).success.value
 
         RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
@@ -72,7 +72,7 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
       val answers =
         emptyAnswers
           .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, None, Country.internationalCountries.head)).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", Country.internationalCountries.head)).success.value
 
       val result = answers.set(RegisteredInUkPage, false).success.value
 
@@ -86,7 +86,7 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
       val answers =
         emptyAnswers
           .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, None, Country.internationalCountries.head)).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", Country.internationalCountries.head)).success.value
 
       val result = answers.set(RegisteredInUkPage, true).success.value
 

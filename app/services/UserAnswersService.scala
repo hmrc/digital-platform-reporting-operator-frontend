@@ -127,7 +127,7 @@ class UserAnswersService @Inject() {
 
   private def setInternationalAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address match {
-      case AddressDetails(line1, line2, Some(line3), line4, postCode, Some(countryCode)) =>
+      case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
         Country.internationalCountries.find(_.code == countryCode).map { country =>
           for {
             _ <- set(RegisteredInUkPage, false)
@@ -158,7 +158,7 @@ class UserAnswersService @Inject() {
         } yield ()
     }.getOrElse(set(HasSecondaryContactPage, false))
   }
-  
+
   def toCreatePlatformOperatorRequest(answers: UserAnswers, dprsId: String): EitherNec[Query, CreatePlatformOperatorRequest] =
     (
       answers.getEither(BusinessNamePage),
@@ -266,7 +266,7 @@ class UserAnswersService @Inject() {
 
       case false =>
         answers.getEither(InternationalAddressPage).map { address =>
-          AddressDetails(address.line1, address.line2, Some(address.city), address.region, address.postal, Some(address.country.code))
+          AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
         }
     }
 }

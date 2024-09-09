@@ -239,7 +239,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             Some("line 2"),
             "line 3",
             Some("line 4"),
-            Some("zip"),
+            "zip",
             Country.internationalCountries.find(_.code == "US").value
           )
 
@@ -292,7 +292,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             Some("line 2"),
             "line 3",
             Some("line 4"),
-            Some("zip"),
+            "zip",
             Country.internationalCountries.find(_.code == "US").value
           )
 
@@ -422,6 +422,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
       }
     }
   }
+
   "toCreatePlatformOperator" - {
 
     val emptyAnswers = UserAnswers("id", None)
@@ -483,7 +484,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasInternationalTaxIdentifierPage, true).success.value
             .set(InternationalTaxIdentifierPage, "tax id").success.value
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, Some("postcode"), Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -557,7 +558,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
             .set(HasInternationalTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, Some("postcode"), Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
