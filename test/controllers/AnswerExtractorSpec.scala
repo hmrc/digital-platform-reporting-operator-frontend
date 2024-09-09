@@ -22,7 +22,7 @@ import models.requests.{DataRequest, IdentifierRequest}
 import pages.QuestionPage
 import play.api.libs.json.{JsPath, Json}
 import play.api.mvc.Results.{Ok, Redirect}
-import play.api.mvc.{AnyContent, Call, Result}
+import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import queries.Gettable
 
@@ -32,10 +32,6 @@ class AnswerExtractorSpec extends SpecBase {
 
   private object TestPage extends QuestionPage[Int] {
     override def path: JsPath = JsPath \ "test"
-
-    override protected def nextPageNormalMode(answers: UserAnswers): Call = Call("GET", "foo")
-
-    override protected def nextPageCheckMode(answers: UserAnswers): Call = Call("GET", "bar")
   }
 
   private def buildRequest(answers: UserAnswers): DataRequest[AnyContent] =

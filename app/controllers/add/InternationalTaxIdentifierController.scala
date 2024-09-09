@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.add.InternationalTaxIdentifierFormProvider
+import forms.InternationalTaxIdentifierFormProvider
 import models.Mode
 import pages.add.{InternationalTaxIdentifierPage, TaxResidencyCountryPage}
 import play.api.i18n.{I18nSupport, MessagesApi}

@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.actions._
 import controllers.AnswerExtractor
-import forms.add.TaxResidentInUkFormProvider
+import forms.TaxResidentInUkFormProvider
 import javax.inject.Inject
 import models.Mode
 import pages.add.{BusinessNamePage, TaxResidentInUkPage}

@@ -17,7 +17,7 @@
 package controllers.add
 
 import base.SpecBase
-import forms.add.BusinessNameFormProvider
+import forms.BusinessNameFormProvider
 import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

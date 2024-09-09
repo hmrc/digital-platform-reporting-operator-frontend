@@ -25,7 +25,7 @@ import org.scalatest.matchers.must.Matchers
 class CanPhoneSecondaryContactPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   private val emptyAnswers = UserAnswers("id")
-  
+
   ".nextPage" - {
 
     "in Normal Mode" - {

@@ -18,7 +18,7 @@ package controllers.add
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.add.BusinessTypeFormProvider
+import forms.BusinessTypeFormProvider
 import models.{NormalMode, BusinessType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

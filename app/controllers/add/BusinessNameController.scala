@@ -17,7 +17,7 @@
 package controllers.add
 
 import controllers.actions._
-import forms.add.BusinessNameFormProvider
+import forms.BusinessNameFormProvider
 
 import javax.inject.Inject
 import models.{Mode, UserAnswers}

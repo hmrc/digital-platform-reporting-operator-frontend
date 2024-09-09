@@ -18,7 +18,7 @@ package controllers.add
 
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.add.HasSecondaryContactFormProvider
+import forms.HasSecondaryContactFormProvider
 import models.Mode
 import pages.add.{HasSecondaryContactPage, PrimaryContactNamePage}
 import play.api.i18n.{I18nSupport, MessagesApi}
