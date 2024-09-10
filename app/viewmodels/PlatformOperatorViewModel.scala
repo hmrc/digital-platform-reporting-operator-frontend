@@ -16,28 +16,4 @@
 
 package viewmodels
 
-import controllers.routes
-import models.operator.responses.PlatformOperator
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryListRow, Value}
-import viewmodels.govuk.summarylist._
-
-final case class PlatformOperatorViewModel(operatorId: String, operatorName: String) {
-
-  def summaryListRow(implicit messages: Messages): SummaryListRow =
-    SummaryListRowViewModel(
-      key     = Key(Text(operatorName)),
-      value   = Value(Text(operatorId)),
-      actions = Seq(
-        ActionItemViewModel(Text(messages("site.view")), routes.IndexController.onPageLoad().url)
-          .withVisuallyHiddenText(messages("platformOperators.view.hidden", operatorName))
-      )
-    )
-}
-
-object PlatformOperatorViewModel {
-
-  def apply(operator: PlatformOperator): PlatformOperatorViewModel =
-    PlatformOperatorViewModel(operator.operatorId, operator.operatorName)
-}
+final case class PlatformOperatorViewModel(operatorId: String, operatorName: String)

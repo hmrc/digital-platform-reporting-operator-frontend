@@ -1,3 +1,5 @@
+GET        /:operatorId                                         controllers.update.PlatformOperatorController.onPageLoad(operatorId: String)
+
 GET        /:operatorId/check-your-answers                          controllers.update.CheckYourAnswersController.onPageLoad(operatorId: String)
 POST       /:operatorId/check-your-answers                          controllers.update.CheckYourAnswersController.onSubmit(operatorId: String)
 

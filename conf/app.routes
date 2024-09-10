@@ -4,7 +4,7 @@
 
 ->          /add-platform-operator                       add.Routes
 
-->          /change-platform-operator                    update.Routes
+->          /platform-operator                    update.Routes
 
 GET         /                                            controllers.IndexController.onPageLoad()
 
@@ -22,4 +22,4 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET         /platform-operator/view                     controllers.PlatformOperatorsController.onPageLoad
+GET         /platform-operators/view                     controllers.PlatformOperatorsController.onPageLoad
