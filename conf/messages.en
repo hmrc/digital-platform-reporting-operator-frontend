@@ -109,12 +109,6 @@ empref.error.required = Enter the Employer PAYE Reference (EMPREF or BROCS) for 
 empref.error.format = Enter an Employer PAYE Reference (EMPREF or BROCS) in the correct format
 empref.change.hidden = the Employer PAYE Reference (EMPREF or BROCS) for {0}
 
-hasInternationalTaxIdentifier.title = Does the platform operator have a tax identification number issued by the country they are tax residentin?
-hasInternationalTaxIdentifier.heading = Does {0} have a tax identification number issued by {1}?
-hasInternationalTaxIdentifier.checkYourAnswersLabel = Does {0} have a tax identification number issued by {1}?
-hasInternationalTaxIdentifier.error.required = Select yes if {0} has a tax identification number issued by {1}
-hasInternationalTaxIdentifier.change.hidden = if {0} has a tax identification number issued by {1}
-
 hasSecondaryContact.title = Is there someone else we can contact if the first person or team is not available?
 hasSecondaryContact.heading = Is there someone else we can contact if {0} is not available?
 hasSecondaryContact.checkYourAnswersLabel = Is there someone else we can contact if {0} is not available?
@@ -127,12 +121,12 @@ hasTradingName.checkYourAnswersLabel = Does {0} trade under a different name?
 hasTradingName.error.required = Select yes if {0} trader under a different name
 hasTradingName.change.hidden = if {0} trader under a different name
 
-hasTaxIdentifier.title = Does the platform operator have a UK tax identification number?
-hasTaxIdentifier.heading = Does {0} have a UK tax identification number?
-hasTaxIdentifier.p1 = This could be a Unique Taxpayer Reference (UTR), Company Registration Number (CRN), VAT Registration Number (VRN), Employer PAYE Reference or HMRC Charity Reference (CHRN).
-hasTaxIdentifier.checkYourAnswersLabel = Does {0} have a UK tax identification number?
-hasTaxIdentifier.error.required = Select yes if {0} has a UK tax identification number
-hasTaxIdentifier.change.hidden = if {0} has a UK tax identification number
+hasTaxIdentifier.title = Does the platform operator have a tax identification number?
+hasTaxIdentifier.heading = Does {0} have a tax identification number?
+hasTaxIdentifier.p1 = This could be a Unique Taxpayer Reference (UTR), Company Registration Number (CRN), VAT Registration Number (VRN), Employer PAYE Reference, HMRC Charity Reference (CHRN) or international equivalent.
+hasTaxIdentifier.checkYourAnswersLabel = Does {0} have a tax identification number?
+hasTaxIdentifier.error.required = Select yes if {0} has a tax identification number
+hasTaxIdentifier.change.hidden = if {0} has a tax identification number
 
 internationalAddress.title = What is the platform operator’s address?
 internationalAddress.heading = What is the address for {0}?
