@@ -24,18 +24,18 @@ import play.api.mvc.Call
 
 import scala.util.Try
 
-case object HasUkTaxIdentifierPage extends UpdateQuestionPage[Boolean] {
+case object HasTaxIdentifierPage extends UpdateQuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "hasUkTaxIdentifier"
+  override def toString: String = "hasTaxIdentifier"
 
   override def nextPage(operatorId: String, answers: UserAnswers): Call =
     answers.get(this).map {
       case true =>
-        answers.get(UkTaxIdentifiersPage)
+        answers.get(TaxResidentInUkPage)
           .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-          .getOrElse(routes.UkTaxIdentifiersController.onPageLoad(operatorId))
+          .getOrElse(routes.TaxResidentInUkController.onPageLoad(operatorId))
 
       case false =>
         routes.CheckYourAnswersController.onPageLoad(operatorId)
@@ -44,13 +44,16 @@ case object HasUkTaxIdentifierPage extends UpdateQuestionPage[Boolean] {
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
     if (value.contains(false)) {
       userAnswers
-        .remove(UkTaxIdentifiersPage)
+        .remove(TaxResidentInUkPage)
+        .flatMap(_.remove(UkTaxIdentifiersPage))
         .flatMap(_.remove(BusinessTypePage))
         .flatMap(_.remove(UtrPage))
         .flatMap(_.remove(CrnPage))
         .flatMap(_.remove(VrnPage))
         .flatMap(_.remove(EmprefPage))
         .flatMap(_.remove(ChrnPage))
+        .flatMap(_.remove(TaxResidencyCountryPage))
+        .flatMap(_.remove(InternationalTaxIdentifierPage))
     } else {
       super.cleanup(value, userAnswers)
     }

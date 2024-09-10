@@ -32,16 +32,16 @@ case object TaxResidentInUkPage extends AddQuestionPage[Boolean] {
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     answers.get(this).map {
-      case true  => routes.HasUkTaxIdentifierController.onPageLoad(NormalMode)
+      case true  => routes.UkTaxIdentifiersController.onPageLoad(NormalMode)
       case false => routes.TaxResidencyCountryController.onPageLoad(NormalMode)
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 
   override protected def nextPageCheckMode(answers: UserAnswers): Call =
     answers.get(this).map {
       case true =>
-        answers.get(HasUkTaxIdentifierPage)
+        answers.get(UkTaxIdentifiersPage)
           .map(_ => routes.CheckYourAnswersController.onPageLoad())
-          .getOrElse(routes.HasUkTaxIdentifierController.onPageLoad(CheckMode))
+          .getOrElse(routes.UkTaxIdentifiersController.onPageLoad(CheckMode))
 
       case false =>
         answers.get(TaxResidencyCountryPage)
@@ -54,13 +54,11 @@ case object TaxResidentInUkPage extends AddQuestionPage[Boolean] {
       case true =>
         userAnswers
           .remove(TaxResidencyCountryPage)
-          .flatMap(_.remove(HasInternationalTaxIdentifierPage))
           .flatMap(_.remove(InternationalTaxIdentifierPage))
 
       case false =>
         userAnswers
-        .remove(HasUkTaxIdentifierPage)
-          .flatMap(_.remove(UkTaxIdentifiersPage))
+        .remove(UkTaxIdentifiersPage)
           .flatMap(_.remove(BusinessTypePage))
           .flatMap(_.remove(UtrPage))
           .flatMap(_.remove(CrnPage))

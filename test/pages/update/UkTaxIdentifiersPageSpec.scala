@@ -33,7 +33,7 @@ class UkTaxIdentifiersPageSpec
     with ScalaCheckPropertyChecks {
 
   private val emptyAnswers = UserAnswers("id")
-    val operatorId = "operatorId"
+  private val operatorId = "operatorId"
 
   ".nextPage" - {
 

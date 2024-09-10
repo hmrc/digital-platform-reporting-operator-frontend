@@ -28,5 +28,5 @@ case object TradingNamePage extends AddQuestionPage[String] {
   override def toString: String = "tradingName"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.TaxResidentInUkController.onPageLoad(NormalMode)
+    routes.HasTaxIdentifierController.onPageLoad(NormalMode)
 }

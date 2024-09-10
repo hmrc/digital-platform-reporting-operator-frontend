@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import controllers.update.routes
+@import controllers.add.routes
 
 @this(
     layout: templates.Layout,
@@ -24,20 +24,24 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], operatorId: String, businessName: String, country: Country)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, businessName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("hasInternationalTaxIdentifier.title"))) {
+@layout(pageTitle = title(form, messages("hasTaxIdentifier.title"))) {
 
-    @formHelper(action = routes.HasInternationalTaxIdentifierController.onSubmit(operatorId), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.HasTaxIdentifierController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-xl">@messages("hasTaxIdentifier.heading", businessName)</h1>
+
+        <p class="govuk-body">@messages("hasTaxIdentifier.p1")</p>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("hasInternationalTaxIdentifier.heading", businessName, country.name)).asPageHeading()
+                legend = LegendViewModel(messages("hasTaxIdentifier.heading", businessName)).visuallyHidden()
             )
         )
 

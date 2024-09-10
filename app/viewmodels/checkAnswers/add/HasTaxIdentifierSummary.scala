@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers.update
+package viewmodels.checkAnswers.add
 
-import controllers.update.routes
-import models.UserAnswers
-import pages.update.{BusinessNamePage, HasInternationalTaxIdentifierPage, TaxResidencyCountryPage}
+import controllers.add.routes
+import models.{CheckMode, UserAnswers}
+import pages.add.{BusinessNamePage, HasTaxIdentifierPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object HasInternationalTaxIdentifierSummary  {
+object HasTaxIdentifierSummary  {
 
-  def row(operatorId: String, answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     for {
-      answer       <- answers.get(HasInternationalTaxIdentifierPage)
+      answer       <- answers.get(HasTaxIdentifierPage)
       businessName <- answers.get(BusinessNamePage)
-      country      <- answers.get(TaxResidencyCountryPage)
     } yield {
 
         val value = if (answer) "site.yes" else "site.no"
 
         SummaryListRowViewModel(
-          key     = "hasInternationalTaxIdentifier.checkYourAnswersLabel",
+          key     = messages("hasTaxIdentifier.checkYourAnswersLabel", businessName),
           value   = ValueViewModel(value),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.HasInternationalTaxIdentifierController.onPageLoad(operatorId).url)
-              .withVisuallyHiddenText(messages("hasInternationalTaxIdentifier.change.hidden", businessName, country.name))
+            ActionItemViewModel("site.change", routes.HasTaxIdentifierController.onPageLoad(CheckMode).url)
+              .withVisuallyHiddenText(messages("hasTaxIdentifier.change.hidden", businessName))
           )
         )
     }

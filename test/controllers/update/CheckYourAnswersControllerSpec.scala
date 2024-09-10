@@ -138,7 +138,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(BusinessNamePage, "business").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "name").success.value
@@ -196,7 +196,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(BusinessNamePage, "business").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "name").success.value

@@ -127,12 +127,12 @@ hasTradingName.checkYourAnswersLabel = Does {0} trade under a different name?
 hasTradingName.error.required = Select yes if {0} trader under a different name
 hasTradingName.change.hidden = if {0} trader under a different name
 
-hasUkTaxIdentifier.title = Does the platform operator have a UK tax identification number?
-hasUkTaxIdentifier.heading = Does {0} have a UK tax identification number?
-hasUkTaxIdentifier.p1 = This could be a Unique Taxpayer Reference (UTR), Company Registration Number (CRN), VAT Registration Number (VRN), Employer PAYE Reference or HMRC Charity Reference (CHRN).
-hasUkTaxIdentifier.checkYourAnswersLabel = Does {0} have a UK tax identification number?
-hasUkTaxIdentifier.error.required = Select yes if {0} has a UK tax identification number
-hasUkTaxIdentifier.change.hidden = if {0} has a UK tax identification number
+hasTaxIdentifier.title = Does the platform operator have a UK tax identification number?
+hasTaxIdentifier.heading = Does {0} have a UK tax identification number?
+hasTaxIdentifier.p1 = This could be a Unique Taxpayer Reference (UTR), Company Registration Number (CRN), VAT Registration Number (VRN), Employer PAYE Reference or HMRC Charity Reference (CHRN).
+hasTaxIdentifier.checkYourAnswersLabel = Does {0} have a UK tax identification number?
+hasTaxIdentifier.error.required = Select yes if {0} has a UK tax identification number
+hasTaxIdentifier.change.hidden = if {0} has a UK tax identification number
 
 internationalAddress.title = What is the platform operator’s address?
 internationalAddress.heading = What is the address for {0}?

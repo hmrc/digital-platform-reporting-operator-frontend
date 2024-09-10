@@ -28,5 +28,5 @@ case object TaxResidencyCountryPage extends AddQuestionPage[Country] {
   override def toString: String = "taxResidencyCountry"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.HasInternationalTaxIdentifierController.onPageLoad(NormalMode)
+    routes.InternationalTaxIdentifierController.onPageLoad(NormalMode)
 }

@@ -18,40 +18,40 @@ package controllers.update
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.HasUkTaxIdentifierFormProvider
+import forms.HasTaxIdentifierFormProvider
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.update.{BusinessNamePage, HasUkTaxIdentifierPage}
+import pages.update.{BusinessNamePage, HasTaxIdentifierPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import views.html.update.HasUkTaxIdentifierView
+import views.html.update.HasTaxIdentifierView
 
 import scala.concurrent.Future
 
-class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
+class HasTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
-  private val formProvider = new HasUkTaxIdentifierFormProvider()
+  private val formProvider = new HasTaxIdentifierFormProvider()
   private val businessName = "name"
   private val form = formProvider(businessName)
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
-  lazy val hasUkTaxIdentifierRoute = routes.HasUkTaxIdentifierController.onPageLoad(operatorId).url
+  lazy val hasTaxIdentifierRoute = routes.HasTaxIdentifierController.onPageLoad(operatorId).url
 
-  "HasUkTaxIdentifier Controller" - {
+  "HasTaxIdentifier Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, hasUkTaxIdentifierRoute)
+        val request = FakeRequest(GET, hasTaxIdentifierRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[HasUkTaxIdentifierView]
+        val view = application.injector.instanceOf[HasTaxIdentifierView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, operatorId, businessName)(request, messages(application)).toString
@@ -60,14 +60,14 @@ class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(HasUkTaxIdentifierPage, true).success.value
+      val userAnswers = baseAnswers.set(HasTaxIdentifierPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, hasUkTaxIdentifierRoute)
+        val request = FakeRequest(GET, hasTaxIdentifierRoute)
 
-        val view = application.injector.instanceOf[HasUkTaxIdentifierView]
+        val view = application.injector.instanceOf[HasTaxIdentifierView]
 
         val result = route(application, request).value
 
@@ -89,14 +89,14 @@ class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, hasUkTaxIdentifierRoute)
+          FakeRequest(POST, hasTaxIdentifierRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
-        val expectedAnswers = baseAnswers.set(HasUkTaxIdentifierPage, true).success.value
+        val expectedAnswers = baseAnswers.set(HasTaxIdentifierPage, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual HasUkTaxIdentifierPage.nextPage(operatorId, expectedAnswers).url
+        redirectLocation(result).value mustEqual HasTaxIdentifierPage.nextPage(operatorId, expectedAnswers).url
       }
     }
 
@@ -106,12 +106,12 @@ class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, hasUkTaxIdentifierRoute)
+          FakeRequest(POST, hasTaxIdentifierRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[HasUkTaxIdentifierView]
+        val view = application.injector.instanceOf[HasTaxIdentifierView]
 
         val result = route(application, request).value
 
@@ -125,7 +125,7 @@ class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, hasUkTaxIdentifierRoute)
+        val request = FakeRequest(GET, hasTaxIdentifierRoute)
 
         val result = route(application, request).value
 
@@ -140,7 +140,7 @@ class HasUkTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, hasUkTaxIdentifierRoute)
+          FakeRequest(POST, hasTaxIdentifierRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value

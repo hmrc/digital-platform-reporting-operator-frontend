@@ -18,7 +18,7 @@ package pages.update
 
 import controllers.update.routes
 import models.UkTaxIdentifiers._
-import models.{BusinessType, CheckMode, Country, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.{BusinessType, Country, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
@@ -26,18 +26,18 @@ import org.scalatest.{OptionValues, TryValues}
 class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   private val emptyAnswers = UserAnswers("id")
-    val operatorId = "operatorId"
+  private val operatorId = "operatorId"
 
   ".nextPage" - {
 
     "must go to Check Answers" - {
 
-      "when the answer is yes and Has UK Tax Identifier has been answered" in {
+      "when the answer is yes and UK Tax Identifiers has been answered" in {
 
         val answers =
           emptyAnswers
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, true).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
 
         TaxResidentInUkPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
@@ -53,10 +53,10 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
       }
     }
 
-    "must go to Has UK Tax Identifier when the answer is yes and Has UK Tax Identifier has not been answered" in {
+    "must go to UK Tax Identifiers when the answer is yes and UK Tax Identifiers has not been answered" in {
 
       val answers = emptyAnswers.set(TaxResidentInUkPage, true).success.value
-      TaxResidentInUkPage.nextPage(operatorId, answers) mustEqual routes.HasUkTaxIdentifierController.onPageLoad(operatorId)
+      TaxResidentInUkPage.nextPage(operatorId, answers) mustEqual routes.UkTaxIdentifiersController.onPageLoad(operatorId)
     }
 
     "must go to Tax Residency Country when the answer is no and Tax Residency Country has not been answered" in {
@@ -68,14 +68,13 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
   ".cleanup" - {
 
-    "must remove Tax Residency Country, Has International Tax Identifier, and International Tax Identifier when the answer is yes" in {
+    "must remove Tax Residency Country and International Tax Identifier when the answer is yes" in {
 
       val answers =
         emptyAnswers
           .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
-          .set(HasInternationalTaxIdentifierPage, true).success.value
           .set(InternationalTaxIdentifierPage, "id").success.value
-          .set(HasUkTaxIdentifierPage, true).success.value
+          .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
           .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
           .set(UtrPage, "utr").success.value
@@ -86,17 +85,16 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
       val result = answers.set(TaxResidentInUkPage, true).success.value
 
-      result.get(TaxResidencyCountryPage)           must not be defined
-      result.get(HasInternationalTaxIdentifierPage) must not be defined
-      result.get(InternationalTaxIdentifierPage)    must not be defined
-      result.get(HasUkTaxIdentifierPage)            mustBe defined
-      result.get(UkTaxIdentifiersPage)              mustBe defined
-      result.get(BusinessTypePage)                  mustBe defined
-      result.get(UtrPage)                           mustBe defined
-      result.get(CrnPage)                           mustBe defined
-      result.get(VrnPage)                           mustBe defined
-      result.get(EmprefPage)                        mustBe defined
-      result.get(ChrnPage)                          mustBe defined
+      result.get(TaxResidencyCountryPage)        must not be defined
+      result.get(InternationalTaxIdentifierPage) must not be defined
+      result.get(HasTaxIdentifierPage)           mustBe defined
+      result.get(UkTaxIdentifiersPage)           mustBe defined
+      result.get(BusinessTypePage)               mustBe defined
+      result.get(UtrPage)                        mustBe defined
+      result.get(CrnPage)                        mustBe defined
+      result.get(VrnPage)                        mustBe defined
+      result.get(EmprefPage)                     mustBe defined
+      result.get(ChrnPage)                       mustBe defined
     }
 
     "must remove Has UK Tax Identifier, UK Tax Identifiers, and Business Type when the answer is no" in {
@@ -104,9 +102,8 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
       val answers =
         emptyAnswers
           .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
-          .set(HasInternationalTaxIdentifierPage, true).success.value
           .set(InternationalTaxIdentifierPage, "id").success.value
-          .set(HasUkTaxIdentifierPage, true).success.value
+          .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
           .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
           .set(UtrPage, "utr").success.value
@@ -117,17 +114,16 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
       val result = answers.set(TaxResidentInUkPage, false).success.value
 
-      result.get(TaxResidencyCountryPage)           mustBe defined
-      result.get(HasInternationalTaxIdentifierPage) mustBe defined
-      result.get(InternationalTaxIdentifierPage)    mustBe defined
-      result.get(HasUkTaxIdentifierPage)            must not be defined
-      result.get(UkTaxIdentifiersPage)              must not be defined
-      result.get(BusinessTypePage)                  must not be defined
-      result.get(UtrPage)                           must not be defined
-      result.get(CrnPage)                           must not be defined
-      result.get(VrnPage)                           must not be defined
-      result.get(EmprefPage)                        must not be defined
-      result.get(ChrnPage)                          must not be defined
+      result.get(HasTaxIdentifierPage)           mustBe defined
+      result.get(TaxResidencyCountryPage)        mustBe defined
+      result.get(InternationalTaxIdentifierPage) mustBe defined
+      result.get(UkTaxIdentifiersPage)           must not be defined
+      result.get(BusinessTypePage)               must not be defined
+      result.get(UtrPage)                        must not be defined
+      result.get(CrnPage)                        must not be defined
+      result.get(VrnPage)                        must not be defined
+      result.get(EmprefPage)                     must not be defined
+      result.get(ChrnPage)                       must not be defined
     }
   }
 }
