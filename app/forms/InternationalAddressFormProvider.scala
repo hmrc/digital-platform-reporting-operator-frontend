@@ -47,11 +47,11 @@ class InternationalAddressFormProvider @Inject() extends Mappings {
           maxLength(35, "internationalAddress.error.region.length"),
           regexp(Validation.textInputPattern.toString, "internationalAddress.error.region.format")
         ))),
-      "postal" -> optional(text("")
+      "postal" -> text("internationalAddress.error.postal.required")
         .verifying(firstError(
           maxLength(25, "internationalAddress.error.postal.length"),
           regexp(Validation.textInputPattern.toString, "internationalAddress.error.postal.format")
-        ))),
+        )),
       "country" -> text("internationalAddress.error.country.required")
         .verifying("internationalAddress.error.country.required", value => Country.internationalCountries.exists(_.code == value))
         .transform[Country](value => Country.internationalCountries.find(_.code == value).get, _.code)

@@ -16,19 +16,148 @@
 
 package services
 
-import cats.data.{EitherNec, NonEmptyChain}
+import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
-import models.{UkTaxIdentifiers, UserAnswers}
 import models.UkTaxIdentifiers._
-import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
+import models.operator._
 import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.responses.PlatformOperator
+import models.{Country, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
-import queries.Query
+import play.api.libs.json.Writes
+import queries.{Query, Settable}
 
 import javax.inject.{Inject, Singleton}
+import scala.util.Try
 
 @Singleton
 class UserAnswersService @Inject() {
+
+  def fromPlatformOperator(userId: String, platformOperator: PlatformOperator): Try[UserAnswers] = {
+
+    val transformation = for {
+      _ <- set(BusinessNamePage, platformOperator.operatorName)
+      _ <- set(HasTradingNamePage, platformOperator.tradingName.isDefined)
+      _ <- setOptional(TradingNamePage, platformOperator.tradingName)
+      _ <- setTaxIdentifiers(platformOperator.tinDetails)
+      _ <- setAddress(platformOperator.addressDetails)
+      _ <- setPrimaryContact(platformOperator.primaryContactDetails)
+      _ <- setSecondaryContact(platformOperator.secondaryContactDetails)
+    } yield ()
+
+    transformation.runS(UserAnswers(userId, Some(platformOperator.operatorId)))
+  }
+
+  private def set[A](settable: Settable[A], value: A)(implicit writes: Writes[A]): StateT[Try, UserAnswers, Unit] =
+    StateT.modifyF[Try, UserAnswers](_.set(settable, value))
+
+  private def setOptional[A](settable: Settable[A], optionalValue: Option[A])(implicit writes: Writes[A]): StateT[Try, UserAnswers, Unit] =
+    optionalValue.map { value =>
+      set(settable, value)
+    }.getOrElse(StateT.pure(()))
+
+  private def setTaxIdentifiers(tinDetails: Seq[TinDetails]): StateT[Try, UserAnswers, Unit] =
+    NonEmptyList.fromList(tinDetails.toList).map { tins =>
+      if (tins.exists(_.issuedBy == "GB")) setUkTaxIdentifierDetails(tins) else setInternationalTaxIdentifierDetails(tins)
+    }.getOrElse(StateT.pure(()))
+
+  private def setUkTaxIdentifierDetails(tinDetails: NonEmptyList[TinDetails])(implicit ev: Writes[String]): StateT[Try, UserAnswers, Unit] =
+    for {
+      _ <- set(TaxResidentInUkPage, true)
+      _ <- set(HasUkTaxIdentifierPage, true)
+      _ <- setUkTaxIdentifiers(tinDetails)
+      _ <- setUkTaxIdentifierValue(tinDetails, TinType.Utr, UtrPage)
+      _ <- setUkTaxIdentifierValue(tinDetails, TinType.Crn, CrnPage)
+      _ <- setUkTaxIdentifierValue(tinDetails, TinType.Vrn, VrnPage)
+      _ <- setUkTaxIdentifierValue(tinDetails, TinType.Empref, EmprefPage)
+      _ <- setUkTaxIdentifierValue(tinDetails, TinType.Chrn, ChrnPage)
+
+    } yield ()
+
+  private def setUkTaxIdentifiers(tinDetails: NonEmptyList[TinDetails]): StateT[Try, UserAnswers, Unit] =
+    tinDetails.toList.flatMap(tinToTaxIdentifier).toSet match {
+      case ids if ids.nonEmpty => set(UkTaxIdentifiersPage, ids)
+      case _                   => StateT.pure(())
+    }
+
+  private def tinToTaxIdentifier(tinDetails: TinDetails): Option[UkTaxIdentifiers] =
+    tinDetails.tinType match {
+      case TinType.Utr => Some(Utr)
+      case TinType.Crn => Some(Crn)
+      case TinType.Vrn => Some(Vrn)
+      case TinType.Empref => Some(Empref)
+      case TinType.Chrn => Some(Chrn)
+      case _ => None
+    }
+
+  private def setUkTaxIdentifierValue(tinDetails: NonEmptyList[TinDetails], tinType: TinType, page: Settable[String])
+                                     (implicit ev: Writes[String]): StateT[Try, UserAnswers, Unit] =
+    tinDetails.find(_.tinType == tinType)
+      .map(tin => set(page, tin.tin))
+      .getOrElse(StateT.pure(()))
+
+  private def setInternationalTaxIdentifierDetails(tinDetails: NonEmptyList[TinDetails]): StateT[Try, UserAnswers, Unit] =
+    Country.internationalCountries.find(_.code == tinDetails.head.issuedBy).map { country =>
+      for {
+        _ <- set(TaxResidentInUkPage, false)
+        _ <- set(TaxResidencyCountryPage, country)
+        _ <- set(HasInternationalTaxIdentifierPage, true)
+        _ <- set(InternationalTaxIdentifierPage, tinDetails.head.tin)
+      } yield ()
+    }.getOrElse(set(TaxResidentInUkPage, false))
+
+  private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
+    address.countryCode.map { countryCode =>
+      if (Country.ukCountries.map(_.code).contains(countryCode)) setUkAddress(address) else setInternationalAddress(address)
+    }.getOrElse(StateT.pure(()))
+
+  private def setUkAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
+    address match {
+      case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
+        Country.ukCountries.find(_.code == countryCode).map { country =>
+          for {
+            _ <- set(RegisteredInUkPage, true)
+            _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, country))
+          } yield ()
+        }.getOrElse(StateT.pure(()))
+
+      case _ =>
+        StateT.pure(())
+    }
+
+  private def setInternationalAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
+    address match {
+      case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
+        Country.internationalCountries.find(_.code == countryCode).map { country =>
+          for {
+            _ <- set(RegisteredInUkPage, false)
+            _ <- set(InternationalAddressPage, InternationalAddress(line1, line2, line3, line4, postCode, country))
+          } yield ()
+        }.getOrElse(StateT.pure(()))
+
+      case _ =>
+        StateT.pure(())
+    }
+
+  private def setPrimaryContact(contact: ContactDetails): StateT[Try, UserAnswers, Unit] =
+    for {
+      _ <- set(PrimaryContactNamePage, contact.contactName)
+      _ <- set(PrimaryContactEmailPage, contact.emailAddress)
+      _ <- set(CanPhonePrimaryContactPage, contact.phoneNumber.isDefined)
+      _ <- setOptional(PrimaryContactPhoneNumberPage, contact.phoneNumber)
+    } yield ()
+
+  private def setSecondaryContact(optionalContact: Option[ContactDetails]): StateT[Try, UserAnswers, Unit] = {
+    optionalContact.map { contact =>
+        for {
+          _ <- set(HasSecondaryContactPage, true)
+          _ <- set(SecondaryContactNamePage, contact.contactName)
+          _ <- set(SecondaryContactEmailPage, contact.emailAddress)
+          _ <- set(CanPhoneSecondaryContactPage, contact.phoneNumber.isDefined)
+          _ <- setOptional(SecondaryContactPhoneNumberPage, contact.phoneNumber)
+        } yield ()
+    }.getOrElse(set(HasSecondaryContactPage, false))
+  }
 
   def toCreatePlatformOperatorRequest(answers: UserAnswers, dprsId: String): EitherNec[Query, CreatePlatformOperatorRequest] =
     (
@@ -137,7 +266,7 @@ class UserAnswersService @Inject() {
 
       case false =>
         answers.getEither(InternationalAddressPage).map { address =>
-          AddressDetails(address.line1, address.line2, Some(address.city), address.region, address.postal, Some(address.country.code))
+          AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
         }
     }
 }

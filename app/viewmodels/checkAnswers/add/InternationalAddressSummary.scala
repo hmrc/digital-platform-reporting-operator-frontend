@@ -39,7 +39,7 @@ object InternationalAddressSummary  {
         answer.line2.map(HtmlFormat.escape),
         Some(HtmlFormat.escape(answer.city)),
         answer.region.map(HtmlFormat.escape),
-        answer.postal.map(HtmlFormat.escape),
+        Some(HtmlFormat.escape(answer.postal)),
         Some(HtmlFormat.escape(answer.country.name))
       ).flatten.map(_.toString).mkString("<br/>")
 
