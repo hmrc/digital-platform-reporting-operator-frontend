@@ -36,11 +36,6 @@ POST       /empref                        controllers.add.EmprefController.onSub
 GET        /change-empref                  controllers.add.EmprefController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-empref                  controllers.add.EmprefController.onSubmit(mode: Mode = CheckMode)
 
-GET        /have-international-tin                        controllers.add.HasInternationalTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
-POST       /have-international-tin                        controllers.add.HasInternationalTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
-GET        /change-have-international-tin                  controllers.add.HasInternationalTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-have-international-tin                  controllers.add.HasInternationalTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
-
 GET        /second-contact                        controllers.add.HasSecondaryContactController.onPageLoad(mode: Mode = NormalMode)
 POST       /second-contact                        controllers.add.HasSecondaryContactController.onSubmit(mode: Mode = NormalMode)
 GET        /change-second-contact                  controllers.add.HasSecondaryContactController.onPageLoad(mode: Mode = CheckMode)
@@ -51,10 +46,10 @@ POST       /have-trading-name                        controllers.add.HasTradingN
 GET        /change-have-trading-name                  controllers.add.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-have-trading-name                  controllers.add.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
 
-GET        /have-uk-tin                        controllers.add.HasUkTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
-POST       /have-uk-tin                        controllers.add.HasUkTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
-GET        /change-have-uk-tin                  controllers.add.HasUkTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-have-uk-tin                  controllers.add.HasUkTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
+GET        /have-tin                        controllers.add.HasTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
+POST       /have-tin                        controllers.add.HasTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
+GET        /change-have-tin                  controllers.add.HasTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-have-tin                  controllers.add.HasTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
 
 GET        /international-address                        controllers.add.InternationalAddressController.onPageLoad(mode: Mode = NormalMode)
 POST       /international-address                        controllers.add.InternationalAddressController.onSubmit(mode: Mode = NormalMode)

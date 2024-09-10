@@ -36,10 +36,10 @@ class HasTradingNamePageSpec extends AnyFreeSpec with Matchers with TryValues wi
         HasTradingNamePage.nextPage(NormalMode, answers) mustEqual routes.TradingNameController.onPageLoad(NormalMode)
       }
 
-      "must go to Tax Resident in UK when the answer is no" in {
+      "must go to Has Tax identifier when the answer is no" in {
 
         val answers = emptyAnswers.set(HasTradingNamePage, false).success.value
-        HasTradingNamePage.nextPage(NormalMode, answers) mustEqual routes.TaxResidentInUkController.onPageLoad(NormalMode)
+        HasTradingNamePage.nextPage(NormalMode, answers) mustEqual routes.HasTaxIdentifierController.onPageLoad(NormalMode)
       }
     }
 

@@ -33,9 +33,9 @@ case object TaxResidentInUkPage extends UpdateQuestionPage[Boolean] {
   override def nextPage(operatorId: String, answers: UserAnswers): Call =
     answers.get(this).map {
       case true =>
-        answers.get(HasUkTaxIdentifierPage)
+        answers.get(UkTaxIdentifiersPage)
           .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-          .getOrElse(routes.HasUkTaxIdentifierController.onPageLoad(operatorId))
+          .getOrElse(routes.UkTaxIdentifiersController.onPageLoad(operatorId))
 
       case false =>
         answers.get(TaxResidencyCountryPage)
@@ -48,13 +48,11 @@ case object TaxResidentInUkPage extends UpdateQuestionPage[Boolean] {
       case true =>
         userAnswers
           .remove(TaxResidencyCountryPage)
-          .flatMap(_.remove(HasInternationalTaxIdentifierPage))
           .flatMap(_.remove(InternationalTaxIdentifierPage))
 
       case false =>
         userAnswers
-        .remove(HasUkTaxIdentifierPage)
-          .flatMap(_.remove(UkTaxIdentifiersPage))
+        .remove(UkTaxIdentifiersPage)
           .flatMap(_.remove(BusinessTypePage))
           .flatMap(_.remove(UtrPage))
           .flatMap(_.remove(CrnPage))

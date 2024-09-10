@@ -24,17 +24,14 @@ POST       /:operatorId/change-crn                  controllers.update.CrnContro
 GET        /:operatorId/change-empref                  controllers.update.EmprefController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-empref                  controllers.update.EmprefController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-have-international-tin                  controllers.update.HasInternationalTaxIdentifierController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-have-international-tin                  controllers.update.HasInternationalTaxIdentifierController.onSubmit(operatorId: String)
-
 GET        /:operatorId/change-second-contact                  controllers.update.HasSecondaryContactController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-second-contact                  controllers.update.HasSecondaryContactController.onSubmit(operatorId: String)
 
 GET        /:operatorId/change-have-trading-name                  controllers.update.HasTradingNameController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-have-trading-name                  controllers.update.HasTradingNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-have-uk-tin                  controllers.update.HasUkTaxIdentifierController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-have-uk-tin                  controllers.update.HasUkTaxIdentifierController.onSubmit(operatorId: String)
+GET        /:operatorId/change-have-tin                  controllers.update.HasTaxIdentifierController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-have-tin                  controllers.update.HasTaxIdentifierController.onSubmit(operatorId: String)
 
 GET        /:operatorId/change-international-address                  controllers.update.InternationalAddressController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-international-address                  controllers.update.InternationalAddressController.onSubmit(operatorId: String)

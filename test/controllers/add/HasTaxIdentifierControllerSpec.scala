@@ -14,71 +14,66 @@
  * limitations under the License.
  */
 
-package controllers.update
+package controllers.add
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.HasInternationalTaxIdentifierFormProvider
-import models.Country
+import forms.HasTaxIdentifierFormProvider
+import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.update.{BusinessNamePage, HasInternationalTaxIdentifierPage, TaxResidencyCountryPage}
+import pages.add.{BusinessNamePage, HasTaxIdentifierPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import views.html.update.HasInternationalTaxIdentifierView
+import views.html.add.HasTaxIdentifierView
 
 import scala.concurrent.Future
 
-class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
+class HasTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
-  private val formProvider = new HasInternationalTaxIdentifierFormProvider()
+  private val formProvider = new HasTaxIdentifierFormProvider()
   private val businessName = "name"
-  private val country = Country.internationalCountries.head
-  private val form = formProvider(businessName, country)
+  private val form = formProvider(businessName)
+  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
-  private val baseAnswers =
-    emptyUserAnswers
-      .set(BusinessNamePage, businessName).success.value
-      .set(TaxResidencyCountryPage, country).success.value
+  lazy val hasTaxIdentifierRoute = routes.HasTaxIdentifierController.onPageLoad(NormalMode).url
 
-  private lazy val hasInternationalTaxIdentifierRoute = routes.HasInternationalTaxIdentifierController.onPageLoad(operatorId).url
-
-  "HasInternationalTaxIdentifier Controller" - {
+  "HasTaxIdentifier Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, hasInternationalTaxIdentifierRoute)
+        val request = FakeRequest(GET, hasTaxIdentifierRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[HasInternationalTaxIdentifierView]
+        val view = application.injector.instanceOf[HasTaxIdentifierView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, operatorId, businessName, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(HasInternationalTaxIdentifierPage, true).success.value
+      val userAnswers = baseAnswers.set(HasTaxIdentifierPage, true).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, hasInternationalTaxIdentifierRoute)
+        val request = FakeRequest(GET, hasTaxIdentifierRoute)
 
-        val view = application.injector.instanceOf[HasInternationalTaxIdentifierView]
+        val view = application.injector.instanceOf[HasTaxIdentifierView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), operatorId, businessName, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessName)(request, messages(application)).toString
       }
     }
 
@@ -95,14 +90,14 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, hasInternationalTaxIdentifierRoute)
+          FakeRequest(POST, hasTaxIdentifierRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
-        val expectedAnswers = baseAnswers.set(HasInternationalTaxIdentifierPage, true).success.value
+        val expectedAnswers = baseAnswers.set(HasTaxIdentifierPage, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual HasInternationalTaxIdentifierPage.nextPage(operatorId, expectedAnswers).url
+        redirectLocation(result).value mustEqual HasTaxIdentifierPage.nextPage(NormalMode, expectedAnswers).url
       }
     }
 
@@ -112,17 +107,17 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, hasInternationalTaxIdentifierRoute)
+          FakeRequest(POST, hasTaxIdentifierRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[HasInternationalTaxIdentifierView]
+        val view = application.injector.instanceOf[HasTaxIdentifierView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, operatorId, businessName, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
       }
     }
 
@@ -131,7 +126,7 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, hasInternationalTaxIdentifierRoute)
+        val request = FakeRequest(GET, hasTaxIdentifierRoute)
 
         val result = route(application, request).value
 
@@ -146,7 +141,7 @@ class HasInternationalTaxIdentifierControllerSpec extends SpecBase with MockitoS
 
       running(application) {
         val request =
-          FakeRequest(POST, hasInternationalTaxIdentifierRoute)
+          FakeRequest(POST, hasTaxIdentifierRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value

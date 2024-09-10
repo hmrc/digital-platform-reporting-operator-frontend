@@ -18,28 +18,28 @@ package controllers.add
 
 import controllers.actions._
 import controllers.AnswerExtractor
-import forms.HasUkTaxIdentifierFormProvider
+import forms.HasTaxIdentifierFormProvider
 import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, HasUkTaxIdentifierPage}
+import pages.add.{BusinessNamePage, HasTaxIdentifierPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.add.HasUkTaxIdentifierView
+import views.html.add.HasTaxIdentifierView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HasUkTaxIdentifierController @Inject()(
-                                         override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
-                                         identify: IdentifierAction,
-                                         getData: DataRetrievalActionProvider,
-                                         requireData: DataRequiredAction,
-                                         formProvider: HasUkTaxIdentifierFormProvider,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         view: HasUkTaxIdentifierView
-                                 )(implicit ec: ExecutionContext)
+class HasTaxIdentifierController @Inject()(
+                                            override val messagesApi: MessagesApi,
+                                            sessionRepository: SessionRepository,
+                                            identify: IdentifierAction,
+                                            getData: DataRetrievalActionProvider,
+                                            requireData: DataRequiredAction,
+                                            formProvider: HasTaxIdentifierFormProvider,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            view: HasTaxIdentifierView
+                                          )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
@@ -47,7 +47,7 @@ class HasUkTaxIdentifierController @Inject()(
 
       val form = formProvider(businessName)
 
-      val preparedForm = request.userAnswers.get(HasUkTaxIdentifierPage) match {
+      val preparedForm = request.userAnswers.get(HasTaxIdentifierPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
@@ -67,9 +67,9 @@ class HasUkTaxIdentifierController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(HasUkTaxIdentifierPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(HasTaxIdentifierPage, value))
             _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(HasUkTaxIdentifierPage.nextPage(mode, updatedAnswers))
+          } yield Redirect(HasTaxIdentifierPage.nextPage(mode, updatedAnswers))
       )
     }
   }

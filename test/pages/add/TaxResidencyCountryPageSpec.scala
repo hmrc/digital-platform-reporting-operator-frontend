@@ -29,9 +29,9 @@ class TaxResidencyCountryPageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Has International Tax Identifier" in {
+      "must go to International Tax Identifier" in {
 
-        TaxResidencyCountryPage.nextPage(NormalMode, emptyAnswers) mustEqual routes.HasInternationalTaxIdentifierController.onPageLoad(NormalMode)
+        TaxResidencyCountryPage.nextPage(NormalMode, emptyAnswers) mustEqual routes.InternationalTaxIdentifierController.onPageLoad(NormalMode)
       }
     }
 

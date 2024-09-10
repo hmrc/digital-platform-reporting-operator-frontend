@@ -65,8 +65,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual true
           result.get(TradingNamePage).value mustEqual "tradingName"
 
+          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(TaxResidentInUkPage).value mustEqual true
-          result.get(HasUkTaxIdentifierPage).value mustEqual true
           result.get(UkTaxIdentifiersPage).value mustEqual Set(Utr, Crn, Vrn, Empref, Chrn)
           result.get(UtrPage).value mustEqual "utr"
           result.get(CrnPage).value mustEqual "crn"
@@ -119,8 +119,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual false
           result.get(TradingNamePage) must not be defined
 
+          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(TaxResidentInUkPage).value mustEqual true
-          result.get(HasUkTaxIdentifierPage).value mustEqual true
           result.get(UkTaxIdentifiersPage).value mustEqual Set(Utr)
           result.get(UtrPage).value mustEqual "utr"
           result.get(CrnPage) must not be defined
@@ -165,7 +165,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
           result.get(TaxResidentInUkPage).value mustEqual true
-          result.get(HasUkTaxIdentifierPage).value mustEqual true
+          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(UkTaxIdentifiersPage).value mustEqual Set(Utr)
           result.get(UtrPage).value mustEqual "utr"
           result.get(CrnPage) must not be defined
@@ -192,15 +192,14 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
           val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
+          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(TaxResidentInUkPage).value mustEqual true
-          result.get(HasUkTaxIdentifierPage).value mustEqual true
           result.get(UkTaxIdentifiersPage) must not be defined
           result.get(UtrPage) must not be defined
           result.get(CrnPage) must not be defined
           result.get(VrnPage) must not be defined
           result.get(EmprefPage) must not be defined
           result.get(ChrnPage) must not be defined
-
         }
       }
 
@@ -229,8 +228,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual true
           result.get(TradingNamePage).value mustEqual "tradingName"
 
+          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(TaxResidentInUkPage).value mustEqual false
-          result.get(HasInternationalTaxIdentifierPage).value mustEqual true
           result.get(InternationalTaxIdentifierPage).value mustEqual "other"
 
           result.get(RegisteredInUkPage).value mustEqual false
@@ -257,7 +256,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         "when there is more than one international TIN (should never happen but technically possible)" in {
 
-
           val operator = PlatformOperator(
             operatorId = "operatorId",
             operatorName = "operatorName",
@@ -282,8 +280,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual true
           result.get(TradingNamePage).value mustEqual "tradingName"
 
+          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(TaxResidentInUkPage).value mustEqual false
-          result.get(HasInternationalTaxIdentifierPage).value mustEqual true
           result.get(InternationalTaxIdentifierPage).value mustEqual "other"
 
           result.get(RegisteredInUkPage).value mustEqual false
@@ -309,7 +307,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         }
       }
 
-      "when there are no TIN details so we cannot infer the country of tax residency" in {
+      "when there are no TIN details" in {
 
         val operator = PlatformOperator(
           operatorId = "operatorId",
@@ -325,20 +323,19 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
+        result.get(HasTaxIdentifierPage).value mustEqual false
         result.get(TaxResidentInUkPage) must not be defined
-        result.get(HasUkTaxIdentifierPage) must not be defined
         result.get(UkTaxIdentifiersPage) must not be defined
         result.get(UtrPage) must not be defined
         result.get(CrnPage) must not be defined
         result.get(VrnPage) must not be defined
         result.get(EmprefPage) must not be defined
         result.get(ChrnPage) must not be defined
-        result.get(HasInternationalTaxIdentifierPage) must not be defined
         result.get(TaxResidencyCountryPage) must not be defined
         result.get(InternationalTaxIdentifierPage) must not be defined
       }
 
-      "when TIN details contain a country code that is not recognised, so we cannot infer the country of tax residency" in {
+      "when TIN details contain a country code that is not recognised" in {
 
         val operator = PlatformOperator(
           operatorId = "operatorId",
@@ -354,10 +351,11 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
-        result.get(TaxResidentInUkPage).value mustEqual false
+        result.get(HasTaxIdentifierPage).value mustEqual false
+        result.get(TaxResidentInUkPage) must not be defined
         result.get(TaxResidencyCountryPage) must not be defined
-        result.get(HasInternationalTaxIdentifierPage) must not be defined
         result.get(UkTaxIdentifiersPage) must not be defined
+        result.get(InternationalTaxIdentifierPage) must not be defined
       }
 
       "when the registered address contains a country code that is not recognised, so we cannot infer the registered address" in {
@@ -435,8 +433,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
@@ -479,9 +477,9 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, true).success.value
             .set(TradingNamePage, "trading name").success.value
+            .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, false).success.value
             .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
-            .set(HasInternationalTaxIdentifierPage, true).success.value
             .set(InternationalTaxIdentifierPage, "tax id").success.value
             .set(RegisteredInUkPage, false).success.value
             .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
@@ -518,8 +516,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -554,9 +552,9 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, true).success.value
             .set(TradingNamePage, "trading name").success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(TaxResidentInUkPage, false).success.value
             .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
-            .set(HasInternationalTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, false).success.value
             .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -594,7 +592,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         result.left.value.toChain.toList must contain theSameElementsAs Seq(
           BusinessNamePage,
           HasTradingNamePage,
-          TaxResidentInUkPage,
+          HasTaxIdentifierPage,
           PrimaryContactNamePage,
           PrimaryContactEmailPage,
           CanPhonePrimaryContactPage,
@@ -603,12 +601,32 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         )
       }
 
+      "when the operator has tax identifiers but whether they are tax resident in the UK is missing" in {
+
+        val answers =
+          emptyAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "contact 1").success.value
+            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+
+        val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
+
+        result.left.value.toChain.toList must contain only TaxResidentInUkPage
+      }
+
       "when the operator is UK tax resident but tax identifier information is missing" in {
 
         val answers =
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
@@ -619,7 +637,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
 
-        result.left.value.toChain.toList must contain only HasUkTaxIdentifierPage
+        result.left.value.toChain.toList must contain only UkTaxIdentifiersPage
       }
 
       "when the operator is UK tax resident but tax identifiers are missing" in {
@@ -629,7 +647,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, true).success.value
+            .set(HasTaxIdentifierPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
@@ -645,12 +663,13 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         )
       }
 
-      "when the operator is not UK tax resident but tax identifier information is missing" in {
+      "when the operator is not UK tax resident but country of residency is missing" in {
 
         val answers =
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
@@ -661,7 +680,9 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
 
-        result.left.value.toChain.toList must contain only HasInternationalTaxIdentifierPage
+        result.left.value.toChain.toList must contain theSameElementsAs Seq(
+          TaxResidencyCountryPage, InternationalTaxIdentifierPage
+        )
       }
 
       "when the registered address is in the UK but the address itself is missing" in {
@@ -671,7 +692,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
@@ -690,7 +711,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, false).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
@@ -709,7 +730,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, true).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -729,7 +750,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -749,7 +770,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -774,7 +795,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
-            .set(HasUkTaxIdentifierPage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value

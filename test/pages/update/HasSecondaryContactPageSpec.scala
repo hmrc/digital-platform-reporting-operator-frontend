@@ -25,7 +25,7 @@ import org.scalatest.{OptionValues, TryValues}
 class HasSecondaryContactPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   private val emptyAnswers = UserAnswers("id")
-    val operatorId = "operatorId"
+  private val operatorId = "operatorId"
 
   ".nextPage" - {
 

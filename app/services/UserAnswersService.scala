@@ -59,12 +59,12 @@ class UserAnswersService @Inject() {
   private def setTaxIdentifiers(tinDetails: Seq[TinDetails]): StateT[Try, UserAnswers, Unit] =
     NonEmptyList.fromList(tinDetails.toList).map { tins =>
       if (tins.exists(_.issuedBy == "GB")) setUkTaxIdentifierDetails(tins) else setInternationalTaxIdentifierDetails(tins)
-    }.getOrElse(StateT.pure(()))
+    }.getOrElse(set(HasTaxIdentifierPage, false))
 
   private def setUkTaxIdentifierDetails(tinDetails: NonEmptyList[TinDetails])(implicit ev: Writes[String]): StateT[Try, UserAnswers, Unit] =
     for {
+      _ <- set(HasTaxIdentifierPage, true)
       _ <- set(TaxResidentInUkPage, true)
-      _ <- set(HasUkTaxIdentifierPage, true)
       _ <- setUkTaxIdentifiers(tinDetails)
       _ <- setUkTaxIdentifierValue(tinDetails, TinType.Utr, UtrPage)
       _ <- setUkTaxIdentifierValue(tinDetails, TinType.Crn, CrnPage)
@@ -99,12 +99,12 @@ class UserAnswersService @Inject() {
   private def setInternationalTaxIdentifierDetails(tinDetails: NonEmptyList[TinDetails]): StateT[Try, UserAnswers, Unit] =
     Country.internationalCountries.find(_.code == tinDetails.head.issuedBy).map { country =>
       for {
+        _ <- set(HasTaxIdentifierPage, true)
         _ <- set(TaxResidentInUkPage, false)
         _ <- set(TaxResidencyCountryPage, country)
-        _ <- set(HasInternationalTaxIdentifierPage, true)
         _ <- set(InternationalTaxIdentifierPage, tinDetails.head.tin)
       } yield ()
-    }.getOrElse(set(TaxResidentInUkPage, false))
+    }.getOrElse(set(HasTaxIdentifierPage, false))
 
   private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address.countryCode.map { countryCode =>
@@ -177,20 +177,18 @@ class UserAnswersService @Inject() {
       case false => Right(None)
     }
 
-  private def getTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] =
-    answers.getEither(TaxResidentInUkPage).flatMap {
+  private def getTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] = {
+    answers.getEither(HasTaxIdentifierPage).flatMap {
       case true =>
-        answers.getEither(HasUkTaxIdentifierPage).flatMap {
+        answers.getEither(TaxResidentInUkPage).flatMap {
           case true  => getUkTinDetails(answers)
-          case false => Right(Seq.empty)
+          case false => getInternationalTinDetails(answers)
         }
 
       case false =>
-        answers.getEither(HasInternationalTaxIdentifierPage).flatMap {
-          case true  => getInternationalTinDetails(answers)
-          case false => Right(Seq.empty)
-        }
+        Right(Seq.empty)
     }
+  }
 
   private def getUkTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] =
     answers.getEither(UkTaxIdentifiersPage).flatMap { identifiers =>
@@ -208,17 +206,11 @@ class UserAnswersService @Inject() {
   }
 
   private def getInternationalTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] =
-    answers.getEither(HasInternationalTaxIdentifierPage).flatMap {
-      case true =>
-        (
-          answers.getEither(TaxResidencyCountryPage),
-          answers.getEither(InternationalTaxIdentifierPage)
-        ).parMapN { (country, identifier) =>
-          Seq(TinDetails(identifier, TinType.Other, country.code))
-        }
-
-      case false =>
-        Right(Seq.empty)
+    (
+      answers.getEither(TaxResidencyCountryPage),
+      answers.getEither(InternationalTaxIdentifierPage)
+    ).parMapN { (country, identifier) =>
+      Seq(TinDetails(identifier, TinType.Other, country.code))
     }
 
   private def getPrimaryContact(answers: UserAnswers): EitherNec[Query, ContactDetails] =

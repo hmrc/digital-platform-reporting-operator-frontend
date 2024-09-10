@@ -33,7 +33,7 @@ case object HasTradingNamePage extends AddQuestionPage[Boolean] {
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     answers.get(this).map {
       case true  => routes.TradingNameController.onPageLoad(NormalMode)
-      case false => routes.TaxResidentInUkController.onPageLoad(NormalMode)
+      case false => routes.HasTaxIdentifierController.onPageLoad(NormalMode)
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 
   protected override def nextPageCheckMode(answers: UserAnswers): Call =
