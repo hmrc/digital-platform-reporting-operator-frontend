@@ -336,3 +336,10 @@ platformOperators.title = Platform operators
 platformOperators.heading = Platform operators
 platformOperators.add = Add a new platform operator
 platformOperators.view.hidden = the details for {0}
+
+platformOperator.title = Platform operator
+platformOperator.heading = {0}
+platformOperator.lead = Platform operator ID: {0}
+platformOperator.details.heading = Platform operator details
+platformOperator.details.p = Need content here
+platformOperator.details.actions.view = View and change Platform Operator details

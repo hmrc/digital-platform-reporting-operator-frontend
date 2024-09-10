@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import viewmodels.govuk.all.SummaryListViewModel
 
-final case class PlatformOperatorsViewModel(operators: Seq[PlatformOperatorViewModel]) {
+final case class PlatformOperatorsViewModel(operators: Seq[PlatformOperatorSummary]) {
 
   def summaryList(implicit messages: Messages): SummaryList =
     SummaryListViewModel(
@@ -33,6 +33,6 @@ object PlatformOperatorsViewModel {
 
   def apply(viewPlatformOperatorsResponse: ViewPlatformOperatorsResponse): PlatformOperatorsViewModel =
     PlatformOperatorsViewModel(
-      operators = viewPlatformOperatorsResponse.platformOperators.map(PlatformOperatorViewModel(_))
+      operators = viewPlatformOperatorsResponse.platformOperators.map(PlatformOperatorSummary(_))
     )
 }
