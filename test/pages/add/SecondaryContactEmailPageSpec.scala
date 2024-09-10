@@ -41,7 +41,7 @@ class SecondaryContactEmailPageSpec extends AnyFreeSpec with Matchers with TryVa
 
       "must go to Check Answers when Can Phone Secondary Contact has been answered" in {
 
-        val answers = emptyAnswers.set(CanPhonePrimaryContactPage, false).success.value
+        val answers = emptyAnswers.set(CanPhoneSecondaryContactPage, false).success.value
         SecondaryContactEmailPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
       }
 
