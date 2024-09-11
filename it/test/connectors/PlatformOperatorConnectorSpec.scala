@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, ViewPlatformOperatorFailure}
+import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, RemovePlatformOperatorFailure, ViewPlatformOperatorFailure}
 import models.operator.{AddressDetails, ContactDetails}
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.responses._
@@ -167,7 +167,7 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
     }
   }
 
-  "viewPlatformOperator" - {
+  ".viewPlatformOperator" - {
 
     "must return a platform operator's details when the server returns OK" in {
 
@@ -210,6 +210,35 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
       result mustBe a[ViewPlatformOperatorFailure]
 
       val failure = result.asInstanceOf[ViewPlatformOperatorFailure]
+      failure.status mustEqual 500
+    }
+  }
+
+  ".removePlatformOperator" - {
+
+    "must return successfully when the server returns OK" in {
+
+      wireMockServer.stubFor(
+        delete(urlPathEqualTo("/digital-platform-reporting/platform-operator/operatorId"))
+          .withHeader("Authorization", equalTo("authToken"))
+          .willReturn(ok())
+      )
+
+      connector.removePlatformOperator("operatorId").futureValue
+    }
+
+    "must return a failed future when the server returns an error" in {
+
+      wireMockServer.stubFor(
+        delete(urlPathEqualTo("/digital-platform-reporting/platform-operator/operatorId"))
+          .withHeader("Authorization", equalTo("authToken"))
+          .willReturn(serverError())
+      )
+
+      val result = connector.removePlatformOperator("operatorId").failed.futureValue
+      result mustBe a[RemovePlatformOperatorFailure]
+
+      val failure = result.asInstanceOf[RemovePlatformOperatorFailure]
       failure.status mustEqual 500
     }
   }

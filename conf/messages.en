@@ -344,3 +344,17 @@ platformOperator.lead = Platform operator ID: {0}
 platformOperator.details.heading = Platform operator details
 platformOperator.details.p = Need content here
 platformOperator.details.actions.view = View and change Platform Operator details
+platformOperator.remove = Remove platform operator
+
+removePlatformOperator.title = Removing a platform operator
+removePlatformOperator.heading = Removing a platform operator
+removePlatformOperator.p1 = This will permanently remove {0} with the PO ID {1}. It will no longer be possible for anyone to:
+removePlatformOperator.bullet1 = send, access, update or delete reports for the PO ID {0}
+removePlatformOperator.bullet2 = access or change details for the PO ID {0}
+removePlatformOperator.warning = Removing a platform operator that has inaccurate or incomplete reports could result in a penalty for that platform operator.
+removePlatformOperator.legend = Are you sure you want to remove {0}?
+removePlatformOperator.error.required = Select yes if you want to remove {0}
+
+platformOperatorRemoved.title = Platform operator has been successfully removed
+platformOperatorRemoved.heading = Platform operator {0} has been successfully removed
+platformOperatorRemoved.button = Back to view platform operators
