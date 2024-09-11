@@ -17,7 +17,7 @@
 package pages.add
 
 import controllers.add.routes
-import models.{Country, NormalMode, UserAnswers}
+import models.{CheckMode, Country, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -29,4 +29,11 @@ case object TaxResidencyCountryPage extends AddQuestionPage[Country] {
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     routes.InternationalTaxIdentifierController.onPageLoad(NormalMode)
+
+  override protected def nextPageCheckMode(answers: UserAnswers): Call =
+    if (answers.get(InternationalTaxIdentifierPage).isDefined) {
+      routes.CheckYourAnswersController.onPageLoad()
+    } else {
+      routes.InternationalTaxIdentifierController.onPageLoad(CheckMode)
+    }
 }

@@ -40,7 +40,7 @@
 
         @govukSelect(
             SelectViewModel(
-                field = form("country"),
+                field = form("value"),
                 items = selectItems(internationalCountries),
                 label = LabelViewModel(messages("taxResidencyCountry.heading", businessName)).asPageHeading()
             )

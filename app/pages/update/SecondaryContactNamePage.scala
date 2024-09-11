@@ -16,11 +16,21 @@
 
 package pages.update
 
+import controllers.update.routes
+import models.UserAnswers
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object SecondaryContactNamePage extends UpdateQuestionPage[String] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "secondaryContactName"
+
+  override def nextPage(operatorId: String, answers: UserAnswers): Call =
+    if (answers.get(SecondaryContactEmailPage).isDefined) {
+      routes.CheckYourAnswersController.onPageLoad(operatorId)
+    } else {
+      routes.SecondaryContactEmailController.onPageLoad(operatorId)
+    }
 }

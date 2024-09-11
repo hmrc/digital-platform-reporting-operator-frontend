@@ -18,10 +18,11 @@ package pages.add
 
 import controllers.add.routes
 import models.{CheckMode, NormalMode, UserAnswers}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class SecondaryContactNamePageSpec extends AnyFreeSpec with Matchers {
+class SecondaryContactNamePageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
@@ -37,9 +38,15 @@ class SecondaryContactNamePageSpec extends AnyFreeSpec with Matchers {
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers when Secondary Contact Email Address has been answered" in {
 
-        SecondaryContactNamePage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        val answers = emptyAnswers.set(SecondaryContactEmailPage, "email").success.value
+        SecondaryContactNamePage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go to Secondary Contact Email Address when it has not been answered" in {
+
+        SecondaryContactNamePage.nextPage(CheckMode, emptyAnswers) mustEqual routes.SecondaryContactEmailController.onPageLoad(CheckMode)
       }
     }
   }

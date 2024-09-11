@@ -16,12 +16,21 @@
 
 package pages.update
 
-import models.Country
+import controllers.update.routes
+import models.{Country, UserAnswers}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object TaxResidencyCountryPage extends UpdateQuestionPage[Country] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "taxResidencyCountry"
+
+  override def nextPage(operatorId: String, answers: UserAnswers): Call =
+    if (answers.get(InternationalTaxIdentifierPage).isDefined) {
+      routes.CheckYourAnswersController.onPageLoad(operatorId)
+    } else {
+      routes.InternationalTaxIdentifierController.onPageLoad(operatorId)
+    }
 }

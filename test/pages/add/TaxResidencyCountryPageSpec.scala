@@ -18,10 +18,11 @@ package pages.add
 
 import controllers.add.routes
 import models.{CheckMode, NormalMode, UserAnswers}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class TaxResidencyCountryPageSpec extends AnyFreeSpec with Matchers {
+class TaxResidencyCountryPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
@@ -37,9 +38,15 @@ class TaxResidencyCountryPageSpec extends AnyFreeSpec with Matchers {
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers when International Tax identifier has been answered" in {
 
-        TaxResidencyCountryPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+        val answers = emptyAnswers.set(InternationalTaxIdentifierPage, "id").success.value
+        TaxResidencyCountryPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go to International Tax identifier when it has not been answered" in {
+
+        TaxResidencyCountryPage.nextPage(CheckMode, emptyAnswers) mustEqual routes.InternationalTaxIdentifierController.onPageLoad(CheckMode)
       }
     }
   }

@@ -18,19 +18,26 @@ package pages.update
 
 import controllers.update.routes
 import models.{CheckMode, NormalMode, UserAnswers}
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
-class SecondaryContactEmailPageSpec extends AnyFreeSpec with Matchers {
+class SecondaryContactEmailPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
     val emptyAnswers = UserAnswers("id")
     val operatorId = "operatorId"
 
-    "must go to Check Answers" in {
+    "must go to Check Answers when Can Phone Secondary Contact has been answered" in {
 
-      SecondaryContactEmailPage.nextPage(operatorId, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+      val answers = emptyAnswers.set(CanPhoneSecondaryContactPage, true).success.value
+      SecondaryContactEmailPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+    }
+
+    "must go to Can Phone Secondary Contact when it has not been answered" in {
+
+      SecondaryContactEmailPage.nextPage(operatorId, emptyAnswers) mustEqual routes.CanPhoneSecondaryContactController.onPageLoad(operatorId)
     }
   }
 }
