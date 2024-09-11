@@ -20,7 +20,7 @@ import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
 import models.UkTaxIdentifiers._
 import models.operator._
-import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperator
 import models.{Country, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
@@ -169,6 +169,18 @@ class UserAnswersService @Inject() {
       getAddressDetails(answers)
     ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
       CreatePlatformOperatorRequest(dprsId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails)
+    }
+
+  def toUpdatePlatformOperatorRequest(answers: UserAnswers, dprsId: String, operatorId: String): EitherNec[Query, UpdatePlatformOperatorRequest] =
+    (
+      answers.getEither(BusinessNamePage),
+      getTradingName(answers),
+      getTinDetails(answers),
+      getPrimaryContact(answers),
+      getSecondaryContact(answers),
+      getAddressDetails(answers)
+    ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
+      UpdatePlatformOperatorRequest(dprsId, operatorId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails, None)
     }
 
   private def getTradingName(answers: UserAnswers): EitherNec[Query, Option[String]] =
