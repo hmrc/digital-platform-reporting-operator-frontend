@@ -17,9 +17,10 @@
 package connectors
 
 import config.Service
-import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, ViewPlatformOperatorFailure}
+import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, RemovePlatformOperatorFailure, ViewPlatformOperatorFailure}
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.CreatePlatformOperatorRequest
+import org.apache.pekko.Done
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
@@ -69,6 +70,16 @@ class PlatformOperatorConnector @Inject() (
           case status  => Future.failed(ViewPlatformOperatorFailure(status))
         }
       }
+
+  def removePlatformOperator(operatorId: String)(implicit hc: HeaderCarrier): Future[Done] =
+    httpClient.delete(url"$digitalPlatformReporting/digital-platform-reporting/platform-operator/$operatorId")
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK     => Future.successful(Done)
+          case status => Future.failed(RemovePlatformOperatorFailure(status))
+        }
+      }
 }
 
 object PlatformOperatorConnector {
@@ -79,5 +90,9 @@ object PlatformOperatorConnector {
 
   final case class ViewPlatformOperatorFailure(status: Int) extends Throwable {
     override def getMessage: String = s"View platform operator failed with status: $status"
+  }
+
+  final case class RemovePlatformOperatorFailure(status: Int) extends Throwable {
+    override def getMessage: String = s"Remove platform operator failed with status: $status"
   }
 }

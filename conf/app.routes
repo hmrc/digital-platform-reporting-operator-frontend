@@ -4,7 +4,7 @@
 
 ->          /add-platform-operator                       add.Routes
 
-->          /platform-operator                    update.Routes
+->          /platform-operator                           update.Routes
 
 GET         /                                            controllers.IndexController.onPageLoad()
 
