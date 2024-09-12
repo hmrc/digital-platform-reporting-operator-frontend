@@ -14,28 +14,23 @@
  * limitations under the License.
  *@
 
-@import controllers.update.routes
-@import viewmodels.PlatformOperatorAddedViewModel
+@import controllers.routes
+@import viewmodels.PlatformOperatorSummaryViewModel
 
 @this(
         layout: templates.Layout,
-        formHelper: FormWithCSRF,
-        govukButton: GovukButton,
         govukPanel: GovukPanel
 )
 
-@(operatorId: String, viewModel: PlatformOperatorAddedViewModel)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("platformOperatorAdded.title"))) {
 
     @govukPanel(Panel(
-        title = messages("platformOperatorAdded.panel.heading", viewModel.operatorName),
-        content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
+        title = messages("platformOperatorAdded.panel.heading", viewModel.operatorName)
     ))
 
-    <p class="govuk-body">@messages("platformOperatorAdded.1", viewModel.operatorName)</p>
-
-    @formHelper(action = routes.PlatformOperatorUpdatedController.onSubmit(operatorId)) {
-        @govukButton(ButtonViewModel("site.continue"))
-    }
+    <p class="govuk-body">
+        <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorAdded.link1.text")</a>
+    </p>
 }

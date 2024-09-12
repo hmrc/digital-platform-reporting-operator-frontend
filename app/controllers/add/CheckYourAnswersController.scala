@@ -30,7 +30,7 @@ import services.UserAnswersService
 import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.PlatformOperatorAddedViewModel
+import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.add._
 import viewmodels.govuk.summarylist._
 import views.html.add.CheckYourAnswersView
@@ -87,7 +87,7 @@ class CheckYourAnswersController @Inject()(
             for {
               createResponse       <- connector.createPlatformOperator(createRequest)
               cleanedAnswers       =  request.userAnswers.copy(data = Json.obj())
-              platformOperatorInfo =  PlatformOperatorAddedViewModel(createResponse.operatorId, createRequest)
+              platformOperatorInfo =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
               updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
               _                    <- sessionRepository.set(updatedAnswers)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))

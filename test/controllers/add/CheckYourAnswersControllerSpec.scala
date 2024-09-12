@@ -34,7 +34,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
-import viewmodels.PlatformOperatorAddedViewModel
+import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.add.CheckYourAnswersView
@@ -159,7 +159,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
         )
 
-        val expectedOperatorInfo = PlatformOperatorAddedViewModel("operator id", "business")
+        val expectedOperatorInfo = PlatformOperatorSummaryViewModel("operator id", "business")
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
@@ -249,7 +249,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
 
-          route(app, request).value.failed.futureValue
           route(app, request).value.failed.futureValue
           verify(mockConnector, never()).createPlatformOperator(any())(any())
           verify(mockRepository, never()).set(any())

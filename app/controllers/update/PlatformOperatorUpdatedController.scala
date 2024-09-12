@@ -17,11 +17,11 @@
 package controllers.update
 
 import controllers.actions._
-import pages.update.PlatformOperatorUpdatedPage
+import pages.add.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PlatformOperatorAddedQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.update.PlatformOperatorUpdatedView
 
 import javax.inject.Inject
@@ -33,17 +33,15 @@ class PlatformOperatorUpdatedController @Inject()(
                                                    requireData: DataRequiredAction,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: PlatformOperatorUpdatedView
-                                                 ) extends FrontendBaseController with I18nSupport {
+                                                 )
+  extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    request.userAnswers.get(PlatformOperatorAddedQuery).map { viewModel =>
+    request.userAnswers.get(BusinessNamePage).map { businessName =>
+      val viewModel = PlatformOperatorSummaryViewModel(operatorId, businessName)
       Ok(view(operatorId, viewModel))
     }.getOrElse {
       Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
-  }
-
-  def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    Redirect(PlatformOperatorUpdatedPage.nextPage(operatorId, request.userAnswers))
   }
 }

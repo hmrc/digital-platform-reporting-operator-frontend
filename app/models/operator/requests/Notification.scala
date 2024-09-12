@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package viewmodels
+package models.operator.requests
 
-import models.operator.requests.CreatePlatformOperatorRequest
-import play.api.libs.json.{Json, OFormat}
+import models.operator.NotificationType
+import play.api.libs.json.{Json, OWrites}
 
-final case class PlatformOperatorAddedViewModel(operatorId: String,
-                                                operatorName: String)
+final case class Notification(notificationType: NotificationType,
+                              isActiveSeller: Boolean,
+                              isDueDiligence: Boolean,
+                              firstPeriod: String)
 
-object PlatformOperatorAddedViewModel {
-
-  implicit lazy val format: OFormat[PlatformOperatorAddedViewModel] = Json.format
-
-  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorAddedViewModel =
-    PlatformOperatorAddedViewModel(operatorId, createRequest.operatorName)
+object Notification {
+  
+  implicit lazy val writes: OWrites[Notification] = Json.writes
 }

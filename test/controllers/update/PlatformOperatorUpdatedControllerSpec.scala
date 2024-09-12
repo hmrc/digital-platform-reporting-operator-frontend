@@ -17,11 +17,10 @@
 package controllers.update
 
 import base.SpecBase
-import pages.update.PlatformOperatorUpdatedPage
+import pages.update.BusinessNamePage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import queries.PlatformOperatorAddedQuery
-import viewmodels.PlatformOperatorAddedViewModel
+import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.update.PlatformOperatorUpdatedView
 
 class PlatformOperatorUpdatedControllerSpec extends SpecBase {
@@ -30,8 +29,8 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val viewModel = PlatformOperatorAddedViewModel("id", "name")
-      val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
+      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
+      val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "name").success.value
 
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
@@ -44,20 +43,6 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(operatorId, viewModel)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to the next page for a POST" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(POST, routes.PlatformOperatorUpdatedController.onSubmit(operatorId).url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual PlatformOperatorUpdatedPage.nextPage(operatorId, emptyUserAnswers).url
       }
     }
   }

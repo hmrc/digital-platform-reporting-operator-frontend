@@ -17,9 +17,9 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, RemovePlatformOperatorFailure, ViewPlatformOperatorFailure}
+import connectors.PlatformOperatorConnector._
 import models.operator.{AddressDetails, ContactDetails}
-import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests._
 import models.operator.responses._
 import org.scalatest.{BeforeAndAfterEach, EitherValues}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -104,6 +104,66 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
         result mustBe a[CreatePlatformOperatorFailure]
 
         val failure = result.asInstanceOf[CreatePlatformOperatorFailure]
+        failure.status mustEqual INTERNAL_SERVER_ERROR
+      }
+    }
+  }
+
+  ".updatePlatformOperator" - {
+
+    "must post a request" - {
+
+      "and succeed when the server returns OK" in {
+
+        val request = UpdatePlatformOperatorRequest(subscriptionId = "dprs id",
+          operatorId = "operatorId",
+          operatorName = "name",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, None, None, None, None),
+          notification = None
+        )
+
+        wireMockServer.stubFor(
+          post(urlPathEqualTo("/digital-platform-reporting/platform-operator/operatorId"))
+            .withHeader("Authorization", equalTo("authToken"))
+            .withRequestBody(equalTo(Json.toJson(request).toString))
+            .willReturn(ok())
+        )
+
+        connector.updatePlatformOperator(request).futureValue
+      }
+
+      "and return a failed future when the server returns an error" in {
+
+        val request = UpdatePlatformOperatorRequest(subscriptionId = "dprs is",
+          operatorId = "operatorId",
+          operatorName = "name",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, None, None, None, None),
+          notification = None
+        )
+
+        wireMockServer.stubFor(
+          post(urlPathEqualTo("/digital-platform-reporting/platform-operator/operatorId"))
+            .withHeader("Authorization", equalTo("authToken"))
+            .withRequestBody(equalTo(Json.toJson(request).toString))
+            .willReturn(
+              serverError()
+            )
+        )
+
+        val result = connector.updatePlatformOperator(request).failed.futureValue
+        result mustBe an[UpdatePlatformOperatorFailure]
+
+        val failure = result.asInstanceOf[UpdatePlatformOperatorFailure]
         failure.status mustEqual INTERNAL_SERVER_ERROR
       }
     }

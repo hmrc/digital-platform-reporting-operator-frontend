@@ -15,7 +15,7 @@
  *@
 
 @import controllers.add.routes
-@import viewmodels.PlatformOperatorAddedViewModel
+@import viewmodels.PlatformOperatorSummaryViewModel
 
 @this(
         layout: templates.Layout,
@@ -24,7 +24,7 @@
         govukPanel: GovukPanel
 )
 
-@(viewModel: PlatformOperatorAddedViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("platformOperatorAdded.title"))) {
 

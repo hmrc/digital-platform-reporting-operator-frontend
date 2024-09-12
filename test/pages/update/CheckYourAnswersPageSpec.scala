@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package queries
+package pages.update
 
-import play.api.libs.json.JsPath
-import viewmodels.PlatformOperatorSummaryViewModel
+import controllers.update.routes
+import models.UserAnswers
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-case object PlatformOperatorAddedQuery extends Gettable[PlatformOperatorSummaryViewModel] with Settable[PlatformOperatorSummaryViewModel] {
+class CheckYourAnswersPageSpec extends AnyFreeSpec with Matchers {
 
-  override def path: JsPath = JsPath \ "platformOperatorAddedInfo"
+  private val operatorId = "operatorId"
+  private val emptyAnswers = UserAnswers("id")
+
+  ".nextPage" - {
+
+    "must go to Platform Operator Updated" in {
+
+      CheckYourAnswersPage.nextPage(operatorId, emptyAnswers) mustEqual routes.PlatformOperatorUpdatedController.onPageLoad(operatorId)
+    }
+  }
 }

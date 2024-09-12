@@ -82,7 +82,6 @@ GET        /:operatorId/change-vrn                  controllers.update.VrnContro
 POST       /:operatorId/change-vrn                  controllers.update.VrnController.onSubmit(operatorId: String)
 
 GET        /:operatorId/updated-successfully          controllers.update.PlatformOperatorUpdatedController.onPageLoad(operatorId: String)
-POST       /:operatorId/updated-successfully          controllers.update.PlatformOperatorUpdatedController.onSubmit(operatorId: String)
 
 GET         /remove/:operatorId/are-you-sure          controllers.update.RemovePlatformOperatorController.onPageLoad(operatorId: String)
 POST        /remove/:operatorId/are-you-sure          controllers.update.RemovePlatformOperatorController.onSubmit(operatorId: String)

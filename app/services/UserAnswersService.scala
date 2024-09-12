@@ -20,7 +20,7 @@ import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
 import models.UkTaxIdentifiers._
 import models.operator._
-import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperator
 import models.{Country, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
@@ -171,6 +171,18 @@ class UserAnswersService @Inject() {
       CreatePlatformOperatorRequest(dprsId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails)
     }
 
+  def toUpdatePlatformOperatorRequest(answers: UserAnswers, dprsId: String, operatorId: String): EitherNec[Query, UpdatePlatformOperatorRequest] =
+    (
+      answers.getEither(BusinessNamePage),
+      getTradingName(answers),
+      getTinDetails(answers),
+      getPrimaryContact(answers),
+      getSecondaryContact(answers),
+      getAddressDetails(answers)
+    ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
+      UpdatePlatformOperatorRequest(dprsId, operatorId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails, None)
+    }
+
   private def getTradingName(answers: UserAnswers): EitherNec[Query, Option[String]] =
     answers.getEither(HasTradingNamePage).flatMap {
       case true => answers.getEither(TradingNamePage).map(Some(_))
@@ -267,5 +279,9 @@ object UserAnswersService {
 
   final case class BuildCreatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
     override def getMessage: String = s"unable to build Create Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
+  }
+
+  final case class BuildUpdatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
+    override def getMessage: String = s"unable to build Update Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
   }
 }
