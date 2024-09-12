@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package viewmodels
+package pages.update
 
-import models.operator.requests.CreatePlatformOperatorRequest
-import play.api.libs.json.{Json, OFormat}
+import controllers.update.routes
+import models.UserAnswers
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-final case class PlatformOperatorAddedViewModel(operatorId: String,
-                                                operatorName: String)
+class CheckYourAnswersPageSpec extends AnyFreeSpec with Matchers {
 
-object PlatformOperatorAddedViewModel {
+  private val operatorId = "operatorId"
+  private val emptyAnswers = UserAnswers("id")
 
-  implicit lazy val format: OFormat[PlatformOperatorAddedViewModel] = Json.format
+  ".nextPage" - {
 
-  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorAddedViewModel =
-    PlatformOperatorAddedViewModel(operatorId, createRequest.operatorName)
+    "must go to Platform Operator Updated" in {
+
+      CheckYourAnswersPage.nextPage(operatorId, emptyAnswers) mustEqual routes.PlatformOperatorUpdatedController.onPageLoad(operatorId)
+    }
+  }
 }

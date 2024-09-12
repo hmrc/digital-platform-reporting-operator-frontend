@@ -16,10 +16,12 @@
 
 package pages.update
 
+import controllers.update.routes
 import models.UserAnswers
 import play.api.mvc.Call
 
 case object CheckYourAnswersPage extends UpdatePage {
 
-  override def nextPage(operatorId: String, answers: UserAnswers): Call = ???
+  override def nextPage(operatorId: String, answers: UserAnswers): Call =
+    routes.PlatformOperatorUpdatedController.onPageLoad(operatorId)
 }

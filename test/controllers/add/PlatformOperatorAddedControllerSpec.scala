@@ -22,7 +22,7 @@ import pages.add.PlatformOperatorAddedPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorAddedQuery
-import viewmodels.PlatformOperatorAddedViewModel
+import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.add.PlatformOperatorAddedView
 
 class PlatformOperatorAddedControllerSpec extends SpecBase {
@@ -31,7 +31,7 @@ class PlatformOperatorAddedControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val viewModel = PlatformOperatorAddedViewModel("id", "name")
+      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
       val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
 
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()

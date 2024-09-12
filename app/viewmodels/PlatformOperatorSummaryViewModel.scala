@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package queries
+package viewmodels
 
-import play.api.libs.json.JsPath
-import viewmodels.PlatformOperatorSummaryViewModel
+import models.operator.requests.CreatePlatformOperatorRequest
+import play.api.libs.json.{Json, OFormat}
 
-case object PlatformOperatorAddedQuery extends Gettable[PlatformOperatorSummaryViewModel] with Settable[PlatformOperatorSummaryViewModel] {
+final case class PlatformOperatorSummaryViewModel(operatorId: String,
+                                                  operatorName: String)
 
-  override def path: JsPath = JsPath \ "platformOperatorAddedInfo"
+object PlatformOperatorSummaryViewModel {
+
+  implicit lazy val format: OFormat[PlatformOperatorSummaryViewModel] = Json.format
+
+  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorSummaryViewModel =
+    PlatformOperatorSummaryViewModel(operatorId, createRequest.operatorName)
 }

@@ -22,15 +22,12 @@ import controllers.actions._
 import models.UserAnswers
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
 import services.UserAnswersService
-import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
+import services.UserAnswersService._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.PlatformOperatorAddedViewModel
 import viewmodels.checkAnswers.update._
 import viewmodels.govuk.summarylist._
 import views.html.update.CheckYourAnswersView
@@ -45,8 +42,7 @@ class CheckYourAnswersController @Inject()(
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
-                                            connector: PlatformOperatorConnector,
-                                            sessionRepository: SessionRepository
+                                            connector: PlatformOperatorConnector
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
@@ -80,17 +76,13 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
 
-      userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId)
+      userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId)
         .fold(
-          errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
-          createRequest =>
-            for {
-              createResponse       <- connector.createPlatformOperator(createRequest)
-              cleanedAnswers       =  request.userAnswers.copy(data = Json.obj())
-              platformOperatorInfo =  PlatformOperatorAddedViewModel(createResponse.operatorId, createRequest)
-              updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
-              _                    <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, updatedAnswers))
+          errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
+          updateRequest =>
+            connector
+              .updatePlatformOperator(updateRequest)
+              .map(_ => Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers)))
         )
   }
 

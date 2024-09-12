@@ -280,4 +280,8 @@ object UserAnswersService {
   final case class BuildCreatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
     override def getMessage: String = s"unable to build Create Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
   }
+
+  final case class BuildUpdatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
+    override def getMessage: String = s"unable to build Update Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
+  }
 }

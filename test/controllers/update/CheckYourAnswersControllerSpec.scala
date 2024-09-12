@@ -19,10 +19,11 @@ package controllers.update
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
-import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, ContactDetails}
 import models.{Country, UkAddress, UserAnswers}
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -34,7 +35,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
-import viewmodels.PlatformOperatorAddedViewModel
+import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.update.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.update.CheckYourAnswersView
@@ -131,10 +132,11 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
     "for a POST" - {
 
-      "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" ignore {
+      "must submit an Update Operator request and redirect to the next page" in {
 
         val answers =
           emptyUserAnswers
+            .copy(operatorId = Some("operatorId"))
             .set(BusinessNamePage, "business").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
@@ -146,24 +148,20 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(CanPhonePrimaryContactPage, false).success.value
             .set(HasSecondaryContactPage, false).success.value
 
-        val response = PlatformOperatorCreatedResponse("operator id")
-
-        val expectedRequest = CreatePlatformOperatorRequest(
+        val expectedRequest = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",
+          operatorId = "operatorId",
           operatorName = "business",
           tinDetails = Seq.empty,
           businessName = None,
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "name", "email"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notification = None
         )
 
-        val expectedOperatorInfo = PlatformOperatorAddedViewModel("operator id", "business")
-        val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-
-        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
-        when(mockRepository.set(any())) thenReturn Future.successful(true)
+        when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
 
         val app =
           applicationBuilder(Some(answers))
@@ -181,18 +179,16 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           status(result) mustEqual SEE_OTHER
 
           redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(operatorId, answers).url
-          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockRepository, times(1)).set(answersCaptor.capture())
-
-          val savedAnswers = answersCaptor.getValue
-          savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual expectedOperatorInfo
+          verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockRepository, never()).set(any())
         }
       }
 
-      "must return a failed future when creating the operator fails" in {
+      "must return a failed future when updating the operator fails" in {
 
         val answers =
           emptyUserAnswers
+            .copy(operatorId = Some("operatorId"))
             .set(BusinessNamePage, "business").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
@@ -204,18 +200,20 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(CanPhonePrimaryContactPage, false).success.value
             .set(HasSecondaryContactPage, false).success.value
 
-        val expectedRequest = CreatePlatformOperatorRequest(
+        val expectedRequest = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",
+          operatorId = "operatorId",
           operatorName = "business",
           tinDetails = Seq.empty,
           businessName = None,
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "name", "email"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notification = None
         )
 
-        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.failed(new Exception("foo"))
+        when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.failed(new Exception("foo"))
 
         val app =
           applicationBuilder(Some(answers))
@@ -229,7 +227,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
 
           route(app, request).value.failed.futureValue
-          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
         }
       }
@@ -249,7 +247,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
 
-          route(app, request).value.failed.futureValue
           route(app, request).value.failed.futureValue
           verify(mockConnector, never()).createPlatformOperator(any())(any())
           verify(mockRepository, never()).set(any())

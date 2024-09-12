@@ -17,9 +17,9 @@
 package connectors
 
 import config.Service
-import connectors.PlatformOperatorConnector.{CreatePlatformOperatorFailure, RemovePlatformOperatorFailure, ViewPlatformOperatorFailure}
+import connectors.PlatformOperatorConnector._
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
-import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done
 import play.api.Configuration
 import play.api.http.Status.{NOT_FOUND, OK}
@@ -47,6 +47,18 @@ class PlatformOperatorConnector @Inject() (
         response.status match {
           case OK     => Future.successful(response.json.as[PlatformOperatorCreatedResponse])
           case status => Future.failed(CreatePlatformOperatorFailure(status))
+        }
+      }
+
+  def updatePlatformOperator(request: UpdatePlatformOperatorRequest)
+                            (implicit hc: HeaderCarrier): Future[Done] =
+    httpClient.post(url"$digitalPlatformReporting/digital-platform-reporting/platform-operator/${request.operatorId}")
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK     => Future.successful(Done)
+          case status => Future.failed(UpdatePlatformOperatorFailure(status))
         }
       }
 
@@ -86,6 +98,10 @@ object PlatformOperatorConnector {
 
   final case class CreatePlatformOperatorFailure(status: Int) extends Throwable {
     override def getMessage: String = s"Create platform operator failed with status: $status"
+  }
+
+  final case class UpdatePlatformOperatorFailure(status: Int) extends Throwable {
+    override def getMessage: String = s"Update platform operator failed with status: $status"
   }
 
   final case class ViewPlatformOperatorFailure(status: Int) extends Throwable {

@@ -333,6 +333,10 @@ platformOperatorAdded.panel.heading = {0} added
 platformOperatorAdded.panel.content = The platform operator ID is {0}
 platformOperatorAdded.p1 = {0} has been successfully added as a platform operator.
 
+platformOperatorAdded.title = Platform operator updated
+platformOperatorAdded.heading = Details updated for {0}
+platformOperatorAdded.link1.text = Return to “View your platform operators”
+
 platformOperators.title = Platform operators
 platformOperators.heading = Platform operators
 platformOperators.add = Add a new platform operator
