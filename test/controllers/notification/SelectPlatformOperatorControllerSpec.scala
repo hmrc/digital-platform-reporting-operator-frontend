@@ -19,12 +19,12 @@ package controllers.notification
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import forms.SelectPlatformOperatorFormProvider
-import models.UserAnswers
 import models.operator.responses.{PlatformOperator, ViewPlatformOperatorsResponse}
 import models.operator.{AddressDetails, ContactDetails}
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.{ArgumentCaptor, Mockito}
+import models.{NormalMode, UserAnswers}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.notification.SelectPlatformOperatorPage
@@ -114,7 +114,7 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual SelectPlatformOperatorPage.nextPage(operatorId, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual SelectPlatformOperatorPage.nextPage(NormalMode, operatorId, emptyUserAnswers).url
         verify(mockSessionRepository, times(1)).set(answersCaptor.capture())
 
         val answers = answersCaptor.getValue

@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package pages.notification
+package pages
 
 import controllers.notification.routes
-import models.{NotificationType, UserAnswers}
-import play.api.libs.json.JsPath
-import play.api.mvc.Call
+import models.{NormalMode, UserAnswers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import pages.notification.SelectPlatformOperatorPage
 
-case object NotificationTypePage extends NotificationQuestionPage[NotificationType] {
+class SelectPlatformOperatorPageSpec extends AnyFreeSpec with Matchers {
 
-  override def path: JsPath = JsPath \ "notificationType"
+  ".nextPage" - {
 
-  override def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
-    routes.StartController.onPageLoad // TODO: Temporary until other pages exist
+    val emptyAnswers = UserAnswers("id")
+
+    "must go to Notification Type for the correct platform operator" in {
+
+      SelectPlatformOperatorPage.nextPage(NormalMode, "operatorId", emptyAnswers)
+        .mustEqual(routes.NotificationTypeController.onPageLoad(NormalMode, "operatorId"))
+    }
+  }
 }

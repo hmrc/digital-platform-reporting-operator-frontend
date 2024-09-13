@@ -1,5 +1,7 @@
-GET         /:operatorId/add-notification                       controllers.notification.NotificationTypeController.onPageLoad(operatorId: String)
-POST        /:operatorId/add-notification                       controllers.notification.NotificationTypeController.onSubmit(operatorId: String)
+GET         /:operatorId/add-notification                       controllers.notification.NotificationTypeController.onPageLoad(mode: Mode = NormalMode, operatorId: String)
+POST        /:operatorId/add-notification                       controllers.notification.NotificationTypeController.onSubmit(mode: Mode = NormalMode, operatorId: String)
+GET         /:operatorId/change-add-notification                controllers.notification.NotificationTypeController.onPageLoad(mode: Mode = CheckMode, operatorId: String)
+POST        /:operatorId/change-add-notification                controllers.notification.NotificationTypeController.onSubmit(mode: Mode = CheckMode, operatorId: String)
 
 GET         /start                                              controllers.notification.StartController.onPageLoad
 

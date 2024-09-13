@@ -27,11 +27,11 @@
         detailSnippet: NotificationTypeDetailSnippet
 )
 
-@(form: Form[_], operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("notificationType.title"))) {
 
-    @formHelper(action = routes.NotificationTypeController.onSubmit(operatorId), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.NotificationTypeController.onSubmit(mode, operatorId), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))

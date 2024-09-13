@@ -19,7 +19,7 @@ package controllers.notification
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.NotificationTypeFormProvider
-import models.NotificationType
+import models.{NormalMode, NotificationType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class NotificationTypeControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val notificationTypeRoute = routes.NotificationTypeController.onPageLoad(operatorId).url
+  private lazy val notificationTypeRoute = routes.NotificationTypeController.onPageLoad(NormalMode, operatorId).url
 
   private val formProvider = new NotificationTypeFormProvider()
   private val businessName = "name"
@@ -57,7 +57,7 @@ class NotificationTypeControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
       }
     }
 
@@ -75,7 +75,7 @@ class NotificationTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(NotificationType.values.head), operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(NotificationType.values.head), NormalMode, operatorId, businessName)(request, messages(application)).toString
       }
     }
 
@@ -99,7 +99,7 @@ class NotificationTypeControllerSpec extends SpecBase with MockitoSugar {
         val expectedAnswers = baseAnswers.set(NotificationTypePage, NotificationType.values.head).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual NotificationTypePage.nextPage(operatorId, expectedAnswers).url
+        redirectLocation(result).value mustEqual NotificationTypePage.nextPage(NormalMode, operatorId, expectedAnswers).url
       }
     }
 
@@ -119,7 +119,7 @@ class NotificationTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
       }
     }
 

@@ -17,11 +17,11 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.UserAnswers
+import models.{NormalMode, UserAnswers}
 import play.api.mvc.Call
 
 case object SelectPlatformOperatorPage extends NotificationPage {
 
-  override def nextPage(operatorId: String, answers: UserAnswers): Call =
-    routes.NotificationTypeController.onPageLoad(operatorId)
+  override def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
+    routes.NotificationTypeController.onPageLoad(NormalMode, operatorId)
 }

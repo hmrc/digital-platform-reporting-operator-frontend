@@ -19,6 +19,7 @@ package controllers.notification
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.NotificationTypeFormProvider
+import models.Mode
 import pages.notification.NotificationTypePage
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -41,7 +42,7 @@ class NotificationTypeController @Inject()(
                                             view: NotificationTypeView
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
 
       val form = formProvider(businessName)
@@ -51,24 +52,24 @@ class NotificationTypeController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, operatorId, businessName))
+      Ok(view(preparedForm, mode, operatorId, businessName))
     }
   }
 
-  def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
 
       val form = formProvider(businessName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
+          Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName))),
 
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(NotificationTypePage, value))
             _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(NotificationTypePage.nextPage(operatorId, updatedAnswers))
+          } yield Redirect(NotificationTypePage.nextPage(mode, operatorId, updatedAnswers))
       )
     }
   }

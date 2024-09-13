@@ -20,6 +20,7 @@ import connectors.PlatformOperatorConnector
 import controllers.actions._
 import controllers.{routes => baseRoutes}
 import forms.SelectPlatformOperatorFormProvider
+import models.NormalMode
 import pages.notification.SelectPlatformOperatorPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -63,7 +64,7 @@ class SelectPlatformOperatorController @Inject()(
             for {
               userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, operator))
               _           <- sessionRepository.set(userAnswers)
-            } yield Redirect(SelectPlatformOperatorPage.nextPage(operatorId, userAnswers))
+            } yield Redirect(SelectPlatformOperatorPage.nextPage(NormalMode, operatorId, userAnswers))
           }.getOrElse {
             Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))
           }
