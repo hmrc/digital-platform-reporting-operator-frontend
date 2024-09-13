@@ -1,0 +1,7 @@
+GET         /:operatorId/add-notification                       controllers.notification.NotificationTypeController.onPageLoad(operatorId: String)
+POST        /:operatorId/add-notification                       controllers.notification.NotificationTypeController.onSubmit(operatorId: String)
+
+GET         /start                                              controllers.notification.StartController.onPageLoad
+
+GET         /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onPageLoad
+POST        /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onSubmit

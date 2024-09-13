@@ -1,0 +1,78 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.notification.routes
+@import views.html.notification.NotificationTypeDetailSnippet
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukRadios: GovukRadios,
+        govukButton: GovukButton,
+        govukDetails: GovukDetails,
+        detailSnippet: NotificationTypeDetailSnippet
+)
+
+@(form: Form[_], operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("notificationType.title"))) {
+
+    @formHelper(action = routes.NotificationTypeController.onSubmit(operatorId), Symbol("autoComplete") -> "off") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
+        }
+
+        <h1 class="govuk-heading-xl">@messages("notificationType.heading")</h1>
+
+        <p class="govuk-body">@messages("notificationType.p1")</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("notificationType.p1.bullet1")</li>
+            <li>@messages("notificationType.p1.bullet2")</li>
+        </ul>
+
+        <p class="govuk-body">@messages("notificationType.p2")</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("notificationType.p2.bullet1")</li>
+            <li>@messages("notificationType.p2.bullet2")</li>
+            <li>@messages("notificationType.p2.bullet3")</li>
+        </ul>
+
+        <p class="govuk-body">@messages("notificationType.p3")</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>@messages("notificationType.p3.bullet1")</li>
+            <li>@messages("notificationType.p3.bullet2")</li>
+        </ul>
+
+        @govukDetails(Details(
+            summary = Text(messages("notificationType.detail.title")),
+            content = HtmlContent(detailSnippet())
+        ))
+        
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("notificationType.legend", businessName)).withCssClass("govuk-fieldset__legend--m"),
+                items  = NotificationType.options
+            )
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
