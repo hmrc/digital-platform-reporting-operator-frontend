@@ -17,7 +17,8 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.{NotificationType, UserAnswers}
+import controllers.{routes => baseRoutes}
+import models.{CheckMode, NormalMode, NotificationType, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -25,6 +26,17 @@ case object NotificationTypePage extends NotificationQuestionPage[NotificationTy
 
   override def path: JsPath = JsPath \ "notificationType"
 
-  override def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
-    routes.StartController.onPageLoad // TODO: Temporary until other pages exist
+  override protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
+    routes.ReportingPeriodController.onPageLoad(NormalMode, operatorId)
+
+  override protected def nextPageCheckMode(operatorId: String, answers: UserAnswers): Call =
+    answers.get(this).map {
+      case NotificationType.Rpo =>
+        answers.get(DueDiligencePage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
+          .getOrElse(routes.DueDiligenceController.onPageLoad(CheckMode, operatorId))
+
+      case NotificationType.Epo =>
+        routes.CheckYourAnswersController.onPageLoad(operatorId)
+    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 }

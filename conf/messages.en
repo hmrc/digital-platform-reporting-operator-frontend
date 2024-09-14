@@ -39,6 +39,9 @@ checkYourAnswers.add.contactDetails = Contact details
 checkYourAnswers.add.primaryContact = First contact
 checkYourAnswers.add.secondaryContact = Second contact
 
+checkYourAnswers.notification.title = Check your answers
+checkYourAnswers.notification.heading = Check your answers
+
 checkYourAnswers.update.title = Change your answers
 checkYourAnswers.update.heading = Change your answers
 checkYourAnswers.update.platformOperator = Platform operator details
@@ -413,3 +416,45 @@ notificationType.legend = What is the reporting notification for {0}?
 notificationType.error.required = Select the reporting notification for {0}
 notificationType.rpo = Reporting platform operator (RPO)
 notificationType.epo = Excluded platform operator (EPO)
+notificationType.checkYourAnswersLabel = What is the reporting notification of {0}?
+notificationType.change.hidden = the reporting notification of {0}
+
+dueDiligence.title = Due diligence
+dueDiligence.heading = Due diligence
+dueDiligence.p1 = As a reporting platform operator, {0} will need to collect information about sellers and, if applicable, property listed on their platform. They will then need to verify this information - this is known as ‘due diligence’.
+dueDiligence.extended.heading = Extended time limits for due diligence on existing sellers
+dueDiligence.extended.p1 = {0} can choose to take an extra year from when they first became a reporting platform operator to complete due diligence on pre-existing sellers. Pre-existing sellers are those who had been registered on the platform before {0} had to start reporting.
+dueDiligence.active.heading = Active seller due diligence
+dueDiligence.active.p1 = {0} can also choose to carry out due diligence on active sellers only. Active sellers are those that supply or are paid for goods and services.
+dueDiligence.legend = Does {0} choose to take any types of due diligence?
+dueDiligence.extendedDueDiligence = Extended time limits for due diligence on existing sellers
+dueDiligence.activeDueDiligence = Active seller due diligence
+dueDiligence.noDueDiligence = None of the above
+dueDiligence.checkAnswers.extendedDueDiligence = Extended time limits for due diligence on existing sellers
+dueDiligence.checkAnswers.activeDueDiligence = Active seller due diligence
+dueDiligence.checkAnswers.noDueDiligence = None
+dueDiligence.error.required = Select the types of due diligence {0} is choosing to take
+dueDiligence.error.mutuallyExclusive = Select the types of due diligence {0} is choosing to take or none of the above
+dueDiligence.checkYourAnswersLabel = Does {0} choose to take any types of due diligence?
+dueDiligence.change.hidden = if {0} chooses to take any types of due diligence
+
+reportingPeriod.title = What is the first reportable period for the platform operator?
+reportingPeriod.heading = What is the first reportable period for {0}?
+reportingPeriod.p1 = This is the first year the platform operator became an RPO and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
+reportingPeriod.hint = This is a year, for example 2024.
+reportingPeriod.error.required = Enter the first reportable period
+reportingPeriod.error.belowMinimum = First reportable period must be {0} or later
+reportingPeriod.error.aboveMaximum = First reportable period must be {0} or earlier
+reportingPeriod.checkYourAnswersLabel = What is the first year {0} is required to report for?
+reportingPeriod.change.hidden = the first year {0} is required to report for
+
+reportingInFirstPeriod.title = Reporting for the {0} reportable period with extended due diligence
+reportingInFirstPeriod.heading = Reporting for the {0} reportable period with extended due diligence
+reportingInFirstPeriod.p1 = For the {0} reportable period, the RPO will still have to report the information of:
+reportingInFirstPeriod.p1.bullet1 = new Reportable Sellers that joined the platform in {0}
+reportingInFirstPeriod.p1.bullet2 = any pre-existing Sellers that due diligence has been completed on
+reportingInFirstPeriod.p2 = They will need to report this information by the end of January {0}.
+reportingInFirstPeriod.legend = Will {0} still report for the {1} reportable period?
+reportingInFirstPeriod.error.required = Select yes if {0} will still report for the {1} reportable period
+reportingInFirstPeriod.checkYourAnswersLabel = Will {0} still report for the {1} reportable period?
+reportingInFirstPeriod.change.hidden = if {0} will still report for the {1} reportable period

@@ -1,0 +1,63 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.notification.routes
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukCheckboxes: GovukCheckboxes,
+        govukButton: GovukButton
+)
+
+@(form: Form[_], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("dueDiligence.title"))) {
+
+    @formHelper(action = routes.DueDiligenceController.onSubmit(mode, operatorId), Symbol("autoComplete") -> "off") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
+        }
+
+        <h1 class="govuk-heading-xl">@messages("dueDiligence.heading")</h1>
+
+        <p1 class="govuk-body">@messages("dueDiligence.p1")</p1>
+
+        <h2 class="govuk-heading-m">@messages("dueDiligence.extended.heading")</h2>
+
+        <p class="govuk-body">@messages("dueDiligence.extended.p1", businessName)</p>
+
+        <h2 class="govuk-heading-m">@messages("dueDiligence.active.heading")</h2>
+
+        <p class="govuk-body">@messages("dueDiligence.active.p1", businessName)</p>
+
+        @govukCheckboxes(
+            CheckboxesViewModel(
+                form   = form,
+                name   = "value",
+                legend = LegendViewModel(messages("dueDiligence.legend", businessName)).withCssClass("govuk-fieldset__legend--m"),
+                items  = DueDiligence.checkboxItems
+            )
+            .withHint(HintViewModel(messages("dueDiligence.hint")))
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
