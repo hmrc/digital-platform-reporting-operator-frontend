@@ -34,7 +34,7 @@ object ReportingPeriodSummary  {
     } yield {
 
       SummaryListRowViewModel(
-        key     = messages("dueDiligence.checkYourAnswersLabel", businessName),
+        key     = messages("reportingPeriod.checkYourAnswersLabel", businessName),
         value   = ValueViewModel(reportingPeriod.toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ReportingPeriodController.onPageLoad(CheckMode, operatorId).url)

@@ -34,11 +34,11 @@ object NotificationTypeSummary  {
     } yield {
 
       SummaryListRowViewModel(
-        key     = messages("dueDiligence.checkYourAnswersLabel", businessName),
-        value   = ValueViewModel(messages(s"reportingInFirstPeriod.checkAnswers.$answer")),
+        key     = messages("notificationType.checkYourAnswersLabel", businessName),
+        value   = ValueViewModel(messages(s"notificationType.$answer")),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.ReportingInFirstPeriodController.onPageLoad(CheckMode, operatorId).url)
-            .withVisuallyHiddenText(messages("reportingInFirstPeriod.change.hidden", businessName))
+          ActionItemViewModel("site.change", routes.NotificationTypeController.onPageLoad(CheckMode, operatorId).url)
+            .withVisuallyHiddenText(messages("notificationType.change.hidden", businessName))
         )
       )
     }

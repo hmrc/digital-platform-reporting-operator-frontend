@@ -34,21 +34,21 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("reportingInFirstPeriod.heading", reportingPeriod)</h1>
+        <h1 class="govuk-heading-xl">@messages("reportingInFirstPeriod.heading", reportingPeriod.toString)</h1>
 
-        <p class="govuk-body">@messages("reportingInFirstPeriod.p1", reportingPeriod)</p>
+        <p class="govuk-body">@messages("reportingInFirstPeriod.p1", reportingPeriod.toString)</p>
 
         <ul class="govuk-list govuk-list--bullet">
-            <li>@messages("reportingInFirstPeriod.p1.bullet1")</li>
-            <li>@messages("reportingInFirstPeriod.p1.bullet2", reportingPeriod + 1)</li>
+            <li>@messages("reportingInFirstPeriod.p1.bullet1", reportingPeriod.toString)</li>
+            <li>@messages("reportingInFirstPeriod.p1.bullet2")</li>
         </ul>
 
-        <p class="govuk-body">@messages("reportingInFirstPeriod.p2")</p>
+        <p class="govuk-body">@messages("reportingInFirstPeriod.p2", (reportingPeriod + 1).toString)</p>
 
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("reportingInFirstPeriod.legend", businessName, reportingPeriod)).withCssClass("govuk-fieldset__legend--m")
+                legend = LegendViewModel(messages("reportingInFirstPeriod.legend", businessName, reportingPeriod.toString)).withCssClass("govuk-fieldset__legend--m")
             )
         )
 

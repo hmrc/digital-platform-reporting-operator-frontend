@@ -50,14 +50,15 @@ class ReportingPeriodFormProviderSpec extends IntFieldBehaviours {
       form,
       fieldName,
       2024,
-      FormError(fieldName, "reportingPeriod.error.belowMinimum", Seq(2024))
+      FormError(fieldName, "reportingPeriod.error.belowMinimum", Seq(2024, "2024"))
     )
 
+    val maxYear = LocalDate.now(clock).getYear + 1
     behave like intFieldWithMaximum(
       form,
       fieldName,
-      LocalDate.now(clock).getYear + 1,
-      FormError(fieldName, "reportingPeriod.error.aboveMaximum", Seq(LocalDate.now(clock).getYear + 1))
+      maxYear,
+      FormError(fieldName, "reportingPeriod.error.aboveMaximum", Seq(maxYear, maxYear.toString))
     )
   }
 }

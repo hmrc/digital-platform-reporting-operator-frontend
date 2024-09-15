@@ -52,7 +52,7 @@ class PlatformOperatorConnector @Inject() (
 
   def updatePlatformOperator(request: UpdatePlatformOperatorRequest)
                             (implicit hc: HeaderCarrier): Future[Done] =
-    httpClient.post(url"$digitalPlatformReporting/digital-platform-reporting/platform-operator/${request.operatorId}")
+    httpClient.put(url"$digitalPlatformReporting/digital-platform-reporting/platform-operator")
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
       .flatMap { response =>

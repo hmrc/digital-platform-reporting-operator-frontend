@@ -19,15 +19,18 @@ package controllers.notification
 import com.google.inject.Inject
 import connectors.PlatformOperatorConnector
 import controllers.actions.{DataRequiredAction, DataRetrievalActionProvider, IdentifierAction}
+import models.NormalMode
+import pages.notification.CheckYourAnswersPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
+import services.UserAnswersService.BuildAddNotificationRequestFailure
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.notification._
 import viewmodels.govuk.summarylist._
 import views.html.notification.CheckYourAnswersView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
@@ -57,6 +60,13 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
-      ???
+      userAnswersService.addNotificationRequest(request.userAnswers, request.dprsId, operatorId)
+        .fold(
+          errors => Future.failed(BuildAddNotificationRequestFailure(errors)),
+          addNotificationRequest =>
+            connector
+              .updatePlatformOperator(addNotificationRequest)
+              .map(_ => Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, request.userAnswers)))
+        )
   }
 }

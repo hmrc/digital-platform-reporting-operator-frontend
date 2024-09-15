@@ -37,11 +37,11 @@ object ReportingInFirstPeriodSummary  {
       val value = if (answer) "site.yes" else "site.no"
 
       SummaryListRowViewModel(
-        key     = messages("dueDiligence.checkYourAnswersLabel", businessName, reportingPeriod),
+        key     = messages("reportingInFirstPeriod.checkYourAnswersLabel", businessName, reportingPeriod.toString),
         value   = ValueViewModel(value),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ReportingInFirstPeriodController.onPageLoad(CheckMode, operatorId).url)
-            .withVisuallyHiddenText(messages("reportingInFirstPeriod.change.hidden", businessName, reportingPeriod))
+            .withVisuallyHiddenText(messages("reportingInFirstPeriod.change.hidden", businessName, reportingPeriod.toString))
         )
       )
     }

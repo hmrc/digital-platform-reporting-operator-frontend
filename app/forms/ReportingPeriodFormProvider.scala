@@ -33,8 +33,8 @@ class ReportingPeriodFormProvider @Inject()(clock: Clock) extends Mappings {
 
     Form(
       "value" -> int("reportingPeriod.error.required", args = Seq(businessName))
-        .verifying(minimumValue(minYear, "reportingPeriod.error.belowMinimum"))
-        .verifying(maximumValue(maxYear, "reportingPeriod.error.aboveMaximum"))
+        .verifying(minimumValue(minYear, "reportingPeriod.error.belowMinimum", args = minYear.toString))
+        .verifying(maximumValue(maxYear, "reportingPeriod.error.aboveMaximum", args = maxYear.toString))
     )
   }
 }

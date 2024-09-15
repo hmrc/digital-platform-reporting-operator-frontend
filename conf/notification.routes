@@ -25,3 +25,6 @@ POST        /:operatorId/change-first-period                controllers.notifica
 
 GET         /:operatorId/check-your-answers                       controllers.notification.CheckYourAnswersController.onPageLoad(operatorId: String)
 POST        /:operatorId/check-your-answers                       controllers.notification.CheckYourAnswersController.onSubmit(operatorId: String)
+
+GET         /:operatorId/added-successfully                 controllers.notification.NotificationAddedController.onPageLoad(operatorId: String)
+

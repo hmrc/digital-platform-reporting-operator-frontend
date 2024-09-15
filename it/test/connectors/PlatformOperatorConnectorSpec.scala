@@ -111,7 +111,7 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
 
   ".updatePlatformOperator" - {
 
-    "must post a request" - {
+    "must put a request" - {
 
       "and succeed when the server returns OK" in {
 
@@ -128,7 +128,7 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
         )
 
         wireMockServer.stubFor(
-          post(urlPathEqualTo("/digital-platform-reporting/platform-operator/operatorId"))
+          put(urlPathEqualTo("/digital-platform-reporting/platform-operator"))
             .withHeader("Authorization", equalTo("authToken"))
             .withRequestBody(equalTo(Json.toJson(request).toString))
             .willReturn(ok())
@@ -152,7 +152,7 @@ class PlatformOperatorConnectorSpec extends AnyFreeSpec
         )
 
         wireMockServer.stubFor(
-          post(urlPathEqualTo("/digital-platform-reporting/platform-operator/operatorId"))
+          put(urlPathEqualTo("/digital-platform-reporting/platform-operator"))
             .withHeader("Authorization", equalTo("authToken"))
             .withRequestBody(equalTo(Json.toJson(request).toString))
             .willReturn(

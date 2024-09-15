@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package models.operator.responses
+package pages.notification
 
-import models.operator.NotificationType
-import play.api.libs.json.{Json, OFormat}
+import controllers.notification.routes
+import models.UserAnswers
+import play.api.mvc.Call
 
-import java.time.Instant
+case object CheckYourAnswersPage extends NotificationPage {
 
-final case class NotificationDetails(notificationType: NotificationType,
-                                     isActiveSeller: Option[Boolean],
-                                     isDueDiligence: Option[Boolean],
-                                     firstPeriod: Int,
-                                     receivedDateTime: Instant)
-
-object NotificationDetails {
-
-  implicit lazy val defaultFormat: OFormat[NotificationDetails] = Json.format
+  override protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
+    routes.NotificationAddedController.onPageLoad(operatorId)
 }

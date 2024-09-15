@@ -20,10 +20,11 @@ import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
 import models.UkTaxIdentifiers._
 import models.operator._
-import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
+import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperator
-import models.{Country, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
+import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
 import play.api.libs.json.Writes
 import queries.{Query, Settable}
 
@@ -183,6 +184,14 @@ class UserAnswersService @Inject() {
       UpdatePlatformOperatorRequest(dprsId, operatorId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails, None)
     }
 
+  def addNotificationRequest(answers: UserAnswers, dprsId: String, operatorId: String): EitherNec[Query, UpdatePlatformOperatorRequest] =
+    (
+      toUpdatePlatformOperatorRequest(answers, dprsId, operatorId),
+      getNotificationDetails(answers)
+    ).parMapN { (baseRequest, notification) =>
+      baseRequest.copy(notification = Some(notification))
+    }
+
   private def getTradingName(answers: UserAnswers): EitherNec[Query, Option[String]] =
     answers.getEither(HasTradingNamePage).flatMap {
       case true => answers.getEither(TradingNamePage).map(Some(_))
@@ -273,6 +282,27 @@ class UserAnswersService @Inject() {
           AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
         }
     }
+
+  private def getNotificationDetails(answers: UserAnswers): EitherNec[Query, Notification] =
+    answers.getEither(NotificationTypePage).flatMap {
+      case models.NotificationType.Rpo =>
+        (
+          answers.getEither(DueDiligencePage),
+          answers.getEither(ReportingPeriodPage)
+        ).parMapN { (dueDiligence, reportingPeriod) =>
+          Notification(
+            notificationType = NotificationType.Rpo,
+            isDueDiligence = Some(dueDiligence.contains(DueDiligence.Extended)),
+            isActiveSeller = Some(dueDiligence.contains(DueDiligence.ActiveSeller)),
+            firstPeriod = reportingPeriod
+          )
+        }
+
+      case models.NotificationType.Epo =>
+        answers.getEither(ReportingPeriodPage).flatMap { reportingPeriod =>
+          Right(Notification(NotificationType.Epo, None, None, reportingPeriod))
+        }
+    }
 }
 
 object UserAnswersService {
@@ -283,5 +313,9 @@ object UserAnswersService {
 
   final case class BuildUpdatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
     override def getMessage: String = s"unable to build Update Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
+  }
+
+  final case class BuildAddNotificationRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
+    override def getMessage: String = s"unable to build Add Notification request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
   }
 }

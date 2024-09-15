@@ -19,15 +19,25 @@ package controllers.notification
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
+import models.operator.{AddressDetails, ContactDetails, NotificationType}
+import models.operator.requests.{Notification, UpdatePlatformOperatorRequest}
+import models.{Country, NormalMode, UkAddress}
+import org.apache.pekko.Done
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import pages.notification.{NotificationTypePage, ReportingPeriodPage}
 import pages.update._
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 import views.html.notification.CheckYourAnswersView
+
+import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
 
@@ -77,6 +87,85 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "for a POST" - {
+
+      "must submit an Update Operator request with notification details and redirect to the next page" in {
+
+        val answers =
+          emptyUserAnswers
+            .copy(operatorId = Some("operatorId"))
+            .set(BusinessNamePage, "business").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(TaxResidentInUkPage, true).success.value
+            .set(HasTaxIdentifierPage, false).success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "name").success.value
+            .set(PrimaryContactEmailPage, "email").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+            .set(NotificationTypePage, models.NotificationType.Epo).success.value
+            .set(ReportingPeriodPage, 2024).success.value
+
+
+        val expectedRequest = UpdatePlatformOperatorRequest(
+          subscriptionId = "dprsId",
+          operatorId = "operatorId",
+          operatorName = "business",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notification = Some(Notification(NotificationType.Epo, None, None, 2024))
+        )
+
+        when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+
+        val app =
+          applicationBuilder(Some(answers))
+            .overrides(
+              bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SessionRepository].toInstance(mockRepository)
+            )
+            .build()
+
+        running(app) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
+
+          val result = route(app, request).value
+
+          status(result) mustEqual SEE_OTHER
+
+          redirectLocation(result).value mustEqual pages.notification.CheckYourAnswersPage.nextPage(NormalMode, operatorId, answers).url
+          verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockRepository, never()).set(any())
+        }
+      }
+
+      "must return a failed future when a payload cannot be built" in {
+
+        val answers = emptyUserAnswers.set(BusinessNamePage, "business").success.value
+
+        val app =
+          applicationBuilder(Some(answers))
+            .overrides(
+              bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SessionRepository].toInstance(mockRepository)
+            )
+            .build()
+
+        running(app) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
+
+          route(app, request).value.failed.futureValue
+          verify(mockConnector, never()).createPlatformOperator(any())(any())
+          verify(mockRepository, never()).set(any())
+        }
       }
     }
   }
