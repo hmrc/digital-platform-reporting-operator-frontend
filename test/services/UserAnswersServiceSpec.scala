@@ -18,17 +18,19 @@ package services
 
 import models.UkTaxIdentifiers._
 import models.operator._
-import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
+import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses._
-import models.{Country, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.{EitherValues, OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import pages.add._
+import pages.notification._
 
 class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues with TryValues with EitherValues {
 
   private val userAnswersService = new UserAnswersService()
+  private val emptyAnswers = UserAnswers("id", None)
 
   "fromPlatformOperator" - {
 
@@ -423,8 +425,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
   "toCreatePlatformOperator" - {
 
-    val emptyAnswers = UserAnswers("id", None)
-
     "must create a request" - {
 
       "with UK TIN details" in {
@@ -814,8 +814,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
   }
 
   "toUpdatePlatformOperator" - {
-
-    val emptyAnswers = UserAnswers("id", None)
 
     "must create a request" - {
 
@@ -1209,6 +1207,198 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         val result = userAnswersService.toUpdatePlatformOperatorRequest(answers, "dprsId", "operatorId")
 
         result.left.value.toChain.toList must contain only SecondaryContactPhoneNumberPage
+      }
+    }
+  }
+
+  "addNotificationRequest" - {
+
+    "must create a request" - {
+
+      "for an RPO with extended and active seller DD" in {
+
+        val answers =
+          emptyAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
+            .set(TaxResidentInUkPage, true).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "contact 1").success.value
+            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+            .set(NotificationTypePage, models.NotificationType.Rpo).success.value
+            .set(ReportingPeriodPage, 2024).success.value
+            .set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended, DueDiligence.ActiveSeller)).success.value
+            .set(ReportingInFirstPeriodPage, true).success.value
+
+        val expectedResult = UpdatePlatformOperatorRequest(
+          subscriptionId = "dprsId",
+          operatorId = "operatorId",
+          operatorName = "name",
+          tinDetails = Seq(
+            TinDetails("chrn", TinType.Chrn, "GB"),
+            TinDetails("crn", TinType.Crn, "GB"),
+            TinDetails("empref", TinType.Empref, "GB"),
+            TinDetails("utr", TinType.Utr, "GB"),
+            TinDetails("vrn", TinType.Vrn, "GB")
+          ),
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notification = Some(Notification(NotificationType.Rpo, Some(true), Some(true), 2024))
+        )
+
+        val result = userAnswersService.addNotificationRequest(answers, "dprsId", "operatorId")
+
+        result.value.copy(tinDetails = result.value.tinDetails.sortBy(_.tin)) mustEqual expectedResult
+      }
+
+      "for an RPO with no due diligence" in {
+
+        val answers =
+          emptyAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
+            .set(TaxResidentInUkPage, true).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "contact 1").success.value
+            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+            .set(NotificationTypePage, models.NotificationType.Rpo).success.value
+            .set(ReportingPeriodPage, 2024).success.value
+            .set(DueDiligencePage, Set[DueDiligence](DueDiligence.NoDueDiligence)).success.value
+            .set(ReportingInFirstPeriodPage, true).success.value
+
+        val expectedResult = UpdatePlatformOperatorRequest(
+          subscriptionId = "dprsId",
+          operatorId = "operatorId",
+          operatorName = "name",
+          tinDetails = Seq(
+            TinDetails("chrn", TinType.Chrn, "GB"),
+            TinDetails("crn", TinType.Crn, "GB"),
+            TinDetails("empref", TinType.Empref, "GB"),
+            TinDetails("utr", TinType.Utr, "GB"),
+            TinDetails("vrn", TinType.Vrn, "GB")
+          ),
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notification = Some(Notification(NotificationType.Rpo, Some(false), Some(false), 2024))
+        )
+
+        val result = userAnswersService.addNotificationRequest(answers, "dprsId", "operatorId")
+
+        result.value.copy(tinDetails = result.value.tinDetails.sortBy(_.tin)) mustEqual expectedResult
+      }
+
+      "for an EPO" in {
+
+        val answers =
+          emptyAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, true).success.value
+            .set(TaxResidentInUkPage, true).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "contact 1").success.value
+            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+            .set(NotificationTypePage, models.NotificationType.Epo).success.value
+            .set(ReportingPeriodPage, 2024).success.value
+
+        val expectedResult = UpdatePlatformOperatorRequest(
+          subscriptionId = "dprsId",
+          operatorId = "operatorId",
+          operatorName = "name",
+          tinDetails = Seq(
+            TinDetails("chrn", TinType.Chrn, "GB"),
+            TinDetails("crn", TinType.Crn, "GB"),
+            TinDetails("empref", TinType.Empref, "GB"),
+            TinDetails("utr", TinType.Utr, "GB"),
+            TinDetails("vrn", TinType.Vrn, "GB")
+          ),
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notification = Some(Notification(NotificationType.Epo, None, None, 2024))
+        )
+
+        val result = userAnswersService.addNotificationRequest(answers, "dprsId", "operatorId")
+
+        result.value.copy(tinDetails = result.value.tinDetails.sortBy(_.tin)) mustEqual expectedResult
+      }
+    }
+
+    "must fail to create a request" - {
+
+      "when mandatory fields are missing" in {
+
+        val result = userAnswersService.addNotificationRequest(emptyAnswers, "dprsId", "operatorId")
+
+        result.left.value.toChain.toList must contain theSameElementsAs Seq(
+          BusinessNamePage,
+          HasTradingNamePage,
+          HasTaxIdentifierPage,
+          PrimaryContactNamePage,
+          PrimaryContactEmailPage,
+          CanPhonePrimaryContactPage,
+          HasSecondaryContactPage,
+          RegisteredInUkPage,
+          NotificationTypePage
+        )
+      }
+
+      "when the operator is an RPO but due diligence is missing" in {
+
+        val answers =
+          emptyAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(HasTradingNamePage, false).success.value
+            .set(HasTaxIdentifierPage, false).success.value
+            .set(RegisteredInUkPage, true).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(PrimaryContactNamePage, "contact 1").success.value
+            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
+            .set(CanPhonePrimaryContactPage, false).success.value
+            .set(HasSecondaryContactPage, false).success.value
+            .set(NotificationTypePage, models.NotificationType.Rpo).success.value
+            .set(ReportingPeriodPage, 2024).success.value
+
+        val result = userAnswersService.addNotificationRequest(answers, "dprsId", "operatorId")
+
+        result.left.value.toChain.toList must contain only DueDiligencePage
       }
     }
   }

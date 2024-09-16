@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package models.operator.responses
+package forms
 
-import models.operator.NotificationType
-import play.api.libs.json.{Json, OFormat}
+import forms.mappings.Mappings
+import play.api.data.Form
 
-import java.time.Instant
+import javax.inject.Inject
 
-final case class NotificationDetails(notificationType: NotificationType,
-                                     isActiveSeller: Option[Boolean],
-                                     isDueDiligence: Option[Boolean],
-                                     firstPeriod: Int,
-                                     receivedDateTime: Instant)
+class ReportingInFirstPeriodFormProvider @Inject() extends Mappings {
 
-object NotificationDetails {
-
-  implicit lazy val defaultFormat: OFormat[NotificationDetails] = Json.format
+  def apply(businessName: String, reportingPeriod: Int): Form[Boolean] =
+    Form(
+      "value" -> boolean("reportingInFirstPeriod.error.required", args = Seq(businessName, reportingPeriod.toString))
+    )
 }

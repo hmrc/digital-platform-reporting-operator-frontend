@@ -7,3 +7,24 @@ GET         /start                                              controllers.noti
 
 GET         /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onPageLoad
 POST        /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onSubmit
+
+GET         /:operatorId/due-diligence                       controllers.notification.DueDiligenceController.onPageLoad(mode: Mode = NormalMode, operatorId: String)
+POST        /:operatorId/due-diligence                       controllers.notification.DueDiligenceController.onSubmit(mode: Mode = NormalMode, operatorId: String)
+GET         /:operatorId/change-due-diligence                controllers.notification.DueDiligenceController.onPageLoad(mode: Mode = CheckMode, operatorId: String)
+POST        /:operatorId/change-due-diligence                controllers.notification.DueDiligenceController.onSubmit(mode: Mode = CheckMode, operatorId: String)
+
+GET         /:operatorId/reporting-in-first-year                       controllers.notification.ReportingInFirstPeriodController.onPageLoad(mode: Mode = NormalMode, operatorId: String)
+POST        /:operatorId/reporting-in-first-year                       controllers.notification.ReportingInFirstPeriodController.onSubmit(mode: Mode = NormalMode, operatorId: String)
+GET         /:operatorId/change-reporting-in-first-year                controllers.notification.ReportingInFirstPeriodController.onPageLoad(mode: Mode = CheckMode, operatorId: String)
+POST        /:operatorId/change-reporting-in-first-year                controllers.notification.ReportingInFirstPeriodController.onSubmit(mode: Mode = CheckMode, operatorId: String)
+
+GET         /:operatorId/first-period                       controllers.notification.ReportingPeriodController.onPageLoad(mode: Mode = NormalMode, operatorId: String)
+POST        /:operatorId/first-period                       controllers.notification.ReportingPeriodController.onSubmit(mode: Mode = NormalMode, operatorId: String)
+GET         /:operatorId/change-first-period                controllers.notification.ReportingPeriodController.onPageLoad(mode: Mode = CheckMode, operatorId: String)
+POST        /:operatorId/change-first-period                controllers.notification.ReportingPeriodController.onSubmit(mode: Mode = CheckMode, operatorId: String)
+
+GET         /:operatorId/check-your-answers                       controllers.notification.CheckYourAnswersController.onPageLoad(operatorId: String)
+POST        /:operatorId/check-your-answers                       controllers.notification.CheckYourAnswersController.onSubmit(operatorId: String)
+
+GET         /:operatorId/added-successfully                 controllers.notification.NotificationAddedController.onPageLoad(operatorId: String)
+

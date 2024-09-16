@@ -20,9 +20,9 @@ import models.operator.NotificationType
 import play.api.libs.json.{Json, OWrites}
 
 final case class Notification(notificationType: NotificationType,
-                              isActiveSeller: Boolean,
-                              isDueDiligence: Boolean,
-                              firstPeriod: String)
+                              isActiveSeller: Option[Boolean],
+                              isDueDiligence: Option[Boolean],
+                              firstPeriod: Int)
 
 object Notification {
   

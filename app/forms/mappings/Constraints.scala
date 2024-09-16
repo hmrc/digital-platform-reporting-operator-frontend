@@ -33,7 +33,7 @@ trait Constraints {
           .getOrElse(Valid)
     }
 
-  protected def minimumValue[A](minimum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
+  protected def minimumValue[A](minimum: A, errorKey: String, args: Any*)(implicit ev: Ordering[A]): Constraint[A] =
     Constraint {
       input =>
 
@@ -42,11 +42,11 @@ trait Constraints {
         if (input >= minimum) {
           Valid
         } else {
-          Invalid(errorKey, minimum)
+          Invalid(errorKey, minimum +: args: _*)
         }
     }
 
-  protected def maximumValue[A](maximum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
+  protected def maximumValue[A](maximum: A, errorKey: String, args: Any*)(implicit ev: Ordering[A]): Constraint[A] =
     Constraint {
       input =>
 
@@ -55,7 +55,7 @@ trait Constraints {
         if (input <= maximum) {
           Valid
         } else {
-          Invalid(errorKey, maximum)
+          Invalid(errorKey, maximum +: args: _*)
         }
     }
 
@@ -123,4 +123,13 @@ trait Constraints {
         .getOrElse(Invalid(errorKey)
         )
     }
+
+  protected def noMutuallyExclusiveAnswers[A](set1: Set[A], set2: Set[A], errorKey: String, args: Any*): Constraint[Set[A]] =
+    Constraint {
+      case set if set.intersect(set1).nonEmpty && set.intersect(set2).nonEmpty =>
+        Invalid(errorKey, args: _*)
+      case _ =>
+        Valid
+    }
+
 }

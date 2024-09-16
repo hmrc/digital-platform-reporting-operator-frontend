@@ -188,4 +188,31 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       }
     }
   }
+
+  "noMutuallyExclusiveAnswers" - {
+
+    trait TestTrait
+    case object A extends TestTrait
+    case object B extends TestTrait
+    case object C extends TestTrait
+
+    val set1: Set[TestTrait] = Set(A)
+    val set2: Set[TestTrait] = Set(B)
+
+    "must return Valid if the data contains items from one set but not the other" in {
+
+      noMutuallyExclusiveAnswers(set1, set2, "error")(Set(A)) mustEqual Valid
+      noMutuallyExclusiveAnswers(set1, set2, "error")(Set(B)) mustEqual Valid
+    }
+
+    "must return Valid if the data does not contain items in either exclusive set" in {
+
+      noMutuallyExclusiveAnswers(set1, set2, "error")(Set(C)) mustEqual Valid
+    }
+
+    "must return Invalid if the data contains items from both exclusive sets" in {
+
+      noMutuallyExclusiveAnswers(set1, set2, "error", "foo")(Set(A, B)) mustEqual Invalid("error", "foo")
+    }
+  }
 }

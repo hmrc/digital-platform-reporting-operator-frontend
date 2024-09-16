@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models.operator.responses
+@import controllers.routes
+@import viewmodels.PlatformOperatorSummaryViewModel
 
-import models.operator.NotificationType
-import play.api.libs.json.{Json, OFormat}
+@this(
+        layout: templates.Layout,
+        govukPanel: GovukPanel
+)
 
-import java.time.Instant
+@(operatorId: String, viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
 
-final case class NotificationDetails(notificationType: NotificationType,
-                                     isActiveSeller: Option[Boolean],
-                                     isDueDiligence: Option[Boolean],
-                                     firstPeriod: Int,
-                                     receivedDateTime: Instant)
+@layout(pageTitle = titleNoForm(messages("notificationAdded.title"))) {
 
-object NotificationDetails {
+    @govukPanel(Panel(
+        title = messages("notificationAdded.panel.heading")
+    ))
 
-  implicit lazy val defaultFormat: OFormat[NotificationDetails] = Json.format
+    <p class="govuk-body">@messages("notificationAdded.p1", viewModel.operatorName)</p>
 }

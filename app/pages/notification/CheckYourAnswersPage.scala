@@ -17,21 +17,11 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.{CheckMode, Mode, NormalMode, UserAnswers}
-import pages.Page
+import models.UserAnswers
 import play.api.mvc.Call
 
-trait NotificationPage extends Page {
+case object CheckYourAnswersPage extends NotificationPage {
 
-  final def nextPage(mode: Mode, operatorId: String, answers: UserAnswers): Call =
-    mode match {
-      case NormalMode => nextPageNormalMode(operatorId, answers)
-      case CheckMode  => nextPageCheckMode(operatorId, answers)
-    }
-
-
-  protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call
-
-  protected def nextPageCheckMode(operatorId: String, answers: UserAnswers): Call =
-    routes.CheckYourAnswersController.onPageLoad(operatorId)
+  override protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
+    routes.NotificationAddedController.onPageLoad(operatorId)
 }
