@@ -52,7 +52,6 @@ case object HasTaxIdentifierPage extends AddQuestionPage[Boolean] {
       userAnswers
         .remove(TaxResidentInUkPage)
         .flatMap(_.remove(UkTaxIdentifiersPage))
-        .flatMap(_.remove(BusinessTypePage))
         .flatMap(_.remove(UtrPage))
         .flatMap(_.remove(CrnPage))
         .flatMap(_.remove(VrnPage))

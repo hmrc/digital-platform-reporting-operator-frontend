@@ -59,7 +59,6 @@ case object TaxResidentInUkPage extends AddQuestionPage[Boolean] {
       case false =>
         userAnswers
         .remove(UkTaxIdentifiersPage)
-          .flatMap(_.remove(BusinessTypePage))
           .flatMap(_.remove(UtrPage))
           .flatMap(_.remove(CrnPage))
           .flatMap(_.remove(VrnPage))

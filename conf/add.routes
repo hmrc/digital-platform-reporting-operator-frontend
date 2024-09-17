@@ -6,11 +6,6 @@ POST       /business-name                        controllers.add.BusinessNameCon
 GET        /change-business-name                  controllers.add.BusinessNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-business-name                  controllers.add.BusinessNameController.onSubmit(mode: Mode = CheckMode)
 
-GET        /business-type                        controllers.add.BusinessTypeController.onPageLoad(mode: Mode = NormalMode)
-POST       /business-type                        controllers.add.BusinessTypeController.onSubmit(mode: Mode = NormalMode)
-GET        /change-business-type                  controllers.add.BusinessTypeController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-business-type                  controllers.add.BusinessTypeController.onSubmit(mode: Mode = CheckMode)
-
 GET        /can-we-telephone                        controllers.add.CanPhonePrimaryContactController.onPageLoad(mode: Mode = NormalMode)
 POST       /can-we-telephone                        controllers.add.CanPhonePrimaryContactController.onSubmit(mode: Mode = NormalMode)
 GET        /change-can-we-telephone                  controllers.add.CanPhonePrimaryContactController.onPageLoad(mode: Mode = CheckMode)

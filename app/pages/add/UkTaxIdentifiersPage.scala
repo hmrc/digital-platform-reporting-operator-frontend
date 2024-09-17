@@ -33,7 +33,7 @@ case object UkTaxIdentifiersPage extends AddQuestionPage[Set[UkTaxIdentifiers]] 
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     answers.get(this).map {
-      case x if x.contains(Utr)    => routes.BusinessTypeController.onPageLoad(NormalMode)
+      case x if x.contains(Utr)    => routes.UtrController.onPageLoad(NormalMode)
       case x if x.contains(Crn)    => routes.CrnController.onPageLoad(NormalMode)
       case x if x.contains(Vrn)    => routes.VrnController.onPageLoad(NormalMode)
       case x if x.contains(Empref) => routes.EmprefController.onPageLoad(NormalMode)
@@ -42,8 +42,8 @@ case object UkTaxIdentifiersPage extends AddQuestionPage[Set[UkTaxIdentifiers]] 
 
   override protected def nextPageCheckMode(answers: UserAnswers): Call =
     answers.get(this).map { identifiers =>
-      if (identifiers.contains(Utr) && answers.get(BusinessTypePage).isEmpty) {
-        routes.BusinessTypeController.onPageLoad(CheckMode)
+      if (identifiers.contains(Utr) && answers.get(UtrPage).isEmpty) {
+        routes.UtrController.onPageLoad(CheckMode)
       } else if (identifiers.contains(Crn) && answers.get(CrnPage).isEmpty) {
         routes.CrnController.onPageLoad(CheckMode)
       } else if (identifiers.contains(Vrn) && answers.get(VrnPage).isEmpty) {
@@ -68,11 +68,7 @@ case object UkTaxIdentifiersPage extends AddQuestionPage[Set[UkTaxIdentifiers]] 
   }
 
   private def maybeRemoveUtr(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
-    if (identifiers.contains(Utr)) {
-      Success(answers)
-    } else {
-      answers.remove(BusinessTypePage).flatMap(_.remove(UtrPage))
-    }
+    if (identifiers.contains(Utr)) Success(answers) else answers.remove(UtrPage)
 
   private def maybeRemoveCrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
     if (identifiers.contains(Crn)) Success(answers) else answers.remove(CrnPage)

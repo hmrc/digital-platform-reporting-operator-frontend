@@ -19,7 +19,7 @@ package controllers.update
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.UtrFormProvider
-import pages.update.{BusinessNamePage, BusinessTypePage, UtrPage}
+import pages.update.{BusinessNamePage, UtrPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -42,27 +42,27 @@ class UtrController @Inject()(
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    getAnswers(BusinessNamePage, BusinessTypePage) { case (businessName, businessType) =>
+    getAnswer(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName, businessType)
+      val form = formProvider(businessName)
 
       val preparedForm = request.userAnswers.get(UtrPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, operatorId, businessName, businessType))
+       Ok(view(preparedForm, operatorId, businessName))
     }
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-    getAnswersAsync(BusinessNamePage, BusinessTypePage) { case (businessName, businessType) =>
+    getAnswerAsync(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName, businessType)
+      val form = formProvider(businessName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, operatorId, businessName, businessType))),
+          Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
 
         value =>
           for {

@@ -17,7 +17,6 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.BusinessType
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import play.api.data.FormError
@@ -26,11 +25,10 @@ class UtrFormProviderSpec extends StringFieldBehaviours {
 
 
   private val businessName = "name"
-  private val businessType = Gen.oneOf(BusinessType.values).sample.value
-  private val form = new UtrFormProvider()(businessName, businessType)
+  private val form = new UtrFormProvider()(businessName)
 
-  private val requiredKey = s"utr.${businessType.category}.error.required"
-  private val formatKey = s"utr.${businessType.category}.error.format"
+  private val requiredKey = "utr.error.required"
+  private val formatKey = "utr.error.format"
 
   ".value" - {
 

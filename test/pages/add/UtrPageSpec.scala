@@ -18,7 +18,7 @@ package pages.add
 
 import controllers.add.routes
 import models.UkTaxIdentifiers._
-import models.{BusinessType, CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.{CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
 import org.scalacheck.Gen
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -204,7 +204,7 @@ class UtrPageSpec
 
             val answers = identifiers.foldLeft(baseAnswers) { (acc, next) =>
               next match {
-                case Utr    => acc.set(BusinessTypePage, BusinessType.Partnership).success.value
+                case Utr    => acc.set(UtrPage, "utr").success.value
                 case Crn    => acc.set(CrnPage, "crn").success.value
                 case Vrn    => acc.set(VrnPage, "vrn").success.value
                 case Empref => acc.set(EmprefPage, "empref").success.value

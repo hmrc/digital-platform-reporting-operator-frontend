@@ -6,9 +6,6 @@ POST       /:operatorId/check-your-answers                          controllers.
 GET        /:operatorId/change-business-name                  controllers.update.BusinessNameController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-business-name                  controllers.update.BusinessNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-business-type                  controllers.update.BusinessTypeController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-business-type                  controllers.update.BusinessTypeController.onSubmit(operatorId: String)
-
 GET        /:operatorId/change-can-we-telephone                  controllers.update.CanPhonePrimaryContactController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-can-we-telephone                  controllers.update.CanPhonePrimaryContactController.onSubmit(operatorId: String)
 
