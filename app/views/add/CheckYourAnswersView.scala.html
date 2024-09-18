@@ -18,7 +18,9 @@
 
 @this(
         layout: templates.Layout,
-        govukSummaryList: GovukSummaryList
+        formHelper: FormWithCSRF,
+        govukSummaryList: GovukSummaryList,
+        govukButton: GovukButton
 )
 
 @(platformOperatorList: SummaryList, primaryContactList: SummaryList, secondaryContactList: Option[SummaryList])(implicit request: Request[_], messages: Messages)
@@ -46,5 +48,11 @@
         <h2 class="govuk-heading-m">@messages("checkYourAnswers.add.contactDetails")</h2>
 
         @govukSummaryList(primaryContactList)
+    }
+
+    @formHelper(action = routes.CheckYourAnswersController.onSubmit()) {
+        @govukButton(
+            ButtonViewModel(messages("site.confirmAndAdd"))
+        )
     }
 }

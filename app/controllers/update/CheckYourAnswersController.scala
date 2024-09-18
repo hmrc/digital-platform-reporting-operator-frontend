@@ -68,7 +68,7 @@ class CheckYourAnswersController @Inject()(
         ).flatten
       )
 
-      Ok(view(platformOperatorList, primaryContactList(operatorId, request.userAnswers), secondaryContactList(operatorId, request.userAnswers)))
+      Ok(view(operatorId, platformOperatorList, primaryContactList(operatorId, request.userAnswers), secondaryContactList(operatorId, request.userAnswers)))
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {

@@ -12,6 +12,8 @@ site.signIn = Sign in
 site.govuk = GOV.UK
 site.view = View
 site.or = or
+site.confirmAndAdd = Confirm and add
+site.confirmAndUpdate = Confirm and update
 
 date.day = Day
 date.month = Month
@@ -322,7 +324,14 @@ platformOperatorAdded.p1 = {0} has been successfully added as a platform operato
 
 platformOperatorAdded.title = Platform operator updated
 platformOperatorAdded.heading = Details updated for {0}
-platformOperatorAdded.link1.text = Return to “View your platform operators”
+platformOperatorAdded.panel.p1 = The platform operator ID is {0}
+platformOperatorAdded.p1 = {0} has been successfully added as a platform operator.
+platformOperatorAdded.p2 = Keep a record of this platform operator ID. You need to provide it on every file you send to HMRC for this platform operator.
+platformOperatorAdded.whatYouNeedToDoNext = What you need to do next
+platformOperatorAdded.p3 = To send submissions, you must add a reporting notification for this platform operator.
+platformOperatorAdded.legend = Do you want to add a reporting notification for {0} now?
+platformOperatorAdded.error.required = Select yes if you want to add a reporting notification for {0} now
+platformOperatorAdded.link.text = Add another platform operator
 
 platformOperators.title = Platform operators
 platformOperators.heading = Platform operators
