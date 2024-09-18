@@ -21,9 +21,9 @@ import models.operator._
 import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses._
 import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
-import org.scalatest.{EitherValues, OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{EitherValues, OptionValues, TryValues}
 import pages.add._
 import pages.notification._
 
@@ -1238,7 +1238,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(NotificationTypePage, models.NotificationType.Rpo).success.value
             .set(ReportingPeriodPage, 2024).success.value
             .set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended, DueDiligence.ActiveSeller)).success.value
-            .set(ReportingInFirstPeriodPage, true).success.value
 
         val expectedResult = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",
@@ -1287,7 +1286,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(NotificationTypePage, models.NotificationType.Rpo).success.value
             .set(ReportingPeriodPage, 2024).success.value
             .set(DueDiligencePage, Set[DueDiligence](DueDiligence.NoDueDiligence)).success.value
-            .set(ReportingInFirstPeriodPage, true).success.value
 
         val expectedResult = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",

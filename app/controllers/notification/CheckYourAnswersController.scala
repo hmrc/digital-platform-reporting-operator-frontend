@@ -50,8 +50,7 @@ class CheckYourAnswersController @Inject()(
         rows = Seq(
           NotificationTypeSummary.row(operatorId, request.userAnswers),
           ReportingPeriodSummary.row(operatorId, request.userAnswers),
-          DueDiligenceSummary.row(operatorId, request.userAnswers),
-          ReportingInFirstPeriodSummary.row(operatorId, request.userAnswers)
+          DueDiligenceSummary.row(operatorId, request.userAnswers)
         ).flatten
       )
 

@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.notification
 
 import controllers.notification.routes
 import models.{CheckMode, UserAnswers}
-import pages.notification.{NotificationTypePage, ReportingInFirstPeriodPage, ReportingPeriodPage}
+import pages.notification.NotificationTypePage
 import pages.update.BusinessNamePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
