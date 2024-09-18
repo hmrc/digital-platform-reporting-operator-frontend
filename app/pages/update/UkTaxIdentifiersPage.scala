@@ -33,8 +33,8 @@ case object UkTaxIdentifiersPage extends UpdateQuestionPage[Set[UkTaxIdentifiers
 
   override def nextPage(operatorId: String, answers: UserAnswers): Call =
     answers.get(this).map { identifiers =>
-      if (identifiers.contains(Utr) && answers.get(BusinessTypePage).isEmpty) {
-        routes.BusinessTypeController.onPageLoad(operatorId)
+      if (identifiers.contains(Utr) && answers.get(UtrPage).isEmpty) {
+        routes.UtrController.onPageLoad(operatorId)
       } else if (identifiers.contains(Crn) && answers.get(CrnPage).isEmpty) {
         routes.CrnController.onPageLoad(operatorId)
       } else if (identifiers.contains(Vrn) && answers.get(VrnPage).isEmpty) {
@@ -59,11 +59,7 @@ case object UkTaxIdentifiersPage extends UpdateQuestionPage[Set[UkTaxIdentifiers
   }
 
   private def maybeRemoveUtr(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
-    if (identifiers.contains(Utr)) {
-      Success(answers)
-    } else {
-      answers.remove(BusinessTypePage).flatMap(_.remove(UtrPage))
-    }
+    if (identifiers.contains(Utr)) Success(answers) else answers.remove(UtrPage)
 
   private def maybeRemoveCrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
     if (identifiers.contains(Crn)) Success(answers) else answers.remove(CrnPage)

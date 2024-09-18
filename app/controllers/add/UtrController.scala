@@ -16,55 +16,54 @@
 
 package controllers.add
 
-import controllers.actions._
 import controllers.AnswerExtractor
+import controllers.actions._
 import forms.UtrFormProvider
-
-import javax.inject.Inject
 import models.Mode
-import pages.add.{BusinessNamePage, BusinessTypePage, UtrPage}
+import pages.add.{BusinessNamePage, UtrPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.UtrView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UtrController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalActionProvider,
-                                        requireData: DataRequiredAction,
-                                        formProvider: UtrFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: UtrView
-                                    )(implicit ec: ExecutionContext)
+                               override val messagesApi: MessagesApi,
+                               sessionRepository: SessionRepository,
+                               identify: IdentifierAction,
+                               getData: DataRetrievalActionProvider,
+                               requireData: DataRequiredAction,
+                               formProvider: UtrFormProvider,
+                               val controllerComponents: MessagesControllerComponents,
+                               view: UtrView
+                             )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswers(BusinessNamePage, BusinessTypePage) { case (businessName, businessType) =>
+    getAnswer(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName, businessType)
+      val form = formProvider(businessName)
 
       val preparedForm = request.userAnswers.get(UtrPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName, businessType))
+       Ok(view(preparedForm, mode, businessName))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswersAsync(BusinessNamePage, BusinessTypePage) { case (businessName, businessType) =>
+    getAnswerAsync(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName, businessType)
+      val form = formProvider(businessName)
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName, businessType))),
+          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
 
         value =>
           for {

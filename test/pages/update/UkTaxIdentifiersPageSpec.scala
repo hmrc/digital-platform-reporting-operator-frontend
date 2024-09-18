@@ -18,7 +18,7 @@ package pages.update
 
 import controllers.update.routes
 import models.UkTaxIdentifiers._
-import models.{BusinessType, CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.{UkTaxIdentifiers, UserAnswers}
 import org.scalacheck.Gen
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -37,7 +37,7 @@ class UkTaxIdentifiersPageSpec
 
   ".nextPage" - {
 
-    "must go to Business Type when UTR is selected and Business Type is not answered" in {
+    "must go to UTR when UTR is selected has not been answered" in {
 
       val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
         identifiers <- Gen.listOf(Gen.oneOf(values))
@@ -46,7 +46,7 @@ class UkTaxIdentifiersPageSpec
       forAll(identifierGen) { identifiers =>
 
         val answers = emptyAnswers.set(UkTaxIdentifiersPage, identifiers).success.value
-        UkTaxIdentifiersPage.nextPage(operatorId, answers) mustEqual routes.BusinessTypeController.onPageLoad(operatorId)
+        UkTaxIdentifiersPage.nextPage(operatorId, answers) mustEqual routes.UtrController.onPageLoad(operatorId)
       }
     }
 
@@ -65,7 +65,7 @@ class UkTaxIdentifiersPageSpec
         }
       }
 
-      "and UTR is selected and business type has been answered" in {
+      "and UTR is selected and UTR has been answered" in {
 
         val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
           identifiers <- Gen.listOf(Gen.oneOf(values))
@@ -76,7 +76,7 @@ class UkTaxIdentifiersPageSpec
           val answers =
             emptyAnswers
               .set(UkTaxIdentifiersPage, identifiers).success.value
-              .set(BusinessTypePage, BusinessType.Llp).success.value
+              .set(UtrPage, "utr").success.value
 
           UkTaxIdentifiersPage.nextPage(operatorId, answers) mustEqual routes.CrnController.onPageLoad(operatorId)
         }
@@ -98,7 +98,7 @@ class UkTaxIdentifiersPageSpec
         }
       }
 
-      "and UTR and CRN are selected, and Business Type and CRN are answered" in {
+      "and UTR and CRN are selected, UTR and CRN are answered" in {
 
         val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
           identifiers <- Gen.listOf(Gen.oneOf(values))
@@ -109,7 +109,7 @@ class UkTaxIdentifiersPageSpec
           val answers =
             emptyAnswers
               .set(UkTaxIdentifiersPage, identifiers).success.value
-              .set(BusinessTypePage, BusinessType.Llp).success.value
+              .set(UtrPage, "utr").success.value
               .set(CrnPage, "crn").success.value
 
           UkTaxIdentifiersPage.nextPage(operatorId, answers) mustEqual routes.VrnController.onPageLoad(operatorId)
@@ -132,7 +132,7 @@ class UkTaxIdentifiersPageSpec
         }
       }
 
-      "and UTR, CRN and VRN are selected and Business Type, CRN and VRN are answered" in {
+      "and UTR, CRN and VRN are selected and UTR, CRN and VRN are answered" in {
 
         val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
           identifiers <- Gen.listOf(Gen.oneOf(values))
@@ -143,7 +143,7 @@ class UkTaxIdentifiersPageSpec
           val answers =
             emptyAnswers
               .set(UkTaxIdentifiersPage, identifiers).success.value
-              .set(BusinessTypePage, BusinessType.Llp).success.value
+              .set(UtrPage, "utr").success.value
               .set(CrnPage, "crn").success.value
               .set(VrnPage, "vrn").success.value
 
@@ -160,12 +160,12 @@ class UkTaxIdentifiersPageSpec
         UkTaxIdentifiersPage.nextPage(operatorId, answers) mustEqual routes.ChrnController.onPageLoad(operatorId)
       }
 
-      "and UTR, CRN, VRN and EMPREF are selected and Business Type, CRN, VRN and EMPREF are answered" in {
+      "and UTR, CRN, VRN and EMPREF are selected and UTR, CRN, VRN and EMPREF are answered" in {
 
         val answers =
           emptyAnswers
             .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr, Crn, Vrn, Empref, Chrn)).success.value
-            .set(BusinessTypePage, BusinessType.Llp).success.value
+            .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
             .set(VrnPage, "vrn").success.value
             .set(EmprefPage, "empref").success.value
@@ -188,7 +188,7 @@ class UkTaxIdentifiersPageSpec
 
           val answers = identifiers.foldLeft(baseAnswers) { (acc, next) =>
             next match {
-              case Utr    => acc.set(BusinessTypePage, BusinessType.Partnership).success.value
+              case Utr    => acc.set(UtrPage, "utr").success.value
               case Crn    => acc.set(CrnPage, "crn").success.value
               case Vrn    => acc.set(VrnPage, "vrn").success.value
               case Empref => acc.set(EmprefPage, "empref").success.value
@@ -206,18 +206,16 @@ class UkTaxIdentifiersPageSpec
 
     val baseAnswers =
       emptyAnswers
-        .set(BusinessTypePage, BusinessType.Llp).success.value
         .set(UtrPage, "utr").success.value
         .set(CrnPage, "crn").success.value
         .set(VrnPage, "vrn").success.value
         .set(EmprefPage, "empref").success.value
         .set(ChrnPage, "chrn").success.value
 
-    "must remove Business Type and UTR when UTR is not selected" in {
+    "must remove UTR when UTR is not selected" in {
 
       val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Utr).success.value
 
-      result.get(BusinessTypePage) must not be defined
       result.get(UtrPage)          must not be defined
       result.get(CrnPage)          mustBe defined
       result.get(VrnPage)          mustBe defined
@@ -230,7 +228,6 @@ class UkTaxIdentifiersPageSpec
       val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Crn).success.value
 
       result.get(CrnPage)          must not be defined
-      result.get(BusinessTypePage) mustBe defined
       result.get(UtrPage)          mustBe defined
       result.get(VrnPage)          mustBe defined
       result.get(EmprefPage)       mustBe defined
@@ -242,7 +239,6 @@ class UkTaxIdentifiersPageSpec
       val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Vrn).success.value
 
       result.get(VrnPage)          must not be defined
-      result.get(BusinessTypePage) mustBe defined
       result.get(UtrPage)          mustBe defined
       result.get(CrnPage)          mustBe defined
       result.get(EmprefPage)       mustBe defined
@@ -254,7 +250,6 @@ class UkTaxIdentifiersPageSpec
       val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Empref).success.value
 
       result.get(EmprefPage)       must not be defined
-      result.get(BusinessTypePage) mustBe defined
       result.get(UtrPage)          mustBe defined
       result.get(CrnPage)          mustBe defined
       result.get(VrnPage)          mustBe defined
@@ -266,7 +261,6 @@ class UkTaxIdentifiersPageSpec
       val result = baseAnswers.set(UkTaxIdentifiersPage, values.toSet - Chrn).success.value
 
       result.get(ChrnPage)         must not be defined
-      result.get(BusinessTypePage) mustBe defined
       result.get(UtrPage)          mustBe defined
       result.get(CrnPage)          mustBe defined
       result.get(VrnPage)          mustBe defined

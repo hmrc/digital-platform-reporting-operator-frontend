@@ -17,7 +17,7 @@
 package pages.add
 
 import controllers.add.routes
-import models.{BusinessType, CheckMode, Country, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.{CheckMode, Country, NormalMode, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
@@ -80,7 +80,6 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
         emptyAnswers
           .set(TaxResidentInUkPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
-          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
           .set(UtrPage, "utr").success.value
           .set(CrnPage, "crn").success.value
           .set(VrnPage, "vrn").success.value
@@ -93,7 +92,6 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
 
       result.get(TaxResidentInUkPage)            must not be defined
       result.get(UkTaxIdentifiersPage)           must not be defined
-      result.get(BusinessTypePage)               must not be defined
       result.get(UtrPage)                        must not be defined
       result.get(CrnPage)                        must not be defined
       result.get(VrnPage)                        must not be defined
@@ -109,7 +107,6 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
         emptyAnswers
           .set(TaxResidentInUkPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
-          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
           .set(UtrPage, "utr").success.value
           .set(CrnPage, "crn").success.value
           .set(VrnPage, "vrn").success.value
@@ -122,7 +119,6 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
 
       result.get(TaxResidentInUkPage)            mustBe defined
       result.get(UkTaxIdentifiersPage)           mustBe defined
-      result.get(BusinessTypePage)               mustBe defined
       result.get(UtrPage)                        mustBe defined
       result.get(CrnPage)                        mustBe defined
       result.get(VrnPage)                        mustBe defined

@@ -36,9 +36,4 @@ trait ModelGenerators {
     Arbitrary {
       Gen.oneOf(UkTaxIdentifiers.values)
     }
-
-  implicit lazy val arbitraryBusinessType: Arbitrary[BusinessType] =
-    Arbitrary {
-      Gen.oneOf(BusinessType.values)
-    }
 }

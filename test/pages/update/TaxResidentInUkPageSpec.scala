@@ -18,7 +18,7 @@ package pages.update
 
 import controllers.update.routes
 import models.UkTaxIdentifiers._
-import models.{BusinessType, Country, UkTaxIdentifiers, UserAnswers}
+import models.{Country, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
@@ -76,7 +76,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
           .set(InternationalTaxIdentifierPage, "id").success.value
           .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
-          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
           .set(UtrPage, "utr").success.value
           .set(CrnPage, "crn").success.value
           .set(VrnPage, "vrn").success.value
@@ -89,7 +88,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
       result.get(InternationalTaxIdentifierPage) must not be defined
       result.get(HasTaxIdentifierPage)           mustBe defined
       result.get(UkTaxIdentifiersPage)           mustBe defined
-      result.get(BusinessTypePage)               mustBe defined
       result.get(UtrPage)                        mustBe defined
       result.get(CrnPage)                        mustBe defined
       result.get(VrnPage)                        mustBe defined
@@ -105,7 +103,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
           .set(InternationalTaxIdentifierPage, "id").success.value
           .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
-          .set(BusinessTypePage, BusinessType.LimitedCompany).success.value
           .set(UtrPage, "utr").success.value
           .set(CrnPage, "crn").success.value
           .set(VrnPage, "vrn").success.value
@@ -118,7 +115,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
       result.get(TaxResidencyCountryPage)        mustBe defined
       result.get(InternationalTaxIdentifierPage) mustBe defined
       result.get(UkTaxIdentifiersPage)           must not be defined
-      result.get(BusinessTypePage)               must not be defined
       result.get(UtrPage)                        must not be defined
       result.get(CrnPage)                        must not be defined
       result.get(VrnPage)                        must not be defined

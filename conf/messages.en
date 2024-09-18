@@ -72,16 +72,6 @@ businessName.error.length = Business name must be {0} characters or less
 businessName.error.format = Business name must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 businessName.change.hidden = the registered business name
 
-businessType.title = What type of business is the platform operator?
-businessType.heading = What type of business is {0}?
-businessType.limitedCompany = Limited Company
-businessType.partnership = Partnership
-businessType.llp = Limited partnership or limited liability partnership
-businessType.associationOrTrust = Unincorporated association or trust
-businessType.checkYourAnswersLabel = What type of business is {0}?
-businessType.error.required = Select what type of business {0} is
-businessType.change.hidden = the type of business {0} is
-
 canPhonePrimaryContact.title = Can we contact the person or team by telephone?
 canPhonePrimaryContact.heading = Can we contact {0} by telephone?
 canPhonePrimaryContact.p1 = We may use this phone number if we have any questions about the reports made for {0}.
@@ -309,20 +299,13 @@ ukTaxIdentifiers.checkYourAnswersLabel = What type of tax identification numbers
 ukTaxIdentifiers.error.required = Select what tax identification numbers {0} has
 ukTaxIdentifiers.change.hidden = the tax identification numbers {0} has
 
-utr.business.title = What is the platform operator’s Corporation Tax Unique Taxpayer Reference (UTR)?
-utr.business.heading = What is {0}’s Corporation Tax Unique Taxpayer Reference (UTR)?
-utr.business.hint = A UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
-utr.business.checkYourAnswersLabel =  Corporation Tax Unique Taxpayer Reference (UTR)
-utr.business.error.required = Enter the  Corporation Tax Unique Taxpayer Reference (UTR) for {0}
-utr.business.error.format = Enter a  Corporation Tax Unique Taxpayer Reference (UTR) in the correct format
-utr.business.change.hidden = the  Corporation Tax Unique Taxpayer Reference (UTR) for {0}
-utr.partnership.title = What is the platform operator’s Partnership Unique Taxpayer Reference (UTR)? 
-utr.partnership.heading = What is {0}’s Partnership Unique Taxpayer Reference (UTR)?
-utr.partnership.hint = A UTR can be 10 or 13 digits long. You can find it in your Business Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
-utr.partnership.checkYourAnswersLabel =  Partnership Unique Taxpayer Reference (UTR)
-utr.partnership.error.required = Enter the  Partnership Unique Taxpayer Reference (UTR) for {0}
-utr.partnership.error.format = Enter a Partnership Unique Taxpayer Reference (UTR) in the correct format
-utr.partnership.change.hidden = the  Partnership Unique Taxpayer Reference (UTR) for {0}
+utr.title = What is the platform operator’s Unique Taxpayer Reference (UTR)?
+utr.heading = What is {0}’s Unique Taxpayer Reference (UTR)?
+utr.hint = A UTR can be 10 or 13 digits long. You can find it in their Business Tax Account or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+utr.checkYourAnswersLabel = Unique Taxpayer Reference (UTR)
+utr.error.required = Enter the Unique Taxpayer Reference (UTR) for {0}
+utr.error.format = Enter a Unique Taxpayer Reference (UTR) in the correct format
+utr.change.hidden = the Unique Taxpayer Reference (UTR) for {0}
 
 vrn.title = What is the platform operator’s VAT Registration Number (VRN)?
 vrn.heading = What is {0}’s VAT Registration Number (VRN)?

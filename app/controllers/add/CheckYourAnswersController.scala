@@ -60,7 +60,6 @@ class CheckYourAnswersController @Inject()(
           HasTaxIdentifierSummary.row(request.userAnswers),
           TaxResidentInUkSummary.row(request.userAnswers),
           UkTaxIdentifiersSummary.row(request.userAnswers),
-          BusinessTypeSummary.row(request.userAnswers),
           UtrSummary.row(request.userAnswers),
           CrnSummary.row(request.userAnswers),
           VrnSummary.row(request.userAnswers),

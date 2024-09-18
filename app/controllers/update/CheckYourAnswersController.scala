@@ -23,7 +23,6 @@ import models.UserAnswers
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import services.UserAnswersService
 import services.UserAnswersService._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -56,7 +55,6 @@ class CheckYourAnswersController @Inject()(
           HasTaxIdentifierSummary.row(operatorId, request.userAnswers),
           TaxResidentInUkSummary.row(operatorId, request.userAnswers),
           UkTaxIdentifiersSummary.row(operatorId, request.userAnswers),
-          BusinessTypeSummary.row(operatorId, request.userAnswers),
           UtrSummary.row(operatorId, request.userAnswers),
           CrnSummary.row(operatorId, request.userAnswers),
           VrnSummary.row(operatorId, request.userAnswers),
