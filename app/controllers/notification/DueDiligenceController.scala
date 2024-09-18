@@ -16,17 +16,20 @@
 
 package controllers.notification
 
+import controllers.{routes => baseRoutes}
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.DueDiligenceFormProvider
-import models.Mode
-import pages.notification.DueDiligencePage
+import forms.{DueDiligenceActiveOnlyFormProvider, DueDiligenceFormProvider}
+import models.operator.NotificationType
+import models.{Mode, UserAnswers}
+import pages.notification.{DueDiligencePage, ReportingPeriodPage}
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.NotificationDetailsQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.notification.DueDiligenceView
+import views.html.notification.{DueDiligenceActiveOnlyView, DueDiligenceView}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,39 +41,66 @@ class DueDiligenceController @Inject()(
                                         requireData: DataRequiredAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         formProvider: DueDiligenceFormProvider,
+                                        formProviderActiveOnly: DueDiligenceActiveOnlyFormProvider,
                                         sessionRepository: SessionRepository,
-                                        view: DueDiligenceView
+                                        view: DueDiligenceView,
+                                        viewActiveOnly: DueDiligenceActiveOnlyView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+      onlyAllowActiveSeller(request.userAnswers).map { active =>
+        val form = if (active) formProviderActiveOnly(businessName) else formProvider(businessName)
 
-      val preparedForm = request.userAnswers.get(DueDiligencePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+        val preparedForm = request.userAnswers.get(DueDiligencePage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      Ok(view(preparedForm, mode, operatorId, businessName))
+        if (active) {
+          Ok(viewActiveOnly(preparedForm, mode, operatorId, businessName))
+        } else {
+          Ok(view(preparedForm, mode, operatorId, businessName))
+        }
+      }.getOrElse(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))
     }
   }
 
-  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
+    implicit request =>
+      getAnswerAsync(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+        onlyAllowActiveSeller(request.userAnswers).map { active =>
+          val form = if (active) formProviderActiveOnly(businessName) else formProvider(businessName)
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName))),
+          form.bindFromRequest().fold(
+            formWithErrors => {
+              if (active) {
+                Future.successful(BadRequest(viewActiveOnly(formWithErrors, mode, operatorId, businessName)))
+              } else {
+                Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName)))
+              }
+            },
 
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DueDiligencePage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(DueDiligencePage.nextPage(mode, operatorId, updatedAnswers))
-      )
-    }
+            value =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(DueDiligencePage, value))
+                _ <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(DueDiligencePage.nextPage(mode, operatorId, updatedAnswers))
+          )
+        }.getOrElse(Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad())))
+      }
+  }
+
+  private def onlyAllowActiveSeller(answers: UserAnswers): Option[Boolean] = {
+    for {
+      reportingPeriod       <- answers.get(ReportingPeriodPage)
+      existingNotifications <- answers.get(NotificationDetailsQuery)
+    } yield
+      existingNotifications
+        .filter(_.notificationType == NotificationType.Rpo)
+        .map(_.firstPeriod)
+        .exists(_ < reportingPeriod)
   }
 }

@@ -417,7 +417,9 @@ dueDiligence.p1 = As a reporting platform operator, {0} will need to collect inf
 dueDiligence.extended.heading = Extended time limits for due diligence on existing sellers
 dueDiligence.extended.p1 = {0} can choose to take an extra year from when they first became a reporting platform operator to complete due diligence on pre-existing sellers. Pre-existing sellers are those who had been registered on the platform before {0} had to start reporting.
 dueDiligence.active.heading = Active seller due diligence
+dueDiligence.activeOnly.p1 = {0} can choose to carry out due diligence on active sellers only. Active sellers are those that supply or are paid for goods and services.
 dueDiligence.active.p1 = {0} can also choose to carry out due diligence on active sellers only. Active sellers are those that supply or are paid for goods and services.
+dueDiligence.activeOnly.legend = Does {0} choose to take active seller due diligence?
 dueDiligence.legend = Does {0} choose to take any types of due diligence?
 dueDiligence.extendedDueDiligence = Extended time limits for due diligence on existing sellers
 dueDiligence.activeSellerDueDiligence = Active seller due diligence
@@ -428,6 +430,7 @@ dueDiligence.checkAnswers.activeSellerDueDiligence = Active seller due diligence
 dueDiligence.checkAnswers.noDueDiligence = None
 dueDiligence.error.required = Select the types of due diligence {0} is choosing to take
 dueDiligence.error.mutuallyExclusive = Select the types of due diligence {0} is choosing to take or none of the above
+dueDiligence.activeOnly.error.required = Select yes if {0} chooses to take active seller due diligence
 dueDiligence.checkYourAnswersLabel = Does {0} choose to take any types of due diligence?
 dueDiligence.change.hidden = if {0} chooses to take any types of due diligence
 
