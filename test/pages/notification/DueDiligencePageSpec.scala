@@ -17,10 +17,10 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.{CheckMode, DueDiligence, NormalMode, UserAnswers}
-import org.scalatest.{OptionValues, TryValues}
+import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
 class DueDiligencePageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
@@ -31,66 +31,18 @@ class DueDiligencePageSpec extends AnyFreeSpec with Matchers with TryValues with
 
     "in Normal Mode" - {
 
-      "must go to Reporting in First Period when the answer contains Extended DD" in {
+      "must go to Check Your Answers" in {
 
-        val answers = emptyAnswers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended)).success.value
-        DueDiligencePage.nextPage(NormalMode, operatorId, answers) mustEqual routes.ReportingInFirstPeriodController.onPageLoad(NormalMode, operatorId)
-      }
-
-      "must go to Check Answers when the answer does not contain Extended DD" in {
-
-        val answers = emptyAnswers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.ActiveSeller)).success.value
-        DueDiligencePage.nextPage(NormalMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+        DueDiligencePage.nextPage(NormalMode, operatorId, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
     }
 
     "in Check Mode" - {
 
-      "must go to Reporting in First Period when the answer contains Extended DD and Reporting in First Period has not been answered" in {
+      "must go to Check Answers" in {
 
-        val answers = emptyAnswers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended)).success.value
-        DueDiligencePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.ReportingInFirstPeriodController.onPageLoad(CheckMode, operatorId)
+        DueDiligencePage.nextPage(CheckMode, operatorId, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
-
-      "must go to Check Answers" - {
-
-        "when the answer contains Extended DD and Reporting in First Period has been answered" in {
-
-          val answers =
-            emptyAnswers
-              .set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended)).success.value
-              .set(ReportingInFirstPeriodPage, true).success.value
-
-          DueDiligencePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
-        }
-
-        "when the answer does not contain Extended DD" in {
-
-          val answers = emptyAnswers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.ActiveSeller)).success.value
-          DueDiligencePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
-        }
-      }
-    }
-  }
-
-  ".cleanup" - {
-
-    "must remove Reporting in First Period when the answer does not contain Extended DD" in {
-
-      val answers = emptyAnswers.set(ReportingInFirstPeriodPage, true).success.value
-
-      val result = answers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.ActiveSeller)).success.value
-
-      result.get(ReportingInFirstPeriodPage) must not be defined
-    }
-
-    "must not remove Reporting in First Period when the answer contains Extended DD" in {
-
-      val answers = emptyAnswers.set(ReportingInFirstPeriodPage, true).success.value
-
-      val result = answers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended)).success.value
-
-      result.get(ReportingInFirstPeriodPage) mustBe defined
     }
   }
 }

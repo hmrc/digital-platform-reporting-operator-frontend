@@ -17,36 +17,14 @@
 package pages.notification
 
 import controllers.notification.routes
-import controllers.{routes => baseRoutes}
-import models.{CheckMode, DueDiligence, NormalMode, UserAnswers}
+import models.{DueDiligence, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
-
-import scala.util.Try
 
 case object DueDiligencePage extends NotificationQuestionPage[Set[DueDiligence]] {
 
   override protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
-    answers.get(this).map {
-      case x if x.contains(DueDiligence.Extended) => routes.ReportingInFirstPeriodController.onPageLoad(NormalMode, operatorId)
-      case _                                      => routes.CheckYourAnswersController.onPageLoad(operatorId)
-    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
-
-  override protected def nextPageCheckMode(operatorId: String, answers: UserAnswers): Call =
-    answers.get(this).map {
-      case x if x.contains(DueDiligence.Extended) =>
-        answers.get(ReportingInFirstPeriodPage)
-          .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-          .getOrElse(routes.ReportingInFirstPeriodController.onPageLoad(CheckMode, operatorId))
-
-      case _ => routes.CheckYourAnswersController.onPageLoad(operatorId)
-    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
-
-  override def cleanup(value: Option[Set[DueDiligence]], userAnswers: UserAnswers): Try[UserAnswers] =
-    value.map {
-      case x if x.contains(DueDiligence.Extended) => super.cleanup(value, userAnswers)
-      case _ => userAnswers.remove(ReportingInFirstPeriodPage)
-    }.getOrElse(super.cleanup(value, userAnswers))
+    routes.CheckYourAnswersController.onPageLoad(operatorId)
 
   override def path: JsPath = JsPath \ "dueDiligence"
 }

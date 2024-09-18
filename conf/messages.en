@@ -442,17 +442,6 @@ reportingPeriod.error.aboveMaximum = First reportable period must be {1} or earl
 reportingPeriod.checkYourAnswersLabel = What is the first year {0} is required to report for?
 reportingPeriod.change.hidden = the first year {0} is required to report for
 
-reportingInFirstPeriod.title = Reporting for the {0} reportable period with extended due diligence
-reportingInFirstPeriod.heading = Reporting for the {0} reportable period with extended due diligence
-reportingInFirstPeriod.p1 = For the {0} reportable period, the RPO will still have to report the information of:
-reportingInFirstPeriod.p1.bullet1 = new Reportable Sellers that joined the platform in {0}
-reportingInFirstPeriod.p1.bullet2 = any pre-existing Sellers that due diligence has been completed on
-reportingInFirstPeriod.p2 = They will need to report this information by the end of January {0}.
-reportingInFirstPeriod.legend = Will {0} still report for the {1} reportable period?
-reportingInFirstPeriod.error.required = Select yes if {0} will still report for the {1} reportable period
-reportingInFirstPeriod.checkYourAnswersLabel = Will {0} still report for the {1} reportable period?
-reportingInFirstPeriod.change.hidden = if {0} will still report for the {1} reportable period
-
 notificationAdded.title = Reporting notification added
 notificationAdded.panel.heading = Reporting notification added
 notificationAdded.p1 = A new reporting notification has been successfully added for {0}.

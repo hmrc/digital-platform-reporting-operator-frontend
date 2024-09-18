@@ -19,7 +19,7 @@ package viewmodels.checkAnswers.notification
 import controllers.notification.routes
 import models.{CheckMode, UserAnswers}
 import pages.notification.DueDiligencePage
-import pages.update.{BusinessNamePage, UkTaxIdentifiersPage}
+import pages.update.BusinessNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
