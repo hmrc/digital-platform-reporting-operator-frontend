@@ -26,11 +26,15 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
 import pages.add._
 import pages.notification._
+import queries.NotificationDetailsQuery
+
+import java.time.Instant
 
 class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues with TryValues with EitherValues {
 
   private val userAnswersService = new UserAnswersService()
   private val emptyAnswers = UserAnswers("id", None)
+  private val now = Instant.now
 
   "fromPlatformOperator" - {
 
@@ -55,7 +59,10 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             primaryContactDetails = ContactDetails(Some("primaryPhone"), "primaryName", "primaryEmail"),
             secondaryContactDetails = Some(ContactDetails(Some("secondaryPhone"), "secondaryName", "secondaryEmail")),
             addressDetails = AddressDetails("line 1", Some("line 2"), Some("line 3"), Some("line 4"), Some("AA1 1AA"), Some("GB")),
-            notifications = Seq.empty
+            notifications = Seq(
+              NotificationDetails(NotificationType.Rpo, Some(true), Some(false), 2024, now),
+              NotificationDetails(NotificationType.Epo, None, None, 2025, now)
+            )
           )
 
           val result = userAnswersService.fromPlatformOperator("id", operator).success.value
@@ -96,6 +103,11 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(SecondaryContactEmailPage).value mustEqual "secondaryEmail"
           result.get(CanPhoneSecondaryContactPage).value mustBe true
           result.get(SecondaryContactPhoneNumberPage).value mustBe "secondaryPhone"
+
+          result.get(NotificationDetailsQuery).value mustEqual Seq(
+            NotificationDetails(NotificationType.Rpo, Some(true), Some(false), 2024, now),
+            NotificationDetails(NotificationType.Epo, None, None, 2025, now)
+          )
         }
 
         "when optional fields are not present" in {

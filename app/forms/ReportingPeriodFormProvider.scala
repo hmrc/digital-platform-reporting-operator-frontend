@@ -16,20 +16,19 @@
 
 package forms
 
+import config.Constants
 import forms.mappings.Mappings
 import play.api.data.Form
 
-import java.time.{Clock, LocalDate, Month}
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
 class ReportingPeriodFormProvider @Inject()(clock: Clock) extends Mappings {
 
   def apply(businessName: String): Form[Int] = {
 
-    // TODO: Confirm date limits
-    val now = LocalDate.now(clock)
-    val maxYear = now.getYear + 1
-    val minYear = 2024
+    val maxYear = LocalDate.now(clock).getYear
+    val minYear = Constants.firstLegislativeYear
 
     Form(
       "value" -> int("reportingPeriod.error.required", args = Seq(businessName))

@@ -432,15 +432,27 @@ dueDiligence.error.mutuallyExclusive = Select the types of due diligence {0} is 
 dueDiligence.checkYourAnswersLabel = Does {0} choose to take any types of due diligence?
 dueDiligence.change.hidden = if {0} chooses to take any types of due diligence
 
-reportingPeriod.title = What is the first reportable period for the platform operator?
-reportingPeriod.heading = What is the first reportable period for {0}?
-reportingPeriod.p1 = This is the first year the platform operator became an RPO and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
+reportingPeriod.first.title = What is the first reportable period for the platform operator?
+reportingPeriod.first.heading = What is the first reportable period for {0}?
+reportingPeriod.first.p1 = This is the first year the platform operator became an RPO and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
+reportingPeriod.first.hint = This is a year, for example 2024.
+reportingPeriod.error.required = Enter the reportable period
+reportingPeriod.error.belowMinimum = Reportable period must be {1} or later
+reportingPeriod.error.aboveMaximum = Reportable period must be {1} or earlier
+reportingPeriod.change.hidden = the reportable period
+
+reportingPeriod.2024.title = The first reportable period is 2024
+reportingPeriod.2024.heading = The first reportable period for {0} is 2024
+reportingPeriod.2024.p1 = A reportable period is a calendar year that runs from 1 January to 31 December. The first reportable period is 2024.
+reportingPeriod.2024.p2 = This still applies if you are adding a notification for an excluded platform operator (EPO) and it is the first reportable period you meet the categories as an excluded platform operator (EPO).
+reportingPeriod.2024.checkYourAnswersLabel = The first year {0} is required to report for
+
+reportingPeriod.title = What reportable period is this reporting notification for?
+reportingPeriod.heading = What reportable period is this reporting notification for?
+reportingPeriod.p1 = Each reportable period is a calendar year that runs from the 1st of January until the 31st of December. There can be more than one reporting notification for a reportable period.
 reportingPeriod.hint = This is a year, for example 2024.
-reportingPeriod.error.required = Enter the first reportable period
-reportingPeriod.error.belowMinimum = First reportable period must be {1} or later
-reportingPeriod.error.aboveMaximum = First reportable period must be {1} or earlier
-reportingPeriod.checkYourAnswersLabel = What is the first year {0} is required to report for?
-reportingPeriod.change.hidden = the first year {0} is required to report for
+reportingPeriod.checkYourAnswersLabel = The reportable period
+reportingPeriod.change.hidden = the reportable period
 
 notificationAdded.title = Reporting notification added
 notificationAdded.panel.heading = Reporting notification added

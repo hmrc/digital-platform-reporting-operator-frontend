@@ -20,18 +20,22 @@ import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.ReportingPeriodFormProvider
 import models.NormalMode
+import models.operator.NotificationType
+import models.operator.responses.NotificationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
 import pages.notification.ReportingPeriodPage
 import pages.update.BusinessNamePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import queries.NotificationDetailsQuery
 import repositories.SessionRepository
-import views.html.notification.ReportingPeriodView
+import views.html.notification.{ReportingPeriod2024View, ReportingPeriodFirstView, ReportingPeriodView}
 
-import java.time.{Clock, Instant, ZoneId}
+import java.time.{Clock, Instant, ZoneId, ZoneOffset}
 import scala.concurrent.Future
 
 class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
@@ -44,42 +48,161 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
   private val formProvider = new ReportingPeriodFormProvider(stubClock)
   private val businessName = "name"
   private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val baseAnswers =
+    emptyUserAnswers
+      .set(BusinessNamePage, businessName).success.value
+      .set(NotificationDetailsQuery, Nil).success.value
 
   "ReportingPeriod Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" - {
 
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
+      "in 2024" in {
 
-      running(application) {
-        val request = FakeRequest(GET, reportingPeriodRoute)
+        val fixedClock = Clock.fixed(Instant.parse("2024-12-31T00:00:00Z"), ZoneOffset.UTC)
 
-        val result = route(application, request).value
+        val application =
+          applicationBuilder(userAnswers = Some(baseAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
 
-        val view = application.injector.instanceOf[ReportingPeriodView]
+        running(application) {
+          val request = FakeRequest(GET, reportingPeriodRoute)
 
-        status(result) mustEqual OK
+          val result = route(application, request).value
 
-        contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          val view = application.injector.instanceOf[ReportingPeriod2024View]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "in years after 2024 when no notifications have been set up yet" in {
+
+        val year = Gen.choose(2025, 2050).sample.value
+        val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
+
+        val application =
+          applicationBuilder(userAnswers = Some(baseAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
+
+        running(application) {
+          val request = FakeRequest(GET, reportingPeriodRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ReportingPeriodFirstView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "in years after 2024 when at least one notification has been set up" in {
+
+        val year = Gen.choose(2025, 2050).sample.value
+        val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
+
+        val notification = NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now)
+        val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
+
+        val application =
+          applicationBuilder(userAnswers = Some(answers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
+
+        running(application) {
+          val request = FakeRequest(GET, reportingPeriodRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[ReportingPeriodView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must populate the view correctly on a GET when the question has previously been answered" - {
 
-      val userAnswers = baseAnswers.set(ReportingPeriodPage, 2024).success.value
+      "in 2024" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+        val fixedClock = Clock.fixed(Instant.parse("2024-12-31T00:00:00Z"), ZoneOffset.UTC)
+        val userAnswers = baseAnswers.set(ReportingPeriodPage, 2024).success.value
 
-      running(application) {
-        val request = FakeRequest(GET, reportingPeriodRoute)
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
 
-        val view = application.injector.instanceOf[ReportingPeriodView]
+        running(application) {
+          val request = FakeRequest(GET, reportingPeriodRoute)
 
-        val result = route(application, request).value
+          val view = application.injector.instanceOf[ReportingPeriod2024View]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName)(request, messages(application)).toString
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "in years after 2024 when no notifications have been set up yet" in {
+
+        val year = Gen.choose(2025, 2050).sample.value
+        val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
+
+        val userAnswers = baseAnswers.set(ReportingPeriodPage, 2024).success.value
+
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
+
+        running(application) {
+          val request = FakeRequest(GET, reportingPeriodRoute)
+
+          val view = application.injector.instanceOf[ReportingPeriodFirstView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "in years after 2024 when at least one notification has been set up" in {
+
+        val year = Gen.choose(2025, 2050).sample.value
+        val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
+
+        val notification = NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now)
+        val userAnswers =
+          baseAnswers
+            .set(ReportingPeriodPage, 2024).success.value
+            .set(NotificationDetailsQuery, Seq(notification)).success.value
+
+        val application =
+          applicationBuilder(userAnswers = Some(userAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
+
+        running(application) {
+          val request = FakeRequest(GET, reportingPeriodRoute)
+
+          val view = application.injector.instanceOf[ReportingPeriodView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
       }
     }
 
@@ -107,23 +230,83 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+    "must return a Bad Request and errors when invalid data is submitted" - {
 
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
+      "in 2024" in {
 
-      running(application) {
-        val request =
-          FakeRequest(POST, reportingPeriodRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+        val fixedClock = Clock.fixed(Instant.parse("2024-12-31T00:00:00Z"), ZoneOffset.UTC)
+        val application =
+          applicationBuilder(userAnswers = Some(baseAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        running(application) {
+          val request =
+            FakeRequest(POST, reportingPeriodRoute)
+              .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val view = application.injector.instanceOf[ReportingPeriodView]
+          val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val result = route(application, request).value
+          val view = application.injector.instanceOf[ReportingPeriod2024View]
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "in years after 2024 when no notification have been set up" in {
+
+        val year = Gen.choose(2025, 2050).sample.value
+        val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
+        val application =
+          applicationBuilder(userAnswers = Some(baseAnswers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, reportingPeriodRoute)
+              .withFormUrlEncodedBody(("value", "invalid value"))
+
+          val boundForm = form.bind(Map("value" -> "invalid value"))
+
+          val view = application.injector.instanceOf[ReportingPeriodFirstView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "in years after 2024 when at least one notification has been set up" in {
+
+        val year = Gen.choose(2025, 2050).sample.value
+        val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
+        val notification = NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now)
+        val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
+
+        val application =
+          applicationBuilder(userAnswers = Some(answers))
+            .overrides(bind[Clock].toInstance(fixedClock))
+            .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, reportingPeriodRoute)
+              .withFormUrlEncodedBody(("value", "invalid value"))
+
+          val boundForm = form.bind(Map("value" -> "invalid value"))
+
+          val view = application.injector.instanceOf[ReportingPeriodView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
       }
     }
 
