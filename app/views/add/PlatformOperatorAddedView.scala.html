@@ -21,21 +21,48 @@
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         govukButton: GovukButton,
-        govukPanel: GovukPanel
+        govukPanel: GovukPanel,
+        govukErrorSummary: GovukErrorSummary,
+        govukRadios: GovukRadios
 )
 
-@(viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("platformOperatorAdded.title"))) {
-
-    @govukPanel(Panel(
-        title = messages("platformOperatorAdded.panel.heading", viewModel.operatorName),
-        content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
-    ))
-
-    <p class="govuk-body">@messages("platformOperatorAdded.1", viewModel.operatorName)</p>
+@layout(
+    pageTitle = titleNoForm(messages("platformOperatorAdded.title")),
+    showBackLink = false
+) {
 
     @formHelper(action = routes.PlatformOperatorAddedController.onSubmit) {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @govukPanel(Panel(
+            title = messages("platformOperatorAdded.panel.heading", viewModel.operatorName),
+            content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
+        ))
+
+        <p class="govuk-body">@messages("platformOperatorAdded.p1", viewModel.operatorName)</p>
+
+        <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>
+
+        <h2 class="govuk-heading-m">@messages("platformOperatorAdded.whatYouNeedToDoNext")</h2>
+
+        <p class="govuk-body">@messages("platformOperatorAdded.p3")</p>
+
+        @govukRadios(
+            RadiosViewModel.yesNo(
+                field = form("value"),
+                legend = LegendViewModel(messages("platformOperatorAdded.legend", viewModel.operatorName)).withCssClass("govuk-fieldset__legend--m")
+            )
+        )
+
         @govukButton(ButtonViewModel("site.continue"))
+
+        <p class="govuk-body">
+            <a href="@routes.StartController.onPageLoad()" class="govuk-link">@messages("platformOperatorAdded.link.text")</a>
+        </p>
     }
 }

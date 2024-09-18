@@ -16,7 +16,10 @@
 
 package controllers.add
 
+import controllers.{routes => baseRoutes}
+import controllers.AnswerExtractor
 import controllers.actions._
+import forms.PlatformOperatorAddedFormProvider
 import models.NormalMode
 import pages.add.PlatformOperatorAddedPage
 
@@ -33,18 +36,32 @@ class PlatformOperatorAddedController @Inject()(
                                                  getData: DataRetrievalActionProvider,
                                                  requireData: DataRequiredAction,
                                                  val controllerComponents: MessagesControllerComponents,
+                                                 formProvider: PlatformOperatorAddedFormProvider,
                                                  view: PlatformOperatorAddedView
-                                               ) extends FrontendBaseController with I18nSupport {
+                                               )
+  extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    request.userAnswers.get(PlatformOperatorAddedQuery).map { viewModel =>
-      Ok(view(viewModel))
-    }.getOrElse {
-      Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    getAnswer(PlatformOperatorAddedQuery) { viewModel =>
+      val form = formProvider(viewModel.operatorName)
+
+      Ok(view(form, viewModel))
     }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    Redirect(PlatformOperatorAddedPage.nextPage(NormalMode, request.userAnswers))
+    getAnswer(PlatformOperatorAddedQuery) { viewModel =>
+      val form = formProvider(viewModel.operatorName)
+
+      form.bindFromRequest().fold(
+        formWithErrors => BadRequest(view(formWithErrors, viewModel)),
+        result => {
+          request.userAnswers.set(PlatformOperatorAddedPage, result).fold(
+            _       => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()),
+            answers => Redirect(PlatformOperatorAddedPage.nextPage(NormalMode, answers))
+          )
+        }
+      )
+    }
   }
 }

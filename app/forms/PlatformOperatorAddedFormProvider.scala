@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package models.operator
+package forms
 
-import enumeratum._
+import forms.mappings.Mappings
+import play.api.data.Form
 
-sealed abstract class TinType(override val entryName: String) extends EnumEntry
+import javax.inject.Inject
 
-object TinType extends PlayEnum[TinType] {
+class PlatformOperatorAddedFormProvider @Inject() extends Mappings {
 
-  override val values: IndexedSeq[TinType] = findValues
-
-  case object Crn extends TinType("CRN")
-  case object Utr extends TinType("UTR")
-  case object Vrn extends TinType("VRN")
-  case object Empref extends TinType("EMPREF")
-  case object Chrn extends TinType("CHRN")
-  case object Other extends TinType("OTHER")
+  def apply(businessName: String): Form[Boolean] =
+    Form(
+      "value" -> boolean("platformOperatorAdded.error.required", args = Seq(businessName))
+    )
 }

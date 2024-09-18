@@ -82,7 +82,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val secondaryContactList = SummaryListViewModel(Seq(hasSecondaryContactRow))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
+          contentAsString(result) mustEqual view(operatorId,platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
         }
       }
 
@@ -111,7 +111,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow, hasSecondaryContactRow))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, None)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(operatorId, platformOperatorList, primaryContactList, None)(request, messages(application)).toString
         }
       }
     }

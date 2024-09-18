@@ -17,13 +17,20 @@
 package pages.add
 
 import controllers.routes
+import controllers.notification.{routes => notificationRoutes}
 import models.UserAnswers
+import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
-case object PlatformOperatorAddedPage extends AddPage {
+case object PlatformOperatorAddedPage extends AddQuestionPage[Boolean] {
+
+  override def path: JsPath = JsPath \ "platformOperatorAdded"
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
-    routes.PlatformOperatorsController.onPageLoad
+    answers.get(this).map {
+      case true  => notificationRoutes.StartController.onPageLoad
+      case false => routes.PlatformOperatorsController.onPageLoad
+    }.getOrElse(routes.JourneyRecoveryController.onPageLoad())
 
   override protected def nextPageCheckMode(answers: UserAnswers): Call =
     routes.PlatformOperatorsController.onPageLoad
