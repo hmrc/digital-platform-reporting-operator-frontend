@@ -52,7 +52,7 @@ class SelectPlatformOperatorController @Inject()(
 
       operators.size match {
         case 0 => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad())
-        case 1 => Ok(viewSingle(operators.head.operatorId))
+        case 1 => Ok(viewSingle(operators.head.operatorId, operators.head.operatorName))
         case _ => Ok(view(form, operators))
       }
     }
@@ -67,7 +67,7 @@ class SelectPlatformOperatorController @Inject()(
         formWithErrors => {
           operators.size match {
             case 0 => Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))
-            case 1 => Future.successful(BadRequest(viewSingle(operators.head.operatorId)))
+            case 1 => Future.successful(BadRequest(viewSingle(operators.head.operatorId, operators.head.operatorName)))
             case _ => Future.successful(BadRequest(view(formWithErrors, operators)))
           }
         },

@@ -98,7 +98,7 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
           status(result) mustEqual OK
 
-          contentAsString(result) mustEqual view(operator1.operatorId)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(operator1.operatorId, operator1.operatorName)(request, messages(application)).toString
           verify(mockConnector, times(1)).viewPlatformOperators(any())
         }
       }

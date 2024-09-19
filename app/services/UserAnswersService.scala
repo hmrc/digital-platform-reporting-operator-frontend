@@ -25,7 +25,7 @@ import models.operator.responses.{NotificationDetails, PlatformOperator}
 import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
-import play.api.libs.json.Writes
+import play.api.libs.json.{Json, Writes}
 import queries.{NotificationDetailsQuery, Query, Settable}
 
 import javax.inject.{Inject, Singleton}

@@ -23,20 +23,20 @@
         govukButton: GovukButton
 )
 
-@(operatorId: String)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("selectPlatformOperator.notification.single.title")),
+    pageTitle = titleNoForm(messages("selectPlatformOperator.single.title")),
     showBackLink = false
 ) {
 
     @formHelper(action = routes.SelectPlatformOperatorController.onSubmit) {
 
-        <h1 class="govuk-heading-xl">@messages("selectPlatformOperator.notification.single.heading")</h1>
+        <h1 class="govuk-heading-xl">@messages("selectPlatformOperator.single.heading", businessName)</h1>
 
         <p class="govuk-body">
-            @messages("selectPlatformOperator.notification.single.p1")
-            <a href="@addRoutes.StartController.onPageLoad()" class="govuk-link">@messages("selectPlatformOperator.notification.single.link")</a>.
+            @messages("selectPlatformOperator.single.p1")
+            <a href="@addRoutes.StartController.onPageLoad()" class="govuk-link">@messages("selectPlatformOperator.single.link.text")</a>.
         </p>
 
         <input type="hidden" id="value" name="value" value="@operatorId" />
