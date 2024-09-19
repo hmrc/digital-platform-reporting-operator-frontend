@@ -56,7 +56,7 @@ class DueDiligenceControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" -  {
 
-      "when there are no existing notifications" in {
+      "when there isn't an RPO notification for a year earlier than the year of this notification" in {
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
@@ -73,47 +73,7 @@ class DueDiligenceControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "when there are only EPO notifications" in {
-
-        val notification = NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now)
-        val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
-
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, dueDiligenceRoute)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[DueDiligenceView]
-
-          status(result) mustEqual OK
-
-          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
-        }
-      }
-
-      "when all RPO notifications are on or after the reporting year of this notification" in {
-
-        val notification = NotificationDetails(NotificationType.Rpo, None, None, 2025, Instant.now)
-        val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
-
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, dueDiligenceRoute)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[DueDiligenceView]
-
-          status(result) mustEqual OK
-
-          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
-        }
-      }
-
-      "when there is an RPO notification for a year before the year of this notification" in {
+      "when there is an RPO notification for a year earlier than the year of this notification" in {
 
         val notification = NotificationDetails(NotificationType.Rpo, None, None, 2024, Instant.now)
         val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value

@@ -17,8 +17,9 @@
 package models
 
 import cats.data.{EitherNec, NonEmptyChain}
+import models.operator.NotificationType.Rpo
 import play.api.libs.json._
-import queries.{Gettable, Query, Settable}
+import queries.{Gettable, NotificationDetailsQuery, Query, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -68,6 +69,16 @@ final case class UserAnswers(
         page.cleanup(None, updatedAnswers)
     }
   }
+
+  lazy val firstYearAsRpo: Option[Int] =
+    get(NotificationDetailsQuery).flatMap(
+      _.groupBy(_.firstPeriod)
+        .map(_._2.maxBy(_.receivedDateTime))
+        .filter(_.notificationType == Rpo)
+        .map(_.firstPeriod)
+        .toSeq
+        .minOption
+    )
 }
 
 object UserAnswers {
