@@ -1,0 +1,48 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.add.{routes => addRoutes}
+@import controllers.notification.routes
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukButton: GovukButton
+)
+
+@(operatorId: String)(implicit request: Request[_], messages: Messages)
+
+@layout(
+    pageTitle = titleNoForm(messages("selectPlatformOperator.notification.single.title")),
+    showBackLink = false
+) {
+
+    @formHelper(action = routes.SelectPlatformOperatorController.onSubmit) {
+
+        <h1 class="govuk-heading-xl">@messages("selectPlatformOperator.notification.single.heading")</h1>
+
+        <p class="govuk-body">
+            @messages("selectPlatformOperator.notification.single.p1")
+            <a href="@addRoutes.StartController.onPageLoad()" class="govuk-link">@messages("selectPlatformOperator.notification.single.link")</a>.
+        </p>
+
+        <input type="hidden" id="value" name="value" value="@operatorId" />
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}

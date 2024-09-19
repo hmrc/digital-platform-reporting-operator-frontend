@@ -28,7 +28,7 @@ import repositories.SessionRepository
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.PlatformOperatorViewModel
-import views.html.notification.SelectPlatformOperatorView
+import views.html.notification.{SelectPlatformOperatorSingleChoiceView, SelectPlatformOperatorView}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,6 +39,7 @@ class SelectPlatformOperatorController @Inject()(
                                                   val controllerComponents: MessagesControllerComponents,
                                                   formProvider: SelectPlatformOperatorFormProvider,
                                                   view: SelectPlatformOperatorView,
+                                                  viewSingle: SelectPlatformOperatorSingleChoiceView,
                                                   connector: PlatformOperatorConnector,
                                                   userAnswersService: UserAnswersService,
                                                   sessionRepository: SessionRepository
@@ -48,7 +49,12 @@ class SelectPlatformOperatorController @Inject()(
     connector.viewPlatformOperators.map { operatorInfo =>
       val operators = operatorInfo.platformOperators.map(x => PlatformOperatorViewModel(x.operatorId, x.operatorName))
       val form = formProvider(operators.map(_.operatorId).toSet)
-      Ok(view(form, operators))
+
+      operators.size match {
+        case 0 => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad())
+        case 1 => Ok(viewSingle(operators.head.operatorId))
+        case _ => Ok(view(form, operators))
+      }
     }
   }
 
@@ -58,7 +64,13 @@ class SelectPlatformOperatorController @Inject()(
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       form.bindFromRequest().fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, operators))),
+        formWithErrors => {
+          operators.size match {
+            case 0 => Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))
+            case 1 => Future.successful(BadRequest(viewSingle(operators.head.operatorId)))
+            case _ => Future.successful(BadRequest(view(formWithErrors, operators)))
+          }
+        },
         operatorId =>
           operatorInfo.platformOperators.find(_.operatorId == operatorId).map { operator =>
             for {

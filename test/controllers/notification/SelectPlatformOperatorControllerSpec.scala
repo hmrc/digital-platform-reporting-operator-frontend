@@ -34,7 +34,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
 import viewmodels.PlatformOperatorViewModel
-import views.html.notification.SelectPlatformOperatorView
+import views.html.notification.{SelectPlatformOperatorSingleChoiceView, SelectPlatformOperatorView}
 
 import scala.concurrent.Future
 
@@ -49,9 +49,9 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
   private lazy val selectPlatformOperatorRoute = routes.SelectPlatformOperatorController.onPageLoad.url
 
-  private val operators = Seq(PlatformOperator(
-    operatorId = "operatorId",
-    operatorName = "operatorName",
+  private val operator1 = PlatformOperator(
+    operatorId = "operatorId1",
+    operatorName = "operatorName1",
     tinDetails = Nil,
     businessName = None,
     tradingName = None,
@@ -59,39 +59,84 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
     secondaryContactDetails = None,
     addressDetails = AddressDetails("line 1", None, None, None, None, None),
     notifications = Nil
-  ))
-  private val viewOperatorInfo = ViewPlatformOperatorsResponse(operators)
+  )
+
+  private val operator2 = PlatformOperator(
+    operatorId = "operatorId2",
+    operatorName = "operatorName2",
+    tinDetails = Nil,
+    businessName = None,
+    tradingName = None,
+    primaryContactDetails = ContactDetails(None, "name", "email"),
+    secondaryContactDetails = None,
+    addressDetails = AddressDetails("line 1", None, None, None, None, None),
+    notifications = Nil
+  )
   private val formProvider = new SelectPlatformOperatorFormProvider()
-  private val form = formProvider(Set("operatorId"))
 
   "Select Platform Operator Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" - {
 
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      "when there is only one platform operator" in {
 
-      val application =
-        applicationBuilder(userAnswers = None)
-          .overrides(bind[PlatformOperatorConnector].toInstance(mockConnector))
-          .build()
+        val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1))
 
-      running(application) {
-        val request = FakeRequest(GET, selectPlatformOperatorRoute)
+        when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
 
-        val result = route(application, request).value
+        val application =
+          applicationBuilder(userAnswers = None)
+            .overrides(bind[PlatformOperatorConnector].toInstance(mockConnector))
+            .build()
 
-        val view = application.injector.instanceOf[SelectPlatformOperatorView]
-        val expectedViewModel = PlatformOperatorViewModel("operatorId", "operatorName")
+        running(application) {
+          val request = FakeRequest(GET, selectPlatformOperatorRoute)
 
-        status(result) mustEqual OK
+          val result = route(application, request).value
 
-        contentAsString(result) mustEqual view(form, Seq(expectedViewModel))(request, messages(application)).toString
-        verify(mockConnector, times(1)).viewPlatformOperators(any())
+          val view = application.injector.instanceOf[SelectPlatformOperatorSingleChoiceView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(operator1.operatorId)(request, messages(application)).toString
+          verify(mockConnector, times(1)).viewPlatformOperators(any())
+        }
+      }
+
+      "when there are two or more platform operators" in {
+
+        val form = formProvider(Set(operator1.operatorId, operator2.operatorId))
+        val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
+
+        when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+
+        val application =
+          applicationBuilder(userAnswers = None)
+            .overrides(bind[PlatformOperatorConnector].toInstance(mockConnector))
+            .build()
+
+        running(application) {
+          val request = FakeRequest(GET, selectPlatformOperatorRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[SelectPlatformOperatorView]
+          val expectedViewModels = Seq(
+            PlatformOperatorViewModel("operatorId1", "operatorName1"),
+            PlatformOperatorViewModel("operatorId2", "operatorName2")
+          )
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(form, expectedViewModels)(request, messages(application)).toString
+          verify(mockConnector, times(1)).viewPlatformOperators(any())
+        }
       }
     }
 
     "must save platform operator details and redirect to the next page when valid data is submitted" in {
 
+      val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1))
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -108,18 +153,18 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       running(application) {
         val request =
           FakeRequest(POST, selectPlatformOperatorRoute)
-            .withFormUrlEncodedBody(("value", "operatorId"))
+            .withFormUrlEncodedBody(("value", "operatorId1"))
 
         val result = route(application, request).value
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual SelectPlatformOperatorPage.nextPage(NormalMode, operatorId, emptyUserAnswers).url
+        redirectLocation(result).value mustEqual SelectPlatformOperatorPage.nextPage(NormalMode, operator1.operatorId, emptyUserAnswers).url
         verify(mockSessionRepository, times(1)).set(answersCaptor.capture())
 
         val answers = answersCaptor.getValue
-        answers.operatorId.value mustEqual "operatorId"
-        answers.get(BusinessNamePage).value mustEqual "operatorName"
+        answers.operatorId.value mustEqual "operatorId1"
+        answers.get(BusinessNamePage).value mustEqual "operatorName1"
         answers.get(HasTradingNamePage).value mustEqual false
         answers.get(HasTaxIdentifierPage).value mustEqual false
         answers.get(PrimaryContactNamePage).value mustEqual "name"
@@ -131,6 +176,8 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
+      val form = formProvider(Set(operator1.operatorId, operator2.operatorId))
+      val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
       when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
 
       val application =
@@ -146,12 +193,15 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
         val view = application.injector.instanceOf[SelectPlatformOperatorView]
-        val viewModel = PlatformOperatorViewModel("operatorId", "operatorName")
+        val viewModels = Seq(
+          PlatformOperatorViewModel("operatorId1", "operatorName1"),
+          PlatformOperatorViewModel("operatorId2", "operatorName2")
+        )
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, Seq(viewModel))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, viewModels)(request, messages(application)).toString
       }
     }
   }
