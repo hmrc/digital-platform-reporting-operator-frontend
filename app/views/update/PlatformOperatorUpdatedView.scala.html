@@ -24,13 +24,13 @@
 
 @(operatorId: String, viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("platformOperatorAdded.title"))) {
+@layout(pageTitle = titleNoForm(messages("platformOperatorUpdated.title"))) {
 
     @govukPanel(Panel(
-        title = messages("platformOperatorAdded.panel.heading", viewModel.operatorName)
+        title = messages("platformOperatorUpdated.panel.heading", viewModel.operatorName)
     ))
 
     <p class="govuk-body">
-        <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorAdded.link1.text")</a>
+        <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorUpdated.link1.text")</a>
     </p>
 }

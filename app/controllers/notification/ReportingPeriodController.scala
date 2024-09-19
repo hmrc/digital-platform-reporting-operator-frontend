@@ -16,6 +16,7 @@
 
 package controllers.notification
 
+import config.Constants
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.ReportingPeriodFormProvider
@@ -24,10 +25,12 @@ import pages.notification.ReportingPeriodPage
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.NotificationDetailsQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.notification.ReportingPeriodView
+import views.html.notification.{ReportingPeriod2024View, ReportingPeriodFirstView, ReportingPeriodView}
 
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,11 +42,14 @@ class ReportingPeriodController @Inject()(
                                            val controllerComponents: MessagesControllerComponents,
                                            formProvider: ReportingPeriodFormProvider,
                                            sessionRepository: SessionRepository,
-                                           view: ReportingPeriodView
+                                           view: ReportingPeriodView,
+                                           view2024: ReportingPeriod2024View,
+                                           viewFirst: ReportingPeriodFirstView,
+                                           clock: Clock
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    getAnswer(BusinessNamePage) { businessName =>
+    getAnswers(BusinessNamePage, NotificationDetailsQuery) { case (businessName, notifications) =>
 
       val form = formProvider(businessName)
 
@@ -52,25 +58,38 @@ class ReportingPeriodController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode, operatorId, businessName))
+      if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
+        Ok(view2024(preparedForm, mode, operatorId, businessName))
+      } else if (notifications.isEmpty) {
+        Ok(viewFirst(preparedForm, mode, operatorId, businessName))
+      } else {
+        Ok(view(preparedForm, mode, operatorId, businessName))
+      }
     }
   }
 
-  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
+  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
+    implicit request =>
+      getAnswersAsync(BusinessNamePage, NotificationDetailsQuery) { case (businessName, notifications) =>
 
-      val form = formProvider(businessName)
+        val form = formProvider(businessName)
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportingPeriodPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(ReportingPeriodPage.nextPage(mode, operatorId, updatedAnswers))
-      )
-    }
+        form.bindFromRequest().fold(
+          formWithErrors => {
+            if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
+              Future.successful(BadRequest(view2024(formWithErrors, mode, operatorId, businessName)))
+            } else if (notifications.isEmpty) {
+              Future.successful(BadRequest(viewFirst(formWithErrors, mode, operatorId, businessName)))
+            } else {
+              Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName)))
+            }
+          },
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ReportingPeriodPage, value))
+              _ <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(ReportingPeriodPage.nextPage(mode, operatorId, updatedAnswers))
+        )
+      }
   }
 }

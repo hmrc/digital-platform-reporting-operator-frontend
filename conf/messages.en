@@ -317,10 +317,9 @@ vrn.error.required = Enter the VAT Registration Number (VRN) for {0}
 vrn.error.format = Enter a VAT Registration Number (VRN) in the correct format
 vrn.change.hidden = the VAT Registration Number (VRN) for {0}
 
-platformOperatorAdded.title = Platform operator added
-platformOperatorAdded.panel.heading = {0} added
-platformOperatorAdded.panel.content = The platform operator ID is {0}
-platformOperatorAdded.p1 = {0} has been successfully added as a platform operator.
+platformOperatorUpdated.title = Platform operator updated
+platformOperatorUpdated.panel.heading = Details updated for {0}
+platformOperatorUpdated.link1.text = Return to “View your platform operators”
 
 platformOperatorAdded.title = Platform operator updated
 platformOperatorAdded.heading = Details updated for {0}
@@ -418,7 +417,9 @@ dueDiligence.p1 = As a reporting platform operator, {0} will need to collect inf
 dueDiligence.extended.heading = Extended time limits for due diligence on existing sellers
 dueDiligence.extended.p1 = {0} can choose to take an extra year from when they first became a reporting platform operator to complete due diligence on pre-existing sellers. Pre-existing sellers are those who had been registered on the platform before {0} had to start reporting.
 dueDiligence.active.heading = Active seller due diligence
+dueDiligence.activeOnly.p1 = {0} can choose to carry out due diligence on active sellers only. Active sellers are those that supply or are paid for goods and services.
 dueDiligence.active.p1 = {0} can also choose to carry out due diligence on active sellers only. Active sellers are those that supply or are paid for goods and services.
+dueDiligence.activeOnly.legend = Does {0} choose to take active seller due diligence?
 dueDiligence.legend = Does {0} choose to take any types of due diligence?
 dueDiligence.extendedDueDiligence = Extended time limits for due diligence on existing sellers
 dueDiligence.activeSellerDueDiligence = Active seller due diligence
@@ -429,18 +430,31 @@ dueDiligence.checkAnswers.activeSellerDueDiligence = Active seller due diligence
 dueDiligence.checkAnswers.noDueDiligence = None
 dueDiligence.error.required = Select the types of due diligence {0} is choosing to take
 dueDiligence.error.mutuallyExclusive = Select the types of due diligence {0} is choosing to take or none of the above
+dueDiligence.activeOnly.error.required = Select yes if {0} chooses to take active seller due diligence
 dueDiligence.checkYourAnswersLabel = Does {0} choose to take any types of due diligence?
 dueDiligence.change.hidden = if {0} chooses to take any types of due diligence
 
-reportingPeriod.title = What is the first reportable period for the platform operator?
-reportingPeriod.heading = What is the first reportable period for {0}?
-reportingPeriod.p1 = This is the first year the platform operator became an RPO and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
+reportingPeriod.first.title = What is the first reportable period for the platform operator?
+reportingPeriod.first.heading = What is the first reportable period for {0}?
+reportingPeriod.first.p1 = This is the first year the platform operator became an RPO and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
+reportingPeriod.first.hint = This is a year, for example 2024.
+reportingPeriod.error.required = Enter the reportable period
+reportingPeriod.error.belowMinimum = Reportable period must be {1} or later
+reportingPeriod.error.aboveMaximum = Reportable period must be {1} or earlier
+reportingPeriod.change.hidden = the reportable period
+
+reportingPeriod.2024.title = The first reportable period is 2024
+reportingPeriod.2024.heading = The first reportable period for {0} is 2024
+reportingPeriod.2024.p1 = A reportable period is a calendar year that runs from 1 January to 31 December. The first reportable period is 2024.
+reportingPeriod.2024.p2 = This still applies if you are adding a notification for an excluded platform operator (EPO) and it is the first reportable period you meet the categories as an excluded platform operator (EPO).
+reportingPeriod.2024.checkYourAnswersLabel = The first year {0} is required to report for
+
+reportingPeriod.title = What reportable period is this reporting notification for?
+reportingPeriod.heading = What reportable period is this reporting notification for?
+reportingPeriod.p1 = Each reportable period is a calendar year that runs from the 1st of January until the 31st of December. There can be more than one reporting notification for a reportable period.
 reportingPeriod.hint = This is a year, for example 2024.
-reportingPeriod.error.required = Enter the first reportable period
-reportingPeriod.error.belowMinimum = First reportable period must be {1} or later
-reportingPeriod.error.aboveMaximum = First reportable period must be {1} or earlier
-reportingPeriod.checkYourAnswersLabel = What is the first year {0} is required to report for?
-reportingPeriod.change.hidden = the first year {0} is required to report for
+reportingPeriod.checkYourAnswersLabel = The reportable period
+reportingPeriod.change.hidden = the reportable period
 
 notificationAdded.title = Reporting notification added
 notificationAdded.panel.heading = Reporting notification added

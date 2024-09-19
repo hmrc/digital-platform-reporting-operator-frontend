@@ -21,12 +21,12 @@ import cats.implicits._
 import models.UkTaxIdentifiers._
 import models.operator._
 import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
-import models.operator.responses.PlatformOperator
+import models.operator.responses.{NotificationDetails, PlatformOperator}
 import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
 import play.api.libs.json.Writes
-import queries.{Query, Settable}
+import queries.{NotificationDetailsQuery, Query, Settable}
 
 import javax.inject.{Inject, Singleton}
 import scala.util.Try
@@ -44,6 +44,7 @@ class UserAnswersService @Inject() {
       _ <- setAddress(platformOperator.addressDetails)
       _ <- setPrimaryContact(platformOperator.primaryContactDetails)
       _ <- setSecondaryContact(platformOperator.secondaryContactDetails)
+      _ <- set(NotificationDetailsQuery, platformOperator.notifications)
     } yield ()
 
     transformation.runS(UserAnswers(userId, Some(platformOperator.operatorId)))

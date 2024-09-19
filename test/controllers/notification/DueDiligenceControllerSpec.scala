@@ -18,19 +18,23 @@ package controllers.notification
 
 import base.SpecBase
 import controllers.{routes => baseRoutes}
-import forms.DueDiligenceFormProvider
-import models.{NormalMode, DueDiligence}
+import forms.{DueDiligenceActiveOnlyFormProvider, DueDiligenceFormProvider}
+import models.operator.NotificationType
+import models.operator.responses.NotificationDetails
+import models.{DueDiligence, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.notification.DueDiligencePage
+import pages.notification.{DueDiligencePage, ReportingPeriodPage}
 import pages.update.BusinessNamePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import queries.NotificationDetailsQuery
 import repositories.SessionRepository
-import views.html.notification.DueDiligenceView
+import views.html.notification.{DueDiligenceActiveOnlyView, DueDiligenceView}
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class DueDiligenceControllerSpec extends SpecBase with MockitoSugar {
@@ -38,44 +42,98 @@ class DueDiligenceControllerSpec extends SpecBase with MockitoSugar {
   private lazy val dueDiligenceRoute = routes.DueDiligenceController.onPageLoad(NormalMode, operatorId).url
 
   private val formProvider = new DueDiligenceFormProvider()
+  private val formProviderActiveOnly = new DueDiligenceActiveOnlyFormProvider()
   private val businessName = "name"
   private val form = formProvider(businessName)
-  private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
+  private val formActiveOnly = formProviderActiveOnly(businessName)
+  private val baseAnswers =
+  emptyUserAnswers
+    .set(BusinessNamePage, businessName).success.value
+    .set(ReportingPeriodPage, 2025).success.value
+    .set(NotificationDetailsQuery, Nil).success.value
 
   "DueDiligence Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" -  {
 
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
+      "when there isn't an RPO notification for a year earlier than the year of this notification" in {
 
-      running(application) {
-        val request = FakeRequest(GET, dueDiligenceRoute)
+        val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
-        val result = route(application, request).value
+        running(application) {
+          val request = FakeRequest(GET, dueDiligenceRoute)
 
-        val view = application.injector.instanceOf[DueDiligenceView]
+          val result = route(application, request).value
 
-        status(result) mustEqual OK
+          val view = application.injector.instanceOf[DueDiligenceView]
 
-        contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "when there is an RPO notification for a year earlier than the year of this notification" in {
+
+        val notification = NotificationDetails(NotificationType.Rpo, None, None, 2024, Instant.now)
+        val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, dueDiligenceRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[DueDiligenceActiveOnlyView]
+
+          status(result) mustEqual OK
+
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must populate the view correctly on a GET when the question has previously been answered" - {
 
-      val userAnswers = baseAnswers.set(DueDiligencePage, Set(DueDiligence.values.head)).success.value
+      "when there isn't an RPO notification for a year earlier than the year of this notification" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+        val userAnswers = baseAnswers.set(DueDiligencePage, Set(DueDiligence.values.head)).success.value
 
-      running(application) {
-        val request = FakeRequest(GET, dueDiligenceRoute)
+        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
-        val view = application.injector.instanceOf[DueDiligenceView]
+        running(application) {
+          val request = FakeRequest(GET, dueDiligenceRoute)
 
-        val result = route(application, request).value
+          val view = application.injector.instanceOf[DueDiligenceView]
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(Set(DueDiligence.values.head)), NormalMode, operatorId, businessName)(request, messages(application)).toString
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(Set(DueDiligence.values.head)), NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "when there is an RPO notification for a year earlier than the year of this notification" in {
+
+        val notification = NotificationDetails(NotificationType.Rpo, None, None, 2024, Instant.now)
+        val answers =
+          baseAnswers
+            .set(DueDiligencePage, Set[DueDiligence](DueDiligence.ActiveSeller)).success.value
+            .set(NotificationDetailsQuery, Seq(notification)).success.value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, dueDiligenceRoute)
+
+          val view = application.injector.instanceOf[DueDiligenceActiveOnlyView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(formActiveOnly.fill(Set(DueDiligence.ActiveSeller)), NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
       }
     }
 
@@ -103,23 +161,49 @@ class DueDiligenceControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+    "must return a Bad Request and errors when invalid data is submitted" - {
 
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
+      "when there isn't an RPO notification for a year earlier than the year of this notification" in {
 
-      running(application) {
-        val request =
-          FakeRequest(POST, dueDiligenceRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+        val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        running(application) {
+          val request =
+            FakeRequest(POST, dueDiligenceRoute)
+              .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val view = application.injector.instanceOf[DueDiligenceView]
+          val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val result = route(application, request).value
+          val view = application.injector.instanceOf[DueDiligenceView]
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
+      }
+
+      "when there is an RPO notification for a year earlier than the year of this notification" in {
+
+        val notification = NotificationDetails(NotificationType.Rpo, None, None, 2024, Instant.now)
+        val answers = baseAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, dueDiligenceRoute)
+              .withFormUrlEncodedBody(("value", "invalid value"))
+
+          val boundForm = formActiveOnly.bind(Map("value" -> "invalid value"))
+
+          val view = application.injector.instanceOf[DueDiligenceActiveOnlyView]
+
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+        }
       }
     }
 

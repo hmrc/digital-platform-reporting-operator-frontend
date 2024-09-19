@@ -20,14 +20,14 @@ import forms.behaviours.IntFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError
 
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 
 class ReportingPeriodFormProviderSpec extends IntFieldBehaviours {
 
   private val requiredKey = "reportingPeriod.error.required"
 
   private val businessName = "name"
-  private val clock = Clock.systemDefaultZone.withZone(ZoneOffset.UTC)
+  private val clock = Clock.fixed(Instant.parse("2100-12-31T00:00:00Z"), ZoneOffset.UTC)
   private val form = new ReportingPeriodFormProvider(clock)(businessName)
 
   ".value" - {
@@ -37,7 +37,7 @@ class ReportingPeriodFormProviderSpec extends IntFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      Gen.choose(LocalDate.now(clock).getYear, LocalDate.now(clock).getYear + 1).map(_.toString)
+      Gen.choose(LocalDate.now(clock).getYear, LocalDate.now(clock).getYear).map(_.toString)
     )
 
     behave like mandatoryField(
@@ -53,7 +53,7 @@ class ReportingPeriodFormProviderSpec extends IntFieldBehaviours {
       FormError(fieldName, "reportingPeriod.error.belowMinimum", Seq(2024, "2024"))
     )
 
-    val maxYear = LocalDate.now(clock).getYear + 1
+    val maxYear = LocalDate.now(clock).getYear
     behave like intFieldWithMaximum(
       form,
       fieldName,

@@ -16,24 +16,21 @@
 
 package forms
 
-import config.Constants
 import forms.mappings.Mappings
+import models.DueDiligence
+import models.DueDiligence.{ActiveSeller, NoDueDiligence}
 import play.api.data.Form
 
-import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 
-class ReportingPeriodFormProvider @Inject()(clock: Clock) extends Mappings {
+class DueDiligenceActiveOnlyFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String): Form[Int] = {
-
-    val maxYear = LocalDate.now(clock).getYear
-    val minYear = Constants.firstLegislativeYear
-
+  def apply(businessName: String): Form[Set[DueDiligence]] =
     Form(
-      "value" -> int("reportingPeriod.error.required", args = Seq(businessName))
-        .verifying(minimumValue(minYear, "reportingPeriod.error.belowMinimum", args = minYear.toString))
-        .verifying(maximumValue(maxYear, "reportingPeriod.error.aboveMaximum", args = maxYear.toString))
+      "value" -> boolean("dueDiligence.activeOnly.error.required", args = Seq(businessName))
+        .transform[Set[DueDiligence]](
+          answer => if (answer) Set[DueDiligence](ActiveSeller) else Set[DueDiligence](NoDueDiligence),
+          value  => if (value.contains(ActiveSeller)) true else false
+        )
     )
-  }
 }

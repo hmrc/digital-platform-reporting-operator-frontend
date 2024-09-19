@@ -16,17 +16,18 @@
 
 package controllers.notification
 
+import controllers.{routes => baseRoutes}
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.DueDiligenceFormProvider
-import models.Mode
-import pages.notification.DueDiligencePage
+import forms.{DueDiligenceActiveOnlyFormProvider, DueDiligenceFormProvider}
+import models.{Mode, UserAnswers}
+import pages.notification.{DueDiligencePage, ReportingPeriodPage}
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.notification.DueDiligenceView
+import views.html.notification.{DueDiligenceActiveOnlyView, DueDiligenceView}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,39 +39,60 @@ class DueDiligenceController @Inject()(
                                         requireData: DataRequiredAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         formProvider: DueDiligenceFormProvider,
+                                        formProviderActiveOnly: DueDiligenceActiveOnlyFormProvider,
                                         sessionRepository: SessionRepository,
-                                        view: DueDiligenceView
+                                        view: DueDiligenceView,
+                                        viewActiveOnly: DueDiligenceActiveOnlyView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+      onlyAllowActiveSeller(request.userAnswers).map { activeOnly =>
+        val form = if (activeOnly) formProviderActiveOnly(businessName) else formProvider(businessName)
 
-      val preparedForm = request.userAnswers.get(DueDiligencePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
+        val preparedForm = request.userAnswers.get(DueDiligencePage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
+
+        if (activeOnly) {
+          Ok(viewActiveOnly(preparedForm, mode, operatorId, businessName))
+        } else {
+          Ok(view(preparedForm, mode, operatorId, businessName))
+        }
+      }.getOrElse(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))
+    }
+  }
+
+  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
+    implicit request =>
+      getAnswerAsync(BusinessNamePage) { businessName =>
+
+        onlyAllowActiveSeller(request.userAnswers).map { activeOnly =>
+          val form = if (activeOnly) formProviderActiveOnly(businessName) else formProvider(businessName)
+
+          form.bindFromRequest().fold(
+            formWithErrors => {
+              if (activeOnly) {
+                Future.successful(BadRequest(viewActiveOnly(formWithErrors, mode, operatorId, businessName)))
+              } else {
+                Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName)))
+              }
+            },
+
+            value =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(DueDiligencePage, value))
+                _ <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(DueDiligencePage.nextPage(mode, operatorId, updatedAnswers))
+          )
+        }.getOrElse(Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad())))
       }
-
-      Ok(view(preparedForm, mode, operatorId, businessName))
-    }
   }
 
-  def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-    getAnswerAsync(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DueDiligencePage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(DueDiligencePage.nextPage(mode, operatorId, updatedAnswers))
-      )
+  private def onlyAllowActiveSeller(answers: UserAnswers): Option[Boolean] =
+    answers.get(ReportingPeriodPage).map { reportingPeriod =>
+      answers.firstYearAsRpo.exists(_ < reportingPeriod)
     }
-  }
 }
