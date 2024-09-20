@@ -52,4 +52,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  val manageFrontendUrl = configuration.get[String]("microservice.services.digital-platform-reporting-manage-frontend.baseUrl")
 }

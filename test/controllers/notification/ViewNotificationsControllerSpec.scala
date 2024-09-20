@@ -17,26 +17,15 @@
 package controllers.notification
 
 import base.SpecBase
-import controllers.{routes => baseRoutes}
-import forms.{ReportingPeriodFormProvider, ViewNotificationsFormProvider}
+import forms.ViewNotificationsFormProvider
 import models.NormalMode
-import models.operator.NotificationType
-import models.operator.responses.NotificationDetails
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
-import pages.notification.{ReportingPeriodPage, ViewNotificationsPage}
+import pages.notification.ViewNotificationsPage
 import pages.update.BusinessNamePage
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.NotificationDetailsQuery
-import repositories.SessionRepository
-import views.html.notification.{ReportingPeriod2024View, ReportingPeriodFirstView, ReportingPeriodView, ViewNotificationsView}
-
-import java.time.{Clock, Instant, ZoneId, ZoneOffset}
-import scala.concurrent.Future
+import views.html.notification.ViewNotificationsView
 
 class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar {
 
@@ -76,10 +65,12 @@ class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val expectedAnswers = baseAnswers.set(ViewNotificationsPage, true).success.value
+        val page = application.injector.instanceOf[ViewNotificationsPage]
+
+        val expectedAnswers = baseAnswers.set(page, true).success.value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual ViewNotificationsPage.nextPage(NormalMode, operatorId, expectedAnswers).url
+        redirectLocation(result).value mustEqual page.nextPage(NormalMode, operatorId, expectedAnswers).url
       }
     }
 

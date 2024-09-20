@@ -19,17 +19,9 @@ package pages.notification
 import controllers.notification.routes
 import models.UserAnswers
 import play.api.mvc.Call
-import queries.NotificationDetailsQuery
 
-case object SelectPlatformOperatorPage extends NotificationPage {
+case object SelectPlatformOperatorToViewPage extends NotificationPage {
 
-  override def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call = {
-    answers.get(NotificationDetailsQuery).map { notifications =>
-      if (notifications.isEmpty) {
-        routes.AddGuidanceController.onPageLoad(operatorId)
-      } else {
-        routes.ViewNotificationsController.onPageLoad(operatorId)
-      }
-    }.getOrElse(routes.AddGuidanceController.onPageLoad(operatorId))
-  }
+  override def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
+    routes.ViewNotificationsController.onPageLoad(operatorId)
 }

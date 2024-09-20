@@ -130,4 +130,3 @@ GET        /change-vrn                  controllers.add.VrnController.onPageLoad
 POST       /change-vrn                  controllers.add.VrnController.onSubmit(mode: Mode = CheckMode)
 
 GET        /added-successfully          controllers.add.PlatformOperatorAddedController.onPageLoad
-POST       /added-successfully          controllers.add.PlatformOperatorAddedController.onSubmit

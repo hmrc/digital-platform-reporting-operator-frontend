@@ -27,24 +27,15 @@ import queries.NotificationDetailsQuery
 
 import java.time.Instant
 
-class SelectPlatformOperatorPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
+class SelectPlatformOperatorToViewPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
     val emptyAnswers = UserAnswers("id")
 
-    "must go to Add Guidance for the correct platform operator when there are no existing notifications" in {
+    "must go to View Notifications for the correct platform operator" in {
 
-      SelectPlatformOperatorPage.nextPage(NormalMode, "operatorId", emptyAnswers)
-        .mustEqual(routes.AddGuidanceController.onPageLoad("operatorId"))
-    }
-
-    "must go to View Notifications for the correct platform operator when there is at least one existing notifications" in {
-
-      val notification = NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now)
-      val answers = emptyAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
-
-      SelectPlatformOperatorPage.nextPage(NormalMode, "operatorId", answers)
+      SelectPlatformOperatorToViewPage.nextPage(NormalMode, "operatorId", emptyAnswers)
         .mustEqual(routes.ViewNotificationsController.onPageLoad("operatorId"))
     }
   }

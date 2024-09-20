@@ -3,10 +3,14 @@ POST        /:operatorId/add-notification                       controllers.noti
 GET         /:operatorId/change-add-notification                controllers.notification.NotificationTypeController.onPageLoad(mode: Mode = CheckMode, operatorId: String)
 POST        /:operatorId/change-add-notification                controllers.notification.NotificationTypeController.onSubmit(mode: Mode = CheckMode, operatorId: String)
 
-GET         /start                                              controllers.notification.StartController.onPageLoad
+GET         /:operatorId/start                                              controllers.notification.AddGuidanceController.onPageLoad(operatorId: String)
+POST        /:operatorId/start                                              controllers.notification.AddGuidanceController.onSubmit(operatorId: String)
 
 GET         /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onPageLoad
 POST        /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onSubmit
+
+GET         /which-platform-operator-to-view                    controllers.notification.SelectPlatformOperatorToViewController.onPageLoad
+POST        /which-platform-operator-to-view                    controllers.notification.SelectPlatformOperatorToViewController.onSubmit
 
 GET         /:operatorId/due-diligence                       controllers.notification.DueDiligenceController.onPageLoad(mode: Mode = NormalMode, operatorId: String)
 POST        /:operatorId/due-diligence                       controllers.notification.DueDiligenceController.onSubmit(mode: Mode = NormalMode, operatorId: String)

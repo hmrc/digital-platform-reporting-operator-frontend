@@ -38,7 +38,8 @@ class ViewNotificationsController @Inject()(
                                              requireData: DataRequiredAction,
                                              val controllerComponents: MessagesControllerComponents,
                                              formProvider: ViewNotificationsFormProvider,
-                                             view: ViewNotificationsView
+                                             view: ViewNotificationsView,
+                                             page: ViewNotificationsPage
                                            ) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
@@ -57,9 +58,9 @@ class ViewNotificationsController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors => BadRequest(view(formWithErrors, notifications, operatorId, businessName)),
-        value => request.userAnswers.set(ViewNotificationsPage, value).fold(
+        value => request.userAnswers.set(page, value).fold(
           _       => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()),
-          answers => Redirect(ViewNotificationsPage.nextPage(NormalMode, operatorId, answers))
+          answers => Redirect(page.nextPage(NormalMode, operatorId, answers))
         )
       )
     }

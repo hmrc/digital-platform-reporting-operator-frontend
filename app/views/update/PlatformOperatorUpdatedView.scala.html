@@ -14,12 +14,14 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
 @import controllers.routes
 @import viewmodels.PlatformOperatorSummaryViewModel
 
 @this(
         layout: templates.Layout,
-        govukPanel: GovukPanel
+        govukPanel: GovukPanel,
+        appConfig: FrontendAppConfig
 )
 
 @(operatorId: String, viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
@@ -32,5 +34,9 @@
 
     <p class="govuk-body">
         <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorUpdated.link1.text")</a>
+    </p>
+
+    <p class="govuk-body">
+        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("platformOperatorUpdated.link2.text")</a>
     </p>
 }

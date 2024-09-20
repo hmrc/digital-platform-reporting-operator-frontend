@@ -18,8 +18,6 @@ package controllers.add
 
 import base.SpecBase
 import forms.PlatformOperatorAddedFormProvider
-import models.NormalMode
-import pages.add.PlatformOperatorAddedPage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorAddedQuery
@@ -47,49 +45,6 @@ class PlatformOperatorAddedControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to the next page for a POST when valid data is submitted" in {
-
-      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
-      val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
-
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, routes.PlatformOperatorAddedController.onSubmit.url)
-            .withFormUrlEncodedBody(("value" -> "true"))
-
-        val result = route(application, request).value
-        val answers = emptyUserAnswers.set(PlatformOperatorAddedPage, true).success.value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual PlatformOperatorAddedPage.nextPage(NormalMode, answers).url
-      }
-    }
-
-    "must return a Bad Request and errors when invalid data is submitted" in {
-
-      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
-      val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
-      val form = new PlatformOperatorAddedFormProvider()("name")
-
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, routes.PlatformOperatorAddedController.onSubmit.url)
-            .withFormUrlEncodedBody("value" -> "")
-
-        val view = application.injector.instanceOf[PlatformOperatorAddedView]
-
-        val result = route(application, request).value
-        val boundForm = form.bind(Map("value" -> ""))
-
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, viewModel)(request, messages(application)).toString
       }
     }
   }

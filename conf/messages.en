@@ -319,18 +319,19 @@ vrn.change.hidden = the VAT Registration Number (VRN) for {0}
 
 platformOperatorUpdated.title = Platform operator updated
 platformOperatorUpdated.panel.heading = Details updated for {0}
-platformOperatorUpdated.link1.text = Return to “View your platform operators”
+platformOperatorUpdated.link1.text = Return to “view your platform operators”
+platformOperatorUpdated.link2.text = Return to “manage your digital platform reporting”
 
-platformOperatorAdded.title = Platform operator updated
-platformOperatorAdded.heading = Details updated for {0}
+platformOperatorAdded.title = Platform operator added
+platformOperatorAdded.panel.heading = {0} added
 platformOperatorAdded.panel.p1 = The platform operator ID is {0}
 platformOperatorAdded.p1 = {0} has been successfully added as a platform operator.
 platformOperatorAdded.p2 = Keep a record of this platform operator ID. You need to provide it on every file you send to HMRC for this platform operator.
 platformOperatorAdded.whatYouNeedToDoNext = What you need to do next
 platformOperatorAdded.p3 = To send submissions, you must add a reporting notification for this platform operator.
-platformOperatorAdded.legend = Do you want to add a reporting notification for {0} now?
-platformOperatorAdded.error.required = Select yes if you want to add a reporting notification for {0} now
-platformOperatorAdded.link.text = Add another platform operator
+platformOperatorAdded.p4 = Return to
+platformOperatorAdded.p4.link.text = manage your digital platform reporting
+platformOperatorAdded.addAnother.link.text = Add another platform operator
 
 platformOperators.title = Platform operators
 platformOperators.heading = Platform operators
@@ -358,22 +359,15 @@ platformOperatorRemoved.title = Platform operator has been successfully removed
 platformOperatorRemoved.heading = Platform operator {0} has been successfully removed
 platformOperatorRemoved.button = Back to view platform operators
 
-start.notification.title = Add a reporting notification
-start.notification.heading = Add a reporting notification
-start.notification.p1 = You need to tell HMRC if you intend to send reports for yourself or, if you are a third party, any platform operators you are reporting for.
-start.notification.p2 = You can do this by telling us if the platform operator is
-start.notification.p2.bullet1 = a reporting platform operator
-start.notification.p2.bullet2 = an excluded platform operator
-start.notification.p3 = A reporting platform operator is any platform operator, except an excluded operator, where one of the following applies:
-start.notification.p3.bullet1 = they reside in the UK
-start.notification.p3.bullet2 = they are managed under UK laws
-start.notification.p3.bullet3 = they have a place of management in the UK
-start.notification.p4 = An excluded platform operator is one whose entire business model either:
-start.notification.p4.bullet1 = does not allow sellers to profit from received payments
-start.notification.p4.bullet2 = has no reportable sellers
-start.notification.p5 = You must add a reporting notification for a platform operator before you make a submission for them. This notification will automatically carry over each year until it is updated.
-start.notification.p6 = You cannot remove or update a notification once it’s been added, you can only add a new one if anything changes.
-start.notification.p7 = Adding a reporting notification takes around 10 minutes.
+addGuidance.title = Add a reporting notification
+addGuidance.heading = Add a reporting notification
+addGuidance.p1 = You need to tell HMRC if you intend to send reports for yourself or, if you are a third party, any platform operators you are reporting for.
+addGuidance.p2 = You can do this by telling us if the platform operator is
+addGuidance.p2.bullet1 = a reporting platform operator
+addGuidance.p2.bullet2 = an excluded platform operator
+addGuidance.p3 = You must add a reporting notification for a platform operator before you make a submission for them. This notification will automatically carry over each year until it is updated.
+addGuidance.p4 = You cannot remove or update a notification once it’s been added, you can only add a new one if anything changes.
+addGuidance.p5 = Adding a reporting notification takes around 10 minutes.
 
 selectPlatformOperator.title = Which platform operator do you want to add a reporting notification for?
 selectPlatformOperator.heading = Which platform operator do you want to add a reporting notification for?
@@ -386,6 +380,14 @@ selectPlatformOperator.single.title = You are about to add a reporting notificat
 selectPlatformOperator.single.heading = You are about to add a reporting notification for {0}
 selectPlatformOperator.single.p1 = If this is not correct, you can
 selectPlatformOperator.single.link.text = add a new platform operator
+
+selectPlatformOperatorToView.title = Which platform operator do you want to view reporting notifications for?
+selectPlatformOperatorToView.heading = Which platform operator do you want to view reporting notifications for?
+selectPlatformOperatorToView.errorRequired = Select which platform operator you want to view reporting notifications for
+selectPlatformOperatorToView.p1 = You can also
+selectPlatformOperatorToView.p1.link.text = add a new platform operator
+selectPlatformOperatorToView.item.text = {0}
+selectPlatformOperatorToView.item.hint = {0}
 
 notificationType.title = Reporting notification
 notificationType.heading = Reporting notification
