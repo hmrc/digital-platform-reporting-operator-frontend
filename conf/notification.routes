@@ -8,6 +8,9 @@ GET         /start                                              controllers.noti
 GET         /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onPageLoad
 POST        /which-platform-operator                            controllers.notification.SelectPlatformOperatorController.onSubmit
 
+GET         /which-platform-operator-to-view                    controllers.notification.SelectPlatformOperatorToViewController.onPageLoad
+POST        /which-platform-operator-to-view                    controllers.notification.SelectPlatformOperatorToViewController.onSubmit
+
 GET         /:operatorId/due-diligence                       controllers.notification.DueDiligenceController.onPageLoad(mode: Mode = NormalMode, operatorId: String)
 POST        /:operatorId/due-diligence                       controllers.notification.DueDiligenceController.onSubmit(mode: Mode = NormalMode, operatorId: String)
 GET         /:operatorId/change-due-diligence                controllers.notification.DueDiligenceController.onPageLoad(mode: Mode = CheckMode, operatorId: String)

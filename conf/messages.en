@@ -387,6 +387,14 @@ selectPlatformOperator.single.heading = You are about to add a reporting notific
 selectPlatformOperator.single.p1 = If this is not correct, you can
 selectPlatformOperator.single.link.text = add a new platform operator
 
+selectPlatformOperatorToView.title = Which platform operator do you want to view reporting notifications for?
+selectPlatformOperatorToView.heading = Which platform operator do you want to view reporting notifications for?
+selectPlatformOperatorToView.errorRequired = Select which platform operator you want to view reporting notifications for
+selectPlatformOperatorToView.p1 = You can also
+selectPlatformOperatorToView.p1.link.text = add a new platform operator
+selectPlatformOperatorToView.item.text = {0}
+selectPlatformOperatorToView.item.hint = {0}
+
 notificationType.title = Reporting notification
 notificationType.heading = Reporting notification
 notificationType.p1 = You need to tell HMRC if you intend to send reports for {0}. You can do this by telling us if they are
