@@ -319,10 +319,11 @@ vrn.change.hidden = the VAT Registration Number (VRN) for {0}
 
 platformOperatorUpdated.title = Platform operator updated
 platformOperatorUpdated.panel.heading = Details updated for {0}
-platformOperatorUpdated.link1.text = Return to “View your platform operators”
+platformOperatorUpdated.link1.text = Return to “view your platform operators”
+platformOperatorUpdated.link2.text = Return to “manage your digital platform reporting”
 
 platformOperatorAdded.title = Platform operator added
-platformOperatorAdded.heading = {0} added
+platformOperatorAdded.panel.heading = {0} added
 platformOperatorAdded.panel.p1 = The platform operator ID is {0}
 platformOperatorAdded.p1 = {0} has been successfully added as a platform operator.
 platformOperatorAdded.p2 = Keep a record of this platform operator ID. You need to provide it on every file you send to HMRC for this platform operator.

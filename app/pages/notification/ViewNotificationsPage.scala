@@ -16,20 +16,22 @@
 
 package pages.notification
 
-import controllers.{routes => baseRoutes}
+import config.FrontendAppConfig
 import controllers.notification.routes
-import models.{NormalMode, UserAnswers}
+import controllers.{routes => baseRoutes}
+import models.UserAnswers
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
-case object ViewNotificationsPage extends NotificationQuestionPage[Boolean] {
+import javax.inject.Inject
+
+class ViewNotificationsPage @Inject()(appConfig: FrontendAppConfig) extends NotificationQuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "addNotification"
 
   override protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call =
     answers.get(this).map {
-      case true  => routes.NotificationTypeController.onPageLoad(NormalMode, operatorId)
-      case false => ???
+      case true  => routes.AddGuidanceController.onPageLoad(operatorId)
+      case false => Call("GET", appConfig.manageFrontendUrl)
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
-
 }
