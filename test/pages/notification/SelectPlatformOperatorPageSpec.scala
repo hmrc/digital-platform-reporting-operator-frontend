@@ -14,24 +14,38 @@
  * limitations under the License.
  */
 
-package pages
+package pages.notification
 
 import controllers.notification.routes
+import models.operator.NotificationType
+import models.operator.responses.NotificationDetails
 import models.{NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import pages.notification.SelectPlatformOperatorPage
+import org.scalatest.{OptionValues, TryValues}
+import queries.NotificationDetailsQuery
 
-class SelectPlatformOperatorPageSpec extends AnyFreeSpec with Matchers {
+import java.time.Instant
+
+class SelectPlatformOperatorPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
   ".nextPage" - {
 
     val emptyAnswers = UserAnswers("id")
 
-    "must go to Notification Type for the correct platform operator" in {
+    "must go to Notification Type for the correct platform operator when there are no existing notifications" in {
 
       SelectPlatformOperatorPage.nextPage(NormalMode, "operatorId", emptyAnswers)
         .mustEqual(routes.NotificationTypeController.onPageLoad(NormalMode, "operatorId"))
+    }
+
+    "must go to View Notifications for the correct platform operator when there is at least one existing notifications" in {
+
+      val notification = NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now)
+      val answers = emptyAnswers.set(NotificationDetailsQuery, Seq(notification)).success.value
+
+      SelectPlatformOperatorPage.nextPage(NormalMode, "operatorId", answers)
+        .mustEqual(routes.ViewNotificationsController.onPageLoad("operatorId"))
     }
   }
 }
