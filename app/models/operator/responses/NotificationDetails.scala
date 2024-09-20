@@ -16,7 +16,10 @@
 
 package models.operator.responses
 
+import models.DueDiligence
+import models.DueDiligence.{ActiveSeller, Extended, NoDueDiligence}
 import models.operator.NotificationType
+import models.operator.NotificationType.{Epo, Rpo}
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.Instant
@@ -25,7 +28,19 @@ final case class NotificationDetails(notificationType: NotificationType,
                                      isActiveSeller: Option[Boolean],
                                      isDueDiligence: Option[Boolean],
                                      firstPeriod: Int,
-                                     receivedDateTime: Instant)
+                                     receivedDateTime: Instant) {
+
+  lazy val dueDiligence: Seq[DueDiligence] = notificationType match {
+    case Epo => Nil
+    case Rpo =>
+      val selectedOptions = Seq(
+        if (isDueDiligence.contains(true)) Some(Extended) else None,
+        if (isActiveSeller.contains(true)) Some(ActiveSeller) else None
+      ).flatten
+
+      if (selectedOptions.nonEmpty) selectedOptions else Seq(NoDueDiligence)
+  }
+}
 
 object NotificationDetails {
 
