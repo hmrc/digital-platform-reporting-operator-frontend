@@ -16,19 +16,16 @@
 
 package controllers.add
 
-import controllers.{routes => baseRoutes}
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.PlatformOperatorAddedFormProvider
-import models.NormalMode
-import pages.add.PlatformOperatorAddedPage
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorAddedQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.PlatformOperatorAddedView
+
+import javax.inject.Inject
 
 class PlatformOperatorAddedController @Inject()(
                                                  override val messagesApi: MessagesApi,
@@ -46,22 +43,6 @@ class PlatformOperatorAddedController @Inject()(
       val form = formProvider(viewModel.operatorName)
 
       Ok(view(form, viewModel))
-    }
-  }
-
-  def onSubmit: Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(PlatformOperatorAddedQuery) { viewModel =>
-      val form = formProvider(viewModel.operatorName)
-
-      form.bindFromRequest().fold(
-        formWithErrors => BadRequest(view(formWithErrors, viewModel)),
-        result => {
-          request.userAnswers.set(PlatformOperatorAddedPage, result).fold(
-            _       => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()),
-            answers => Redirect(PlatformOperatorAddedPage.nextPage(NormalMode, answers))
-          )
-        }
-      )
     }
   }
 }

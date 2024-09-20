@@ -33,10 +33,10 @@ class SelectPlatformOperatorPageSpec extends AnyFreeSpec with Matchers with TryV
 
     val emptyAnswers = UserAnswers("id")
 
-    "must go to Notification Type for the correct platform operator when there are no existing notifications" in {
+    "must go to Add Guidance for the correct platform operator when there are no existing notifications" in {
 
       SelectPlatformOperatorPage.nextPage(NormalMode, "operatorId", emptyAnswers)
-        .mustEqual(routes.NotificationTypeController.onPageLoad(NormalMode, "operatorId"))
+        .mustEqual(routes.AddGuidanceController.onPageLoad("operatorId"))
     }
 
     "must go to View Notifications for the correct platform operator when there is at least one existing notifications" in {

@@ -17,21 +17,29 @@
 package controllers.notification
 
 import controllers.actions._
+import models.NormalMode
+import pages.notification.AddGuidancePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.notification.StartView
+import views.html.notification.AddGuidanceView
 
 import javax.inject.Inject
 
-class StartController @Inject()(
+class AddGuidanceController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
+                                       getData: DataRetrievalActionProvider,
+                                       requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: StartView
+                                       view: AddGuidanceView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify { implicit request =>
-      Ok(view())
+  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
+    Ok(view(operatorId))
+  }
+
+  def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
+    Redirect(AddGuidancePage.nextPage(NormalMode, operatorId, request.userAnswers))
   }
 }

@@ -17,19 +17,18 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.UserAnswers
-import play.api.mvc.Call
-import queries.NotificationDetailsQuery
+import models.{NormalMode, UserAnswers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-case object SelectPlatformOperatorPage extends NotificationPage {
+class AddGuidancePageSpec extends AnyFreeSpec with Matchers {
 
-  override def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call = {
-    answers.get(NotificationDetailsQuery).map { notifications =>
-      if (notifications.isEmpty) {
-        routes.AddGuidanceController.onPageLoad(operatorId)
-      } else {
-        routes.ViewNotificationsController.onPageLoad(operatorId)
-      }
-    }.getOrElse(routes.AddGuidanceController.onPageLoad(operatorId))
+  ".nextPage" - {
+
+    val emptyAnswers = UserAnswers("id")
+
+    "must go to Notification Type" in {
+      AddGuidancePage.nextPage(NormalMode, "operatorId", emptyAnswers) mustEqual routes.NotificationTypeController.onPageLoad(NormalMode, "operatorId")
+    }
   }
 }
