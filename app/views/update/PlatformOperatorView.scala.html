@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import controllers.notification.{routes => notificationRoutes}
 @import controllers.update.routes
 @import viewmodels.PlatformOperatorViewModel
 
@@ -35,21 +36,44 @@
     <p class="govuk-body govuk-body-lead">@messages("platformOperator.lead", viewModel.operatorId)</p>
 
     <div class="flex-container grid-row">
-      <div class="card">
-        <div class="card-body">
-            <h2 class="govuk-heading-s card-heading">
-            @messages("platformOperator.details.heading")
-            </h2>
-            <p class="govuk-body-s">@messages("platformOperator.details.p")</p>
-        </div>
-        <div class="card-action">
-            <ul class="govuk-list">
-                <li>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="govuk-heading-s card-heading">
+                @messages("platformOperator.details.heading")
+                </h2>
+                <p class="govuk-body-s">@messages("platformOperator.details.p")</p>
+            </div>
+            <div class="card-action">
+                <p class="govuk-body">
                     <a href="@routes.CheckYourAnswersController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.details.actions.view")</a>
-                </li>
-            </ul>
+                </p>
+            </div>
         </div>
-      </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="govuk-heading-s card-heading">
+                @messages("platformOperator.notification.details.heading")
+                </h2>
+                <p class="govuk-body-s">@messages("platformOperator.notification.details.p")</p>
+            </div>
+            <div class="card-action">
+                @if(viewModel.hasReportingNotifications) {
+                    <ul class="govuk-list">
+                        <li>
+                            <a href="@notificationRoutes.ViewNotificationsController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.view")</a>
+                        </li>
+                        <li>
+                            <a href="@notificationRoutes.ViewNotificationsController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.add")</a>
+                        </li>
+                    </ul>
+                } else {
+                    <p class="govuk-body">
+                        <a href="@notificationRoutes.AddGuidanceController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.add")</a>
+                    </p>
+                }
+            </div>
+        </div>
     </div>
 
     <a href="@routes.RemovePlatformOperatorController.onPageLoad(viewModel.operatorId)" class="govuk-button govuk-button--warning">

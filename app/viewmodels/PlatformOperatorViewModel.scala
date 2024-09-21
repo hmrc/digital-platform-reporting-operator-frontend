@@ -16,4 +16,20 @@
 
 package viewmodels
 
-final case class PlatformOperatorViewModel(operatorId: String, operatorName: String)
+import models.operator.responses.PlatformOperator
+
+final case class PlatformOperatorViewModel(
+                                            operatorId: String,
+                                            operatorName: String,
+                                            hasReportingNotifications: Boolean
+                                          )
+
+object PlatformOperatorViewModel {
+
+  def apply(operator: PlatformOperator): PlatformOperatorViewModel =
+    PlatformOperatorViewModel(
+      operator.operatorId,
+      operator.operatorName,
+      operator.notifications.nonEmpty
+    )
+}

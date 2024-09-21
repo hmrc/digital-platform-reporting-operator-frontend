@@ -78,7 +78,7 @@ class PlatformOperatorControllerSpec extends SpecBase with MockitoSugar with Bef
 
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         val view = app.injector.instanceOf[PlatformOperatorView]
-        val viewModel = PlatformOperatorViewModel("operatorId", "operatorName")
+        val viewModel = PlatformOperatorViewModel("operatorId", "operatorName", false)
 
         val result = route(app, request).value
 

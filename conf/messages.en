@@ -1,4 +1,4 @@
-service.name = digital-platform-reporting-operator-frontend
+service.name = Digital Platforms Reporting Service
 
 site.back = Back
 site.remove = Remove
@@ -344,6 +344,10 @@ platformOperator.lead = Platform operator ID: {0}
 platformOperator.details.heading = Platform operator details
 platformOperator.details.p = Need content here
 platformOperator.details.actions.view = View and change Platform Operator details
+platformOperator.notification.details.heading = Reporting notifications
+platformOperator.notification.details.p = Add or view the reporting notification for a Platform Operator.
+platformOperator.notification.details.actions.add = Add a reporting notification
+platformOperator.notification.details.actions.view = View reporting notifications
 platformOperator.remove = Remove platform operator
 
 removePlatformOperator.title = Removing a platform operator
