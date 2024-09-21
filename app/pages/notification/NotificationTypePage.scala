@@ -22,6 +22,8 @@ import models.{CheckMode, NormalMode, NotificationType, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
+import scala.util.Try
+
 case object NotificationTypePage extends NotificationQuestionPage[NotificationType] {
 
   override def path: JsPath = JsPath \ "notificationType"
@@ -39,4 +41,11 @@ case object NotificationTypePage extends NotificationQuestionPage[NotificationTy
       case NotificationType.Epo =>
         routes.CheckYourAnswersController.onPageLoad(operatorId)
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def cleanup(value: Option[NotificationType], userAnswers: UserAnswers): Try[UserAnswers] =
+    if (userAnswers.get(this).contains(NotificationType.Epo)) {
+      userAnswers.remove(DueDiligencePage)
+    } else {
+      super.cleanup(value, userAnswers)
+    }
 }
