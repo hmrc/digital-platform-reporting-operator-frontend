@@ -17,11 +17,19 @@
 package controllers.notification
 
 import base.SpecBase
+import models.operator.NotificationType
+import models.operator.responses.NotificationDetails
 import pages.update.BusinessNamePage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.PlatformOperatorSummaryViewModel
+import queries.NotificationDetailsQuery
+import viewmodels.checkAnswers.notification.{DueDiligenceSummary, NotificationTypeSummary, OperatorIdSummary, OperatorNameSummary, ReportingPeriodSummary}
+import viewmodels.govuk.all.SummaryListViewModel
 import views.html.notification.NotificationAddedView
+import viewmodels.govuk.summarylist._
+import viewmodels.implicits._
+
+import java.time.Instant
 
 class NotificationAddedControllerSpec extends SpecBase {
 
@@ -29,10 +37,17 @@ class NotificationAddedControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
-      val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "name").success.value
+      val instant = Instant.parse("2024-12-31T00:00:00Z")
 
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
+      val notification1 = NotificationDetails(NotificationType.Epo, None, None, 2024, instant)
+      val notification2 = NotificationDetails(NotificationType.Rpo, None, Some(true), 2025, instant.plusSeconds(1))
+
+      val answers =
+        emptyUserAnswers
+          .set(BusinessNamePage, "name").success.value
+          .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.NotificationAddedController.onPageLoad(operatorId).url)
@@ -40,9 +55,19 @@ class NotificationAddedControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[NotificationAddedView]
+        val expectedList = SummaryListViewModel(
+          rows = Seq(
+            OperatorNameSummary.summaryRow(answers)(messages(application)),
+            OperatorIdSummary.summaryRow(answers)(messages(application)),
+            NotificationTypeSummary.summaryRow(answers)(messages(application)),
+            ReportingPeriodSummary.summaryRow(answers)(messages(application)),
+            DueDiligenceSummary.summaryRow(answers)(messages(application)),
+          ).flatten
+        ).withCssClass("govuk-summary-list--long-key")
+
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(operatorId, viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(operatorId, "name", expectedList)(request, messages(application)).toString
       }
     }
   }

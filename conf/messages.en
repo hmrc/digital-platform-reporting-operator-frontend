@@ -469,6 +469,14 @@ reportingPeriod.change.hidden = the reportable period
 notificationAdded.title = Reporting notification added
 notificationAdded.panel.heading = Reporting notification added
 notificationAdded.p1 = A new reporting notification has been successfully added for {0}.
+notificationAdded.p2 = You can now make submissions for this platform operator.  Return to
+notificationAdded.p2.link.text = manage your digital platform reporting
+notificationAdded.p3.link.text = Add another reporting notification
+notificationAdded.operatorId = Platform operator ID
+notificationAdded.operatorName = Platform operator name
+notificationAdded.notificationType = Reporting notification
+notificationAdded.reportingPeriod = Reporting period
+notificationAdded.dueDiligence = Due diligence
 
 viewNotifications.title.none = You have not added any reporting notifications
 viewNotifications.title.single = You have added one reporting notification

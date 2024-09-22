@@ -21,10 +21,11 @@ import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
 import models.operator.{AddressDetails, ContactDetails, NotificationType}
 import models.operator.requests.{Notification, UpdatePlatformOperatorRequest}
-import models.{Country, NormalMode, UkAddress}
+import models.operator.responses.{NotificationDetails, PlatformOperator}
+import models.{Country, NormalMode, UkAddress, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
@@ -37,6 +38,7 @@ import repositories.SessionRepository
 import viewmodels.govuk.SummaryListFluency
 import views.html.notification.CheckYourAnswersView
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
@@ -53,26 +55,23 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
     "must return OK and the correct view for a GET" - {
 
-      "when there is a second contact" in {
+      val answers =
+        emptyUserAnswers
+          .set(BusinessNamePage, "business").success.value
 
-        val answers =
-          emptyUserAnswers
-            .set(BusinessNamePage, "business").success.value
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
 
-        running(application) {
-          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
+        val result = route(application, request).value
 
-          val result = route(application, request).value
+        val view = application.injector.instanceOf[CheckYourAnswersView]
 
-          val view = application.injector.instanceOf[CheckYourAnswersView]
+        val list = SummaryListViewModel(Nil)
 
-          val list = SummaryListViewModel(Nil)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(list, operatorId)(request, messages(application)).toString
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(list, operatorId)(request, messages(application)).toString
       }
     }
 
@@ -92,15 +91,15 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
     "for a POST" - {
 
-      "must submit an Update Operator request with notification details and redirect to the next page" in {
+      "must submit an Update Operator request, refresh this platform operator, delete notification answers and redirect to the next page" in {
 
         val answers =
           emptyUserAnswers
             .copy(operatorId = Some("operatorId"))
             .set(BusinessNamePage, "business").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
+            .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "name").success.value
@@ -109,7 +108,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(HasSecondaryContactPage, false).success.value
             .set(NotificationTypePage, models.NotificationType.Epo).success.value
             .set(ReportingPeriodPage, 2024).success.value
-
 
         val expectedRequest = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",
@@ -124,7 +122,21 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           notification = Some(Notification(NotificationType.Epo, None, None, 2024))
         )
 
+        val getPlatformOperatorResponse = PlatformOperator(
+          operatorId = "operatorId",
+          operatorName = "business",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notifications = Seq(NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now))
+        )
+
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+        when(mockConnector.viewPlatformOperator(eqTo("operatorId"))(any())) thenReturn Future.successful(getPlatformOperatorResponse)
+        when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val app =
           applicationBuilder(Some(answers))
@@ -141,9 +153,27 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           status(result) mustEqual SEE_OTHER
 
+          val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+
           redirectLocation(result).value mustEqual pages.notification.CheckYourAnswersPage.nextPage(NormalMode, operatorId, answers).url
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockRepository, never()).set(any())
+          verify(mockConnector, times(1)).viewPlatformOperator(eqTo("operatorId"))(any())
+          verify(mockRepository, times(1)).set(answersCaptor.capture())
+
+          val savedAnswers = answersCaptor.getValue
+          savedAnswers.operatorId.value mustEqual "operatorId"
+          savedAnswers.get(NotificationTypePage) must not be defined
+          savedAnswers.get(ReportingPeriodPage) must not be defined
+
+          savedAnswers.get(BusinessNamePage) mustBe defined
+          savedAnswers.get(HasTradingNamePage) mustBe defined
+          savedAnswers.get(HasTaxIdentifierPage) mustBe defined
+          savedAnswers.get(RegisteredInUkPage) mustBe defined
+          savedAnswers.get(UkAddressPage) mustBe defined
+          savedAnswers.get(PrimaryContactNamePage) mustBe defined
+          savedAnswers.get(PrimaryContactEmailPage) mustBe defined
+          savedAnswers.get(CanPhonePrimaryContactPage) mustBe defined
+          savedAnswers.get(HasSecondaryContactPage) mustBe defined
         }
       }
 

@@ -14,21 +14,37 @@
  * limitations under the License.
  *@
 
-@import controllers.routes
-@import viewmodels.PlatformOperatorSummaryViewModel
+@import config.FrontendAppConfig
+@import controllers.notification.routes
 
 @this(
         layout: templates.Layout,
-        govukPanel: GovukPanel
+        govukPanel: GovukPanel,
+        govukSummaryList: GovukSummaryList,
+        appConfig: FrontendAppConfig
 )
 
-@(operatorId: String, viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, businessName: String, list: SummaryList)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("notificationAdded.title"))) {
+@layout(
+    pageTitle = titleNoForm(messages("notificationAdded.title")),
+    showBackLink = false
+) {
 
     @govukPanel(Panel(
         title = messages("notificationAdded.panel.heading")
     ))
 
-    <p class="govuk-body">@messages("notificationAdded.p1", viewModel.operatorName)</p>
+    @govukSummaryList(list)
+
+    <p class="govuk-body">@messages("notificationAdded.p1", businessName)</p>
+
+    <p class="govuk-body">
+        @messages("notificationAdded.p2")
+        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("notificationAdded.p2.link.text")</a>.
+    </p>
+
+    <p class="govuk-body">
+        <a href="@routes.AddGuidanceController.onPageLoad(operatorId)" class="govuk-link">@messages("notificationAdded.p3.link.text")</a>.
+    </p>
 }
