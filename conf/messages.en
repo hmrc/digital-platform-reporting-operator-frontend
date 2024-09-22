@@ -375,7 +375,7 @@ addGuidance.p5 = Adding a reporting notification takes around 10 minutes.
 
 selectPlatformOperator.title = Which platform operator do you want to add a reporting notification for?
 selectPlatformOperator.heading = Which platform operator do you want to add a reporting notification for?
-selectPlatformOperator.errorRequired = Select which platform operator you want to add a reporting notification for
+selectPlatformOperator.error.required = Select which platform operator you want to add a reporting notification for
 selectPlatformOperator.p1 = You can also
 selectPlatformOperator.p1.link.text = add a new platform operator
 selectPlatformOperator.item.text = {0}
@@ -387,7 +387,7 @@ selectPlatformOperator.single.link.text = add a new platform operator
 
 selectPlatformOperatorToView.title = Which platform operator do you want to view reporting notifications for?
 selectPlatformOperatorToView.heading = Which platform operator do you want to view reporting notifications for?
-selectPlatformOperatorToView.errorRequired = Select which platform operator you want to view reporting notifications for
+selectPlatformOperatorToView.error.required = Select which platform operator you want to view reporting notifications for
 selectPlatformOperatorToView.p1 = You can also
 selectPlatformOperatorToView.p1.link.text = add a new platform operator
 selectPlatformOperatorToView.item.text = {0}
