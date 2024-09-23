@@ -347,7 +347,7 @@ platformOperator.details.actions.view = View and change Platform Operator detail
 platformOperator.notification.details.heading = Reporting notifications
 platformOperator.notification.details.p = Add or view the reporting notification for a Platform Operator.
 platformOperator.notification.details.actions.add = Add a reporting notification
-platformOperator.notification.details.actions.view = View reporting notifications
+platformOperator.notification.details.actions.viewAndAdd = View and add reporting notifications
 platformOperator.remove = Remove platform operator
 
 removePlatformOperator.title = Removing a platform operator

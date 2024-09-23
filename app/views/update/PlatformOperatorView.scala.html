@@ -59,14 +59,9 @@
             </div>
             <div class="card-action">
                 @if(viewModel.hasReportingNotifications) {
-                    <ul class="govuk-list">
-                        <li>
-                            <a href="@notificationRoutes.ViewNotificationsController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.view")</a>
-                        </li>
-                        <li>
-                            <a href="@notificationRoutes.ViewNotificationsController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.add")</a>
-                        </li>
-                    </ul>
+                    <p class="govuk-body">
+                        <a href="@notificationRoutes.ViewNotificationsController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.viewAndAdd")</a>
+                    </p>
                 } else {
                     <p class="govuk-body">
                         <a href="@notificationRoutes.AddGuidanceController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.add")</a>
