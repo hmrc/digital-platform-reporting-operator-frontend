@@ -21,25 +21,38 @@ import models.{CheckMode, UserAnswers}
 import pages.notification.ReportingPeriodPage
 import pages.update.BusinessNamePage
 import play.api.i18n.Messages
+import queries.NotificationDetailsQuery
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object ReportingPeriodSummary  {
+object ReportingPeriodSummary {
 
   def row(operatorId: String, answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     for {
       reportingPeriod <- answers.get(ReportingPeriodPage)
-      businessName    <- answers.get(BusinessNamePage)
+      businessName <- answers.get(BusinessNamePage)
     } yield {
 
       SummaryListRowViewModel(
-        key     = messages("reportingPeriod.checkYourAnswersLabel", businessName),
-        value   = ValueViewModel(reportingPeriod.toString),
+        key = messages("reportingPeriod.checkYourAnswersLabel", businessName),
+        value = ValueViewModel(reportingPeriod.toString),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ReportingPeriodController.onPageLoad(CheckMode, operatorId).url)
             .withVisuallyHiddenText(messages("reportingPeriod.change.hidden", businessName))
         )
       )
+    }
+
+  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(NotificationDetailsQuery).flatMap { notifications =>
+      notifications.sortBy(_.receivedDateTime).reverse.headOption.map { notification =>
+
+        SummaryListRowViewModel(
+          key = messages("notificationAdded.reportingPeriod"),
+          value = ValueViewModel(notification.firstPeriod.toString),
+          actions = Nil
+        )
+      }
     }
 }

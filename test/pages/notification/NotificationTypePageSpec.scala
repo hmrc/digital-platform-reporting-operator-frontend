@@ -65,4 +65,23 @@ class NotificationTypePageSpec extends AnyFreeSpec with Matchers with TryValues 
       }
     }
   }
+
+  ".cleanup" - {
+
+    "must remove DueDiligence when the answer is EPO" in {
+
+      val answers = emptyAnswers.set(DueDiligencePage, DueDiligence.activeValues).success.value
+      val result = answers.set(NotificationTypePage, NotificationType.Epo).success.value
+
+      result.get(DueDiligencePage) must not be defined
+    }
+
+    "must not remove DueDiligence when the answer is RPO" in {
+
+      val answers = emptyAnswers.set(DueDiligencePage, DueDiligence.activeValues).success.value
+      val result = answers.set(NotificationTypePage, NotificationType.Rpo).success.value
+
+      result.get(DueDiligencePage) mustBe  defined
+    }
+  }
 }

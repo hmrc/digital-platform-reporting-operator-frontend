@@ -21,6 +21,7 @@ import models.{CheckMode, UserAnswers}
 import pages.notification.NotificationTypePage
 import pages.update.BusinessNamePage
 import play.api.i18n.Messages
+import queries.NotificationDetailsQuery
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
@@ -41,5 +42,17 @@ object NotificationTypeSummary  {
             .withVisuallyHiddenText(messages("notificationType.change.hidden", businessName))
         )
       )
+    }
+
+  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(NotificationDetailsQuery).flatMap { notifications =>
+      notifications.sortBy(_.receivedDateTime).reverse.headOption.map { notification =>
+
+        SummaryListRowViewModel(
+          key = messages("notificationAdded.notificationType"),
+          value = ValueViewModel(messages(s"notificationType.${notification.notificationType.toString}")),
+          actions = Nil
+        )
+      }
     }
 }

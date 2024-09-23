@@ -1,4 +1,4 @@
-service.name = digital-platform-reporting-operator-frontend
+service.name = Digital Platforms Reporting Service
 
 site.back = Back
 site.remove = Remove
@@ -344,6 +344,10 @@ platformOperator.lead = Platform operator ID: {0}
 platformOperator.details.heading = Platform operator details
 platformOperator.details.p = Need content here
 platformOperator.details.actions.view = View and change Platform Operator details
+platformOperator.notification.details.heading = Reporting notifications
+platformOperator.notification.details.p = Add or view the reporting notification for a Platform Operator.
+platformOperator.notification.details.actions.add = Add a reporting notification
+platformOperator.notification.details.actions.viewAndAdd = View and add reporting notifications
 platformOperator.remove = Remove platform operator
 
 removePlatformOperator.title = Removing a platform operator
@@ -371,7 +375,7 @@ addGuidance.p5 = Adding a reporting notification takes around 10 minutes.
 
 selectPlatformOperator.title = Which platform operator do you want to add a reporting notification for?
 selectPlatformOperator.heading = Which platform operator do you want to add a reporting notification for?
-selectPlatformOperator.errorRequired = Select which platform operator you want to add a reporting notification for
+selectPlatformOperator.error.required = Select which platform operator you want to add a reporting notification for
 selectPlatformOperator.p1 = You can also
 selectPlatformOperator.p1.link.text = add a new platform operator
 selectPlatformOperator.item.text = {0}
@@ -383,7 +387,7 @@ selectPlatformOperator.single.link.text = add a new platform operator
 
 selectPlatformOperatorToView.title = Which platform operator do you want to view reporting notifications for?
 selectPlatformOperatorToView.heading = Which platform operator do you want to view reporting notifications for?
-selectPlatformOperatorToView.errorRequired = Select which platform operator you want to view reporting notifications for
+selectPlatformOperatorToView.error.required = Select which platform operator you want to view reporting notifications for
 selectPlatformOperatorToView.p1 = You can also
 selectPlatformOperatorToView.p1.link.text = add a new platform operator
 selectPlatformOperatorToView.item.text = {0}
@@ -465,6 +469,14 @@ reportingPeriod.change.hidden = the reportable period
 notificationAdded.title = Reporting notification added
 notificationAdded.panel.heading = Reporting notification added
 notificationAdded.p1 = A new reporting notification has been successfully added for {0}.
+notificationAdded.p2 = You can now make submissions for this platform operator.  Return to
+notificationAdded.p2.link.text = manage your digital platform reporting
+notificationAdded.p3.link.text = Add another reporting notification
+notificationAdded.operatorId = Platform operator ID
+notificationAdded.operatorName = Platform operator name
+notificationAdded.notificationType = Reporting notification
+notificationAdded.reportingPeriod = Reporting period
+notificationAdded.dueDiligence = Due diligence
 
 viewNotifications.title.none = You have not added any reporting notifications
 viewNotifications.title.single = You have added one reporting notification

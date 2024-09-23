@@ -23,6 +23,7 @@ import models.NormalMode
 import pages.notification.CheckYourAnswersPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.UserAnswersService
 import services.UserAnswersService.BuildAddNotificationRequestFailure
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -40,7 +41,8 @@ class CheckYourAnswersController @Inject()(
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
-                                            connector: PlatformOperatorConnector
+                                            connector: PlatformOperatorConnector,
+                                            sessionRepository: SessionRepository
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
@@ -63,9 +65,12 @@ class CheckYourAnswersController @Inject()(
         .fold(
           errors => Future.failed(BuildAddNotificationRequestFailure(errors)),
           addNotificationRequest =>
-            connector
-              .updatePlatformOperator(addNotificationRequest)
-              .map(_ => Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, request.userAnswers)))
+            for {
+              _                       <- connector.updatePlatformOperator(addNotificationRequest)
+              updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
+              newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
+              _                       <- sessionRepository.set(newAnswers)
+            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))
         )
   }
 }

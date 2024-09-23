@@ -47,7 +47,7 @@ class SelectPlatformOperatorController @Inject()(
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.map { operatorInfo =>
-      val operators = operatorInfo.platformOperators.map(x => PlatformOperatorViewModel(x.operatorId, x.operatorName))
+      val operators = operatorInfo.platformOperators.map(PlatformOperatorViewModel(_))
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       operators.size match {
@@ -60,7 +60,7 @@ class SelectPlatformOperatorController @Inject()(
 
   def onSubmit: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.flatMap { operatorInfo =>
-      val operators = operatorInfo.platformOperators.map(x => PlatformOperatorViewModel(x.operatorId, x.operatorName))
+      val operators = operatorInfo.platformOperators.map(PlatformOperatorViewModel(_))
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       form.bindFromRequest().fold(

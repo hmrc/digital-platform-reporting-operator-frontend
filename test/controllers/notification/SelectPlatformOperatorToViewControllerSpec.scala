@@ -95,8 +95,8 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
 
         val view = application.injector.instanceOf[SelectPlatformOperatorToViewView]
         val expectedViewModels = Seq(
-          PlatformOperatorViewModel("operatorId1", "operatorName1"),
-          PlatformOperatorViewModel("operatorId2", "operatorName2")
+          PlatformOperatorViewModel("operatorId1", "operatorName1", false),
+          PlatformOperatorViewModel("operatorId2", "operatorName2", false)
         )
 
         status(result) mustEqual OK
@@ -166,8 +166,8 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
 
         val view = application.injector.instanceOf[SelectPlatformOperatorToViewView]
         val viewModels = Seq(
-          PlatformOperatorViewModel("operatorId1", "operatorName1"),
-          PlatformOperatorViewModel("operatorId2", "operatorName2")
+          PlatformOperatorViewModel("operatorId1", "operatorName1", false),
+          PlatformOperatorViewModel("operatorId2", "operatorName2", false)
         )
 
         val result = route(application, request).value

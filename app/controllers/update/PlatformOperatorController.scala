@@ -44,7 +44,7 @@ class PlatformOperatorController @Inject()(
       platformOperator <- connector.viewPlatformOperator(operatorId)
       userAnswers      <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
       _                <- sessionRepository.set(userAnswers)
-      viewModel        = PlatformOperatorViewModel(operatorId, platformOperator.operatorName)
+      viewModel        = PlatformOperatorViewModel(platformOperator)
     } yield Ok(view(viewModel))
   }
 }

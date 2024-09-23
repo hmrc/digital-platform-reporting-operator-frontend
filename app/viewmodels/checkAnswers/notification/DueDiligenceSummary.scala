@@ -22,12 +22,13 @@ import pages.notification.DueDiligencePage
 import pages.update.BusinessNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
+import queries.NotificationDetailsQuery
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object DueDiligenceSummary  {
+object DueDiligenceSummary {
 
   def row(operatorId: String, answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     for {
@@ -45,12 +46,32 @@ object DueDiligenceSummary  {
       )
 
       SummaryListRowViewModel(
-        key     = messages("dueDiligence.checkYourAnswersLabel", businessName),
-        value   = value,
+        key = messages("dueDiligence.checkYourAnswersLabel", businessName),
+        value = value,
         actions = Seq(
           ActionItemViewModel("site.change", routes.DueDiligenceController.onPageLoad(CheckMode, operatorId).url)
             .withVisuallyHiddenText(messages("dueDiligence.change.hidden", businessName))
         )
       )
+    }
+
+  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(NotificationDetailsQuery).flatMap { notifications =>
+      notifications.sortBy(_.receivedDateTime).reverse.headOption.map { notification =>
+
+        val answer = if (notification.dueDiligence.isEmpty) {
+          messages("viewNotifications.dueDiligence.notApplicable")
+        } else {
+          notification.dueDiligence
+            .map(x => messages(s"viewNotifications.dueDiligence.${x.toString}"))
+            .mkString(",<br>")
+        }
+
+        SummaryListRowViewModel(
+          key = messages("notificationAdded.dueDiligence"),
+          value = ValueViewModel(HtmlContent(answer)),
+          actions = Nil
+        )
+      }
     }
 }
