@@ -1,86 +1,86 @@
-GET        /:operatorId                                         controllers.update.PlatformOperatorController.onPageLoad(operatorId: String)
+GET        /:operatorId                                     controllers.update.PlatformOperatorController.onPageLoad(operatorId: String)
 
-GET        /:operatorId/check-your-answers                          controllers.update.CheckYourAnswersController.onPageLoad(operatorId: String)
-POST       /:operatorId/check-your-answers                          controllers.update.CheckYourAnswersController.onSubmit(operatorId: String)
+GET        /:operatorId/check-your-answers                  controllers.update.CheckYourAnswersController.onPageLoad(operatorId: String)
+POST       /:operatorId/check-your-answers                  controllers.update.CheckYourAnswersController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-business-name                  controllers.update.BusinessNameController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-business-name                  controllers.update.BusinessNameController.onSubmit(operatorId: String)
+GET        /:operatorId/change-business-name                controllers.update.BusinessNameController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-business-name                controllers.update.BusinessNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-can-we-telephone                  controllers.update.CanPhonePrimaryContactController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-can-we-telephone                  controllers.update.CanPhonePrimaryContactController.onSubmit(operatorId: String)
+GET        /:operatorId/change-can-we-telephone             controllers.update.CanPhonePrimaryContactController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-can-we-telephone             controllers.update.CanPhonePrimaryContactController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-second-can-we-telephone                  controllers.update.CanPhoneSecondaryContactController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-second-can-we-telephone                  controllers.update.CanPhoneSecondaryContactController.onSubmit(operatorId: String)
+GET        /:operatorId/change-second-can-we-telephone      controllers.update.CanPhoneSecondaryContactController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-second-can-we-telephone      controllers.update.CanPhoneSecondaryContactController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-chrn                  controllers.update.ChrnController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-chrn                  controllers.update.ChrnController.onSubmit(operatorId: String)
+GET        /:operatorId/change-chrn                         controllers.update.ChrnController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-chrn                         controllers.update.ChrnController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-crn                  controllers.update.CrnController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-crn                  controllers.update.CrnController.onSubmit(operatorId: String)
+GET        /:operatorId/change-crn                          controllers.update.CrnController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-crn                          controllers.update.CrnController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-empref                  controllers.update.EmprefController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-empref                  controllers.update.EmprefController.onSubmit(operatorId: String)
+GET        /:operatorId/change-empref                       controllers.update.EmprefController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-empref                       controllers.update.EmprefController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-second-contact                  controllers.update.HasSecondaryContactController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-second-contact                  controllers.update.HasSecondaryContactController.onSubmit(operatorId: String)
+GET        /:operatorId/change-second-contact               controllers.update.HasSecondaryContactController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-second-contact               controllers.update.HasSecondaryContactController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-have-trading-name                  controllers.update.HasTradingNameController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-have-trading-name                  controllers.update.HasTradingNameController.onSubmit(operatorId: String)
+GET        /:operatorId/change-have-trading-name            controllers.update.HasTradingNameController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-have-trading-name            controllers.update.HasTradingNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-have-tin                  controllers.update.HasTaxIdentifierController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-have-tin                  controllers.update.HasTaxIdentifierController.onSubmit(operatorId: String)
+GET        /:operatorId/change-have-tin                     controllers.update.HasTaxIdentifierController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-have-tin                     controllers.update.HasTaxIdentifierController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-international-address                  controllers.update.InternationalAddressController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-international-address                  controllers.update.InternationalAddressController.onSubmit(operatorId: String)
+GET        /:operatorId/change-international-address        controllers.update.InternationalAddressController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-international-address        controllers.update.InternationalAddressController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-international-tin                  controllers.update.InternationalTaxIdentifierController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-international-tin                  controllers.update.InternationalTaxIdentifierController.onSubmit(operatorId: String)
+GET        /:operatorId/change-international-tin            controllers.update.InternationalTaxIdentifierController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-international-tin            controllers.update.InternationalTaxIdentifierController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-email-address                  controllers.update.PrimaryContactEmailController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-email-address                  controllers.update.PrimaryContactEmailController.onSubmit(operatorId: String)
+GET        /:operatorId/change-email-address                controllers.update.PrimaryContactEmailController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-email-address                controllers.update.PrimaryContactEmailController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-contact-name                  controllers.update.PrimaryContactNameController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-contact-name                  controllers.update.PrimaryContactNameController.onSubmit(operatorId: String)
+GET        /:operatorId/change-contact-name                 controllers.update.PrimaryContactNameController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-contact-name                 controllers.update.PrimaryContactNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-telephone-number                  controllers.update.PrimaryContactPhoneNumberController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-telephone-number                  controllers.update.PrimaryContactPhoneNumberController.onSubmit(operatorId: String)
+GET        /:operatorId/change-telephone-number             controllers.update.PrimaryContactPhoneNumberController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-telephone-number             controllers.update.PrimaryContactPhoneNumberController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-registered-address-in-uk                  controllers.update.RegisteredInUkController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-registered-address-in-uk                  controllers.update.RegisteredInUkController.onSubmit(operatorId: String)
+GET        /:operatorId/change-registered-address-in-uk     controllers.update.RegisteredInUkController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-registered-address-in-uk     controllers.update.RegisteredInUkController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-second-email-address                  controllers.update.SecondaryContactEmailController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-second-email-address                  controllers.update.SecondaryContactEmailController.onSubmit(operatorId: String)
+GET        /:operatorId/change-second-email-address         controllers.update.SecondaryContactEmailController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-second-email-address         controllers.update.SecondaryContactEmailController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-second-contact-name                  controllers.update.SecondaryContactNameController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-second-contact-name                  controllers.update.SecondaryContactNameController.onSubmit(operatorId: String)
+GET        /:operatorId/change-second-contact-name          controllers.update.SecondaryContactNameController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-second-contact-name          controllers.update.SecondaryContactNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-second-telephone-number                  controllers.update.SecondaryContactPhoneNumberController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-second-telephone-number                  controllers.update.SecondaryContactPhoneNumberController.onSubmit(operatorId: String)
+GET        /:operatorId/change-second-telephone-number      controllers.update.SecondaryContactPhoneNumberController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-second-telephone-number      controllers.update.SecondaryContactPhoneNumberController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-tax-resident-country                  controllers.update.TaxResidencyCountryController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-tax-resident-country                  controllers.update.TaxResidencyCountryController.onSubmit(operatorId: String)
+GET        /:operatorId/change-tax-resident-country         controllers.update.TaxResidencyCountryController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-tax-resident-country         controllers.update.TaxResidencyCountryController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-tax-resident-in-uk                  controllers.update.TaxResidentInUkController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-tax-resident-in-uk                  controllers.update.TaxResidentInUkController.onSubmit(operatorId: String)
+GET        /:operatorId/change-tax-resident-in-uk           controllers.update.TaxResidentInUkController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-tax-resident-in-uk           controllers.update.TaxResidentInUkController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-trading-name                  controllers.update.TradingNameController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-trading-name                  controllers.update.TradingNameController.onSubmit(operatorId: String)
+GET        /:operatorId/change-trading-name                 controllers.update.TradingNameController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-trading-name                 controllers.update.TradingNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-uk-address                  controllers.update.UkAddressController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-uk-address                  controllers.update.UkAddressController.onSubmit(operatorId: String)
+GET        /:operatorId/change-uk-address                   controllers.update.UkAddressController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-uk-address                   controllers.update.UkAddressController.onSubmit(operatorId: String)
 
 GET        /:operatorId/change-uk-tin-type                  controllers.update.UkTaxIdentifiersController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-uk-tin-type                  controllers.update.UkTaxIdentifiersController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-utr                  controllers.update.UtrController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-utr                  controllers.update.UtrController.onSubmit(operatorId: String)
+GET        /:operatorId/change-utr                          controllers.update.UtrController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-utr                          controllers.update.UtrController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-vrn                  controllers.update.VrnController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-vrn                  controllers.update.VrnController.onSubmit(operatorId: String)
+GET        /:operatorId/change-vrn                          controllers.update.VrnController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-vrn                          controllers.update.VrnController.onSubmit(operatorId: String)
 
-GET        /:operatorId/updated-successfully          controllers.update.PlatformOperatorUpdatedController.onPageLoad(operatorId: String)
+GET        /:operatorId/updated-successfully                controllers.update.PlatformOperatorUpdatedController.onPageLoad(operatorId: String)
 
-GET         /remove/:operatorId/are-you-sure          controllers.update.RemovePlatformOperatorController.onPageLoad(operatorId: String)
-POST        /remove/:operatorId/are-you-sure          controllers.update.RemovePlatformOperatorController.onSubmit(operatorId: String)
+GET        /remove/:operatorId/are-you-sure                 controllers.update.RemovePlatformOperatorController.onPageLoad(operatorId: String)
+POST       /remove/:operatorId/are-you-sure                 controllers.update.RemovePlatformOperatorController.onSubmit(operatorId: String)
 
-GET         /remove/:operatorId/removed-successfully        controllers.update.PlatformOperatorRemovedController.onPageLoad(operatorId: String)
+GET        /remove/:operatorId/removed-successfully         controllers.update.PlatformOperatorRemovedController.onPageLoad(operatorId: String)
