@@ -33,10 +33,12 @@
     ))
 
     <p class="govuk-body">
-        <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorUpdated.link1.text")</a>
+        @messages("platformOperatorUpdated.p1")
+        <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorUpdated.link1.text")</a>.
     </p>
 
     <p class="govuk-body">
-        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("platformOperatorUpdated.link2.text")</a>
+        @messages("platformOperatorUpdated.p2")
+        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("platformOperatorUpdated.link2.text")</a>.
     </p>
 }
