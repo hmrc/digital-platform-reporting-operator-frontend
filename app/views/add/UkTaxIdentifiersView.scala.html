@@ -40,7 +40,7 @@
                 name   = "value",
                 legend = LegendViewModel(messages("ukTaxIdentifiers.heading", businessName)).asPageHeading(),
                 items  = UkTaxIdentifiers.checkboxItems
-            )
+            ).withHint(HintViewModel(messages("ukTaxIdentifiers.hint")))
         )
 
         @govukButton(

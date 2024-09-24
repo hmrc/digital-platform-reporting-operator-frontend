@@ -19,6 +19,7 @@ package models
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import viewmodels.govuk.all.HintViewModel
 import viewmodels.govuk.checkbox._
 
 sealed trait DueDiligence
@@ -35,20 +36,28 @@ object DueDiligence extends Enumerable.Implicits {
 
   val activeValues: Set[DueDiligence] = Set(Extended, ActiveSeller)
 
-  def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] = {
-
-    val divider = CheckboxItem(divider = Some(messages("site.or")))
-
-    values.zipWithIndex.map {
-      case (value, index) =>
-        CheckboxItemViewModel(
-          content = Text(messages(s"dueDiligence.${value.toString}")),
-          fieldId = "value",
-          index = index,
-          value = value.toString
-        )
-    }.patch(activeValues.size, List(divider), 0)
-  }
+  def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =
+    Seq(
+      CheckboxItemViewModel(
+        content = Text(messages(s"dueDiligence.${Extended.toString}")),
+        fieldId = "value",
+        index = 0,
+        value = Extended.toString
+      ),
+      CheckboxItemViewModel(
+        content = Text(messages(s"dueDiligence.${ActiveSeller.toString}")),
+        fieldId = "value",
+        index = 1,
+        value = ActiveSeller.toString
+      ),
+      CheckboxItem(divider = Some(messages("site.or"))),
+      CheckboxItemViewModel(
+        content = Text(messages(s"dueDiligence.${NoDueDiligence.toString}")),
+        fieldId = "value",
+        index = 2,
+        value = NoDueDiligence.toString
+      ).withHint(HintViewModel(Text(messages("dueDiligence.noDueDiligence.hint"))))
+    )
 
   implicit val enumerable: Enumerable[DueDiligence] =
     Enumerable(values.map(v => v.toString -> v): _*)

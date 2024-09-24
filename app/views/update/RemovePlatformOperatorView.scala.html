@@ -45,7 +45,7 @@
             <li>@messages("removePlatformOperator.bullet2", operatorId)</li>
         </ul>
 
-        @govukWarningText(WarningText(content = Text(messages("removePlatformOperator.warning"))))
+        @govukWarningText(WarningText(content = Text(messages("removePlatformOperator.warning", businessName))))
 
         @govukRadios(
             RadiosViewModel.yesNo(

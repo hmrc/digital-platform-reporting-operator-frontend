@@ -34,14 +34,8 @@
     <p class="govuk-body">@messages("addGuidance.p1")</p>
 
     <p class="govuk-body">@messages("addGuidance.p2")</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("addGuidance.p2.bullet1")</li>
-        <li>@messages("addGuidance.p2.bullet2")</li>
-    </ul>
-
     <p class="govuk-body">@messages("addGuidance.p3")</p>
     <p class="govuk-body">@messages("addGuidance.p4")</p>
-    <p class="govuk-body">@messages("addGuidance.p5")</p>
 
     @formHelper(action = routes.AddGuidanceController.onSubmit(operatorId)) {
         @govukButton(

@@ -25,7 +25,7 @@
         govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, operatorId: String, businessName: String, notificationType: NotificationType)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("reportingPeriod.first.title")),
@@ -40,7 +40,7 @@
 
         <h1 class="govuk-heading-xl">@messages("reportingPeriod.first.heading", businessName)</h1>
 
-        <p class="govuk-body">@messages("reportingPeriod.first.p1")</p>
+        <p class="govuk-body">@messages(s"reportingPeriod.first.$notificationType.p1")</p>
 
         @govukInput(
             InputViewModel(

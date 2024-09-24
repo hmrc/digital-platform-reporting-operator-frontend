@@ -16,12 +16,13 @@
 
 package controllers.notification
 
+import controllers.{routes => baseRoutes}
 import config.Constants
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.ReportingPeriodFormProvider
 import models.Mode
-import pages.notification.ReportingPeriodPage
+import pages.notification.{NotificationTypePage, ReportingPeriodPage}
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -49,37 +50,46 @@ class ReportingPeriodController @Inject()(
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    getAnswers(BusinessNamePage, NotificationDetailsQuery) { case (businessName, notifications) =>
+    {
+      for {
+        businessName     <- request.userAnswers.get(BusinessNamePage)
+        notifications    <- request.userAnswers.get(NotificationDetailsQuery)
+        notificationType <- request.userAnswers.get(NotificationTypePage)
+      } yield {
+        val form = formProvider(businessName)
 
-      val form = formProvider(businessName)
+        val preparedForm = request.userAnswers.get(ReportingPeriodPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      val preparedForm = request.userAnswers.get(ReportingPeriodPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
+        if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
+          Ok(view2024(preparedForm, mode, operatorId, businessName, notificationType))
+        } else if (notifications.isEmpty) {
+          Ok(viewFirst(preparedForm, mode, operatorId, businessName, notificationType))
+        } else {
+          Ok(view(preparedForm, mode, operatorId, businessName))
+        }
       }
-
-      if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
-        Ok(view2024(preparedForm, mode, operatorId, businessName))
-      } else if (notifications.isEmpty) {
-        Ok(viewFirst(preparedForm, mode, operatorId, businessName))
-      } else {
-        Ok(view(preparedForm, mode, operatorId, businessName))
-      }
-    }
+    }.getOrElse(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))
   }
 
   def onSubmit(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
-    implicit request =>
-      getAnswersAsync(BusinessNamePage, NotificationDetailsQuery) { case (businessName, notifications) =>
+    implicit request => {
+      for {
+        businessName <- request.userAnswers.get(BusinessNamePage)
+        notifications <- request.userAnswers.get(NotificationDetailsQuery)
+        notificationType <- request.userAnswers.get(NotificationTypePage)
+      } yield {
 
         val form = formProvider(businessName)
 
         form.bindFromRequest().fold(
           formWithErrors => {
             if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
-              Future.successful(BadRequest(view2024(formWithErrors, mode, operatorId, businessName)))
+              Future.successful(BadRequest(view2024(formWithErrors, mode, operatorId, businessName, notificationType)))
             } else if (notifications.isEmpty) {
-              Future.successful(BadRequest(viewFirst(formWithErrors, mode, operatorId, businessName)))
+              Future.successful(BadRequest(viewFirst(formWithErrors, mode, operatorId, businessName, notificationType)))
             } else {
               Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName)))
             }
@@ -91,5 +101,6 @@ class ReportingPeriodController @Inject()(
             } yield Redirect(ReportingPeriodPage.nextPage(mode, operatorId, updatedAnswers))
         )
       }
+    }.getOrElse(Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad())))
   }
 }

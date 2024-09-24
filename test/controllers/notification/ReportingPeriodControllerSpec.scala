@@ -26,7 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
-import pages.notification.ReportingPeriodPage
+import pages.notification.{NotificationTypePage, ReportingPeriodPage}
 import pages.update.BusinessNamePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -48,10 +48,12 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
   private val formProvider = new ReportingPeriodFormProvider(stubClock)
   private val businessName = "name"
   private val form = formProvider(businessName)
+  private val notificationType = models.NotificationType.Rpo
   private val baseAnswers =
     emptyUserAnswers
       .set(BusinessNamePage, businessName).success.value
       .set(NotificationDetailsQuery, Nil).success.value
+      .set(NotificationTypePage, notificationType).success.value
 
   "ReportingPeriod Controller" - {
 
@@ -75,7 +77,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
 
-          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
         }
       }
 
@@ -98,7 +100,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
 
-          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
         }
       }
 
@@ -149,7 +151,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
         }
       }
 
@@ -173,7 +175,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
         }
       }
 
@@ -252,7 +254,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
         }
       }
 
@@ -277,7 +279,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
         }
       }
 
