@@ -25,6 +25,10 @@ $page-colour: $white;
   display: inline-block !important;
 }
 
+.autocomplete__wrapper {
+    max-width: 11.5em;
+}
+
 .grid-row {
   margin: 0 -15px;
 
