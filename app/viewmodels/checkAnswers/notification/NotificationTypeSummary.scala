@@ -50,7 +50,7 @@ object NotificationTypeSummary  {
 
         SummaryListRowViewModel(
           key = messages("notificationAdded.notificationType"),
-          value = ValueViewModel(messages(s"notificationType.${notification.notificationType.toString}")),
+          value = ValueViewModel(messages(s"notificationType.${notification.notificationType.toString.toLowerCase}")),
           actions = Nil
         )
       }
