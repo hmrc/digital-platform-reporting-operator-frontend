@@ -99,7 +99,7 @@ class UkTaxIdentifiersPageSpec
 
     "in Check Mode" - {
 
-      "must go to UTR when UTR is selected andUTR is not answered" in {
+      "must go to UTR when UTR is selected and UTR is not answered" in {
 
         val identifierGen: Gen[Set[UkTaxIdentifiers]] = for {
           identifiers <- Gen.listOf(Gen.oneOf(values))

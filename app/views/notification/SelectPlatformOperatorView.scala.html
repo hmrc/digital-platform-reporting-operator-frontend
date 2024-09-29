@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import controllers.add.{routes => addRoutes}
 @import controllers.notification.routes
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
@@ -40,7 +41,6 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-
         @govukSelect(
             SelectViewModel(
                 field = form("value"),
@@ -52,6 +52,11 @@
             .withCssClass("govuk-input")
             .asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = true)))
         )
+
+        <p class="govuk-body">
+            @messages("selectPlatformOperator.p1")
+            <a href="@addRoutes.StartController.onPageLoad()" class="govuk-link">@messages("selectPlatformOperator.p1.link.text")</a>.
+        </p>
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))
