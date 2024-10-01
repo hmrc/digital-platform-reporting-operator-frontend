@@ -262,7 +262,7 @@ tradingName.error.length = Trading name must be {0} characters or less
 tradingName.change.hidden = the trading name
 
 ukAddress.title = What is the platform operator’s address?
-ukAddress.heading = What is {0}’s address address?
+ukAddress.heading = What is the address for {0}?
 ukAddress.line1 = Address line 1
 ukAddress.line2 = Address line 2 (optional)
 ukAddress.town = Town or city
