@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package forms
+package models.subscription
 
-import forms.mappings.Mappings
-import models.UkTaxIdentifiers
-import play.api.data.Form
-import play.api.data.Forms.set
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.Inject
+final case class SubscriptionInfo(id: String,
+                                  gbUser: Boolean,
+                                  tradingName: Option[String],
+                                  primaryContact: Contact,
+                                  secondaryContact: Option[Contact])
 
-class UkTaxIdentifiersFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[Set[UkTaxIdentifiers]] =
-    Form(
-      "value" -> set(enumerable[UkTaxIdentifiers]("ukTaxIdentifiers.error.required"))
-        .verifying(nonEmptySet("ukTaxIdentifiers.error.required"))
-    )
+object SubscriptionInfo {
+  implicit lazy val format: OFormat[SubscriptionInfo] = Json.format
 }
+
+

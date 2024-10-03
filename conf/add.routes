@@ -36,10 +36,10 @@ POST       /second-contact                              controllers.add.HasSecon
 GET        /change-second-contact                       controllers.add.HasSecondaryContactController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-second-contact                       controllers.add.HasSecondaryContactController.onSubmit(mode: Mode = CheckMode)
 
-GET        /have-trading-name                           controllers.add.HasTradingNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /have-trading-name                           controllers.add.HasTradingNameController.onSubmit(mode: Mode = NormalMode)
-GET        /change-have-trading-name                    controllers.add.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-have-trading-name                    controllers.add.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
+GET        /po-have-trading-name                           controllers.add.HasTradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /po-have-trading-name                           controllers.add.HasTradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /po-change-have-trading-name                    controllers.add.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /po-change-have-trading-name                    controllers.add.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
 
 GET        /have-tin                                    controllers.add.HasTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
 POST       /have-tin                                    controllers.add.HasTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
@@ -104,10 +104,10 @@ POST       /tax-resident-in-uk                          controllers.add.TaxResid
 GET        /change-tax-resident-in-uk                   controllers.add.TaxResidentInUkController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-tax-resident-in-uk                   controllers.add.TaxResidentInUkController.onSubmit(mode: Mode = CheckMode)
 
-GET        /trading-name                                controllers.add.TradingNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /trading-name                                controllers.add.TradingNameController.onSubmit(mode: Mode = NormalMode)
-GET        /change-trading-name                         controllers.add.TradingNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-trading-name                         controllers.add.TradingNameController.onSubmit(mode: Mode = CheckMode)
+GET        /po-trading-name                             controllers.add.TradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /po-trading-name                             controllers.add.TradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /po-change-trading-name                      controllers.add.TradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /po-change-trading-name                      controllers.add.TradingNameController.onSubmit(mode: Mode = CheckMode)
 
 GET        /uk-address                                  controllers.add.UkAddressController.onPageLoad(mode: Mode = NormalMode)
 POST       /uk-address                                  controllers.add.UkAddressController.onSubmit(mode: Mode = NormalMode)

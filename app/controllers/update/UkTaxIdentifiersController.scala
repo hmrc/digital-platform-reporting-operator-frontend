@@ -44,7 +44,7 @@ class UkTaxIdentifiersController @Inject()(
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+      val form = formProvider()
 
       val preparedForm = request.userAnswers.get(UkTaxIdentifiersPage) match {
         case None => form
@@ -58,7 +58,7 @@ class UkTaxIdentifiersController @Inject()(
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+      val form = formProvider()
 
       form.bindFromRequest().fold(
         formWithErrors =>

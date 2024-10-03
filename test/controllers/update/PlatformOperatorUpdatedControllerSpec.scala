@@ -29,7 +29,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
+      val viewModel = PlatformOperatorSummaryViewModel("id", "name", "email")
       val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "name").success.value
 
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()

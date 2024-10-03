@@ -25,10 +25,10 @@ import javax.inject.Inject
 
 class TaxResidencyCountryFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String)(implicit messages: Messages): Form[Country] =
+  def apply()(implicit messages: Messages): Form[Country] =
     Form(
-      "value" -> text(messages("taxResidencyCountry.error.required", businessName))
-        .verifying(messages("taxResidencyCountry.error.required", businessName), value => Country.internationalCountries.exists(_.code == value))
+      "value" -> text(messages("taxResidencyCountry.error.required"))
+        .verifying(messages("taxResidencyCountry.error.required"), value => Country.internationalCountries.exists(_.code == value))
         .transform[Country](value => Country.internationalCountries.find(_.code == value).get, _.code)
     )
 }

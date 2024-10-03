@@ -16,10 +16,9 @@
 
 package controllers.add
 
-import controllers.actions._
 import controllers.AnswerExtractor
+import controllers.actions._
 import forms.UkTaxIdentifiersFormProvider
-import javax.inject.Inject
 import models.Mode
 import pages.add.{BusinessNamePage, UkTaxIdentifiersPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -28,6 +27,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.UkTaxIdentifiersView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UkTaxIdentifiersController @Inject()(
@@ -45,7 +45,7 @@ class UkTaxIdentifiersController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+      val form = formProvider()
 
       val preparedForm = request.userAnswers.get(UkTaxIdentifiersPage) match {
         case None => form
@@ -59,7 +59,7 @@ class UkTaxIdentifiersController @Inject()(
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
 
-      val form = formProvider(businessName)
+      val form = formProvider()
 
       form.bindFromRequest().fold(
         formWithErrors =>

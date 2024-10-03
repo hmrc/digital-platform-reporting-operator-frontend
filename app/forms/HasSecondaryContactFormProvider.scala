@@ -23,8 +23,8 @@ import javax.inject.Inject
 
 class HasSecondaryContactFormProvider @Inject() extends Mappings {
 
-  def apply(primaryContactName: String): Form[Boolean] =
+  def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("hasSecondaryContact.error.required", args = Seq(primaryContactName))
+      "value" -> boolean("hasSecondaryContact.error.required")
     )
 }

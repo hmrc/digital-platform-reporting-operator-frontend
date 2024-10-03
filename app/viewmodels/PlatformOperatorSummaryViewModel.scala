@@ -20,12 +20,15 @@ import models.operator.requests.CreatePlatformOperatorRequest
 import play.api.libs.json.{Json, OFormat}
 
 final case class PlatformOperatorSummaryViewModel(operatorId: String,
-                                                  operatorName: String)
+                                                  operatorName: String,
+                                                  poPrimaryContactEmail: String)
 
 object PlatformOperatorSummaryViewModel {
 
   implicit lazy val format: OFormat[PlatformOperatorSummaryViewModel] = Json.format
 
-  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorSummaryViewModel =
-    PlatformOperatorSummaryViewModel(operatorId, createRequest.operatorName)
+  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorSummaryViewModel = {
+    PlatformOperatorSummaryViewModel(operatorId, createRequest.operatorName, createRequest.primaryContactDetails.emailAddress)
+  }
+
 }

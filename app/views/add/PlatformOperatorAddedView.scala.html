@@ -24,7 +24,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(form: Form[_], viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], viewModel: PlatformOperatorSummaryViewModel, subscriptionEmail: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("platformOperatorAdded.title")),
@@ -36,21 +36,19 @@
         content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
     ))
 
-    <p class="govuk-body">@messages("platformOperatorAdded.p1", viewModel.operatorName)</p>
+    <p class="govuk-body">@messages("platformOperatorAdded.p1", viewModel.operatorName, subscriptionEmail, viewModel.poPrimaryContactEmail)</p>
 
     <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>
 
     <h2 class="govuk-heading-m">@messages("platformOperatorAdded.whatYouNeedToDoNext")</h2>
 
-    <p class="govuk-body">@messages("platformOperatorAdded.p3")</p>
-
     <p class="govuk-body">
-        @messages("platformOperatorAdded.p4")
-        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("platformOperatorAdded.p4.link.text")</a>.
+        @messages("platformOperatorAdded.p3")
+        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("platformOperatorAdded.p3.link.text")</a>.
     </p>
 
     <p class="govuk-body">
-        @messages("platformOperatorAdded.p5")
-        <a href="@routes.StartController.onPageLoad()" class="govuk-link">@messages("platformOperatorAdded.p5.link.text")</a>.
+        @messages("platformOperatorAdded.p4")
+        <a href="@routes.StartController.onPageLoad()" class="govuk-link">@messages("platformOperatorAdded.p4.link.text")</a>.
     </p>
 }

@@ -45,7 +45,7 @@ class HasSecondaryContactController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
     getAnswer(PrimaryContactNamePage) { primaryContactName =>
 
-      val form = formProvider(primaryContactName)
+      val form = formProvider()
 
       val preparedForm = request.userAnswers.get(HasSecondaryContactPage) match {
         case None => form
@@ -59,7 +59,7 @@ class HasSecondaryContactController @Inject()(
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
     getAnswerAsync(PrimaryContactNamePage) { primaryContactName =>
 
-      val form = formProvider(primaryContactName)
+      val form = formProvider()
 
       form.bindFromRequest().fold(
         formWithErrors =>
