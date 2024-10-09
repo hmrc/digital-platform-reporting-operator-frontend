@@ -115,7 +115,7 @@ empref.change.hidden = the Employer PAYE Reference (EMPREF) for {0}
 hasSecondaryContact.title = Is there someone else we can contact if the first person or team is not available?
 hasSecondaryContact.heading = Is there someone else we can contact if {0} is not available?
 hasSecondaryContact.checkYourAnswersLabel = Is there someone else we can contact if {0} is not available?
-hasSecondaryContact.error.required = Select yes if there is someone else we can contact if {0} is not available
+hasSecondaryContact.error.required = Select yes if there is someone else we can contact
 hasSecondaryContact.change.hidden = if there is someone else we can contact if {0} is not available
 
 hasTradingName.title = Does the platform operator trade under a different name?
@@ -158,7 +158,7 @@ internationalAddress.error.country.required = Start typing in country and choose
 
 internationalTaxIdentifier.title = What is the the tax identification number issued by the country the platform operator is tax resident in?
 internationalTaxIdentifier.heading = What is the tax identification number issued by {0}?
-internationalTaxIdentifier.hint = 	Enter the combination of numbers and letters of the tax identification number from {0}
+internationalTaxIdentifier.hint = Enter the combination of numbers and letters of the tax identification number from {0}.
 internationalTaxIdentifier.checkYourAnswersLabel = Tax identification number
 internationalTaxIdentifier.error.required = Enter the tax identification number issued by {0}
 internationalTaxIdentifier.error.length = Tax identification number must be {0} characters or less
@@ -170,7 +170,7 @@ primaryContactEmail.heading = What is the email address for {0}?
 primaryContactEmail.p1 = We will use this email address to send confirmation of the reports made for {0}.
 primaryContactEmail.checkYourAnswersLabel = Email address
 primaryContactEmail.error.required = Enter the email address for {0}
-primaryContactEmail.error.length = Email address must be [0} characters or less
+primaryContactEmail.error.length = Email address must be {0} characters or less
 primaryContactEmail.error.format = Enter an email address in the correct format, like name@example.com
 primaryContactEmail.change.hidden = the email address for {0}
 
@@ -204,7 +204,7 @@ secondaryContactEmail.heading = What is the email address for {0}?
 secondaryContactEmail.p1 = We will use this email address to send confirmation of the reports made for {0}.
 secondaryContactEmail.checkYourAnswersLabel = Email address
 secondaryContactEmail.error.required = Enter the email address for {0}
-secondaryContactEmail.error.length = Email address must be [0} characters or less
+secondaryContactEmail.error.length = Email address must be {0} characters or less
 secondaryContactEmail.error.format = Enter an email address in the correct format, like name@example.com
 secondaryContactEmail.change.hidden = the email address for {0}
 
@@ -243,7 +243,7 @@ start.addNow = Add now
 taxResidencyCountry.title = What country is the platform operator tax resident in?
 taxResidencyCountry.heading = What country is {0} tax resident in?
 taxResidencyCountry.checkYourAnswersLabel = What country is {0} tax resident in?
-taxResidencyCountry.error.required = Enter the country {0} is tax resident in
+taxResidencyCountry.error.required = Start typing in country and choose from the list
 taxResidencyCountry.error.length = Country must be 100 characters or less
 taxResidencyCountry.change.hidden = the country {0} is tax resident in
 
@@ -259,6 +259,7 @@ tradingName.heading = What is {0}’s trading name?
 tradingName.checkYourAnswersLabel = Trading name
 tradingName.error.required = Enter the trading name
 tradingName.error.length = Trading name must be {0} characters or less
+tradingName.error.format = Trading name must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 tradingName.change.hidden = the trading name
 
 ukAddress.title = What is the platform operator’s address?
