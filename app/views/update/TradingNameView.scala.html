@@ -38,7 +38,7 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("tradingName.heading", businessName)).asPageHeading()
+                label = LabelViewModel(messages("tradingName.heading", businessName)).asPageHeading().withCssClass("govuk-!-margin-bottom-6")
             )
             .withWidth(Fixed20)
         )

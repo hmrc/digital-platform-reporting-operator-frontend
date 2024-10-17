@@ -16,9 +16,11 @@
 
 package controllers.add
 
+import connectors.SubscriptionConnector
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.PlatformOperatorAddedFormProvider
+import models.subscription.{IndividualContact, OrganisationContact}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorAddedQuery
@@ -26,6 +28,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.PlatformOperatorAddedView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class PlatformOperatorAddedController @Inject()(
                                                  override val messagesApi: MessagesApi,
@@ -34,15 +37,15 @@ class PlatformOperatorAddedController @Inject()(
                                                  requireData: DataRequiredAction,
                                                  val controllerComponents: MessagesControllerComponents,
                                                  formProvider: PlatformOperatorAddedFormProvider,
-                                                 view: PlatformOperatorAddedView
-                                               )
+                                                 view: PlatformOperatorAddedView,
+                                                 connector: SubscriptionConnector
+                                               )(implicit executionContent: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-    getAnswer(PlatformOperatorAddedQuery) { viewModel =>
+  def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
+    getAnswerAsync(PlatformOperatorAddedQuery) { viewModel =>
       val form = formProvider(viewModel.operatorName)
-
-      Ok(view(form, viewModel))
+      connector.getSubscriptionInfo.map{ x => Ok(view(form, viewModel, x.primaryContact.email))}
     }
   }
 }
