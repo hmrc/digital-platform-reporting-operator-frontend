@@ -24,8 +24,7 @@ class HasSecondaryContactFormProviderSpec extends BooleanFieldBehaviours {
   val requiredKey = "hasSecondaryContact.error.required"
   val invalidKey = "error.boolean"
 
-  val contactName = "name"
-  val form = new HasSecondaryContactFormProvider()(contactName)
+  val form = new HasSecondaryContactFormProvider()()
 
   ".value" - {
 
@@ -34,13 +33,13 @@ class HasSecondaryContactFormProviderSpec extends BooleanFieldBehaviours {
     behave like booleanField(
       form,
       fieldName,
-      invalidError = FormError(fieldName, invalidKey, Seq(contactName))
+      invalidError = FormError(fieldName, invalidKey)
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(contactName))
+      requiredError = FormError(fieldName, requiredKey)
     )
   }
 }

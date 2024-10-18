@@ -159,7 +159,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
         )
 
-        val expectedOperatorInfo = PlatformOperatorSummaryViewModel("operator id", "business")
+        val expectedOperatorInfo = PlatformOperatorSummaryViewModel("operator id", "business", "email")
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)

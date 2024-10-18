@@ -38,7 +38,7 @@ class UkTaxIdentifiersControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new UkTaxIdentifiersFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
+  private val form = formProvider()
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   "UkTaxIdentifiers Controller" - {

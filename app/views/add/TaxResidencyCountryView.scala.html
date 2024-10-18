@@ -41,8 +41,8 @@
         @govukSelect(
             SelectViewModel(
                 field = form("value"),
-                items = selectItems(internationalCountries),
-                label = LabelViewModel(messages("taxResidencyCountry.heading", businessName)).asPageHeading()
+                items = selectItems(nonUkInternationalCountries),
+                label = LabelViewModel(messages("taxResidencyCountry.heading", businessName)).asPageHeading().withCssClass("govuk-!-margin-bottom-6")
             )
             .withCssClass("govuk-input")
             .asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = true)))

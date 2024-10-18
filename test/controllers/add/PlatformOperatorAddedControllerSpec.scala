@@ -17,24 +17,55 @@
 package controllers.add
 
 import base.SpecBase
+import connectors.SubscriptionConnector
 import forms.PlatformOperatorAddedFormProvider
+import models.subscription.{Individual, Organisation, IndividualContact, OrganisationContact, SubscriptionInfo}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
+import org.mockito.Mockito.when
+import org.scalatest.BeforeAndAfterEach
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorAddedQuery
+import repositories.SessionRepository
 import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.add.PlatformOperatorAddedView
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
 
-class PlatformOperatorAddedControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+
+class PlatformOperatorAddedControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockConnector = mock[SubscriptionConnector]
+  private val mockRepository = mock[SessionRepository]
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockConnector, mockRepository)
+    super.beforeEach()
+  }
 
   "PlatformOperatorAdded Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for an Individual GET" in {
+      val contact = IndividualContact(Individual("first", "last"), "individualEmail", Some("phone"))
+      val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
 
-      val viewModel = PlatformOperatorSummaryViewModel("id", "name")
+      when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+      when(mockRepository.set(any())) thenReturn Future.successful(true)
+
+      val viewModel = PlatformOperatorSummaryViewModel("id", "name", "email")
       val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
       val form = new PlatformOperatorAddedFormProvider()("name")
 
-      val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(baseAnswers))
+          .overrides(
+            bind[SubscriptionConnector].toInstance(mockConnector),
+            bind[SessionRepository].toInstance(mockRepository)
+          )
+          .build
 
       running(application) {
         val request = FakeRequest(GET, routes.PlatformOperatorAddedController.onPageLoad.url)
@@ -44,7 +75,38 @@ class PlatformOperatorAddedControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PlatformOperatorAddedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, viewModel, "individualEmail")(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for an Organisation GET" in {
+      val contact = OrganisationContact(Organisation("name"), "organisationEmail", Some("phone"))
+      val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
+
+      when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+      when(mockRepository.set(any())) thenReturn Future.successful(true)
+
+      val viewModel = PlatformOperatorSummaryViewModel("id", "name", "email")
+      val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
+      val form = new PlatformOperatorAddedFormProvider()("name")
+
+      val application =
+        applicationBuilder(userAnswers = Some(baseAnswers))
+          .overrides(
+            bind[SubscriptionConnector].toInstance(mockConnector),
+            bind[SessionRepository].toInstance(mockRepository)
+          )
+          .build
+
+      running(application) {
+        val request = FakeRequest(GET, routes.PlatformOperatorAddedController.onPageLoad.url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PlatformOperatorAddedView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, viewModel, "organisationEmail")(request, messages(application)).toString
       }
     }
   }

@@ -17,7 +17,7 @@
 package controllers.update
 
 import controllers.actions._
-import pages.add.BusinessNamePage
+import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -38,7 +38,7 @@ class PlatformOperatorUpdatedController @Inject()(
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     request.userAnswers.get(BusinessNamePage).map { businessName =>
-      val viewModel = PlatformOperatorSummaryViewModel(operatorId, businessName)
+      val viewModel = PlatformOperatorSummaryViewModel(operatorId, businessName, request.userAnswers.get(PrimaryContactEmailPage).toString)
       Ok(view(operatorId, viewModel))
     }.getOrElse {
       Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

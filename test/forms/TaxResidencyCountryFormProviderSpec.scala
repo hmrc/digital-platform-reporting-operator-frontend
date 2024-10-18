@@ -28,8 +28,7 @@ class TaxResidencyCountryFormProviderSpec extends StringFieldBehaviours {
   private val requiredKey = "taxResidencyCountry.error.required"
 
   private implicit val msgs: Messages = stubMessages()
-  private val businessName = "name"
-  private val form = new TaxResidencyCountryFormProvider()(businessName)
+  private val form = new TaxResidencyCountryFormProvider()()
 
   ".value" - {
 

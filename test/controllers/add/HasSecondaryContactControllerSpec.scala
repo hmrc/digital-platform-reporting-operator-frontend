@@ -36,7 +36,7 @@ class HasSecondaryContactControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new HasSecondaryContactFormProvider()
   private val contactName = "name"
-  private val form = formProvider(contactName)
+  private val form = formProvider()
   private val baseAnswers = emptyUserAnswers.set(PrimaryContactNamePage, contactName).success.value
 
   private lazy val hasSecondaryContactRoute = routes.HasSecondaryContactController.onPageLoad(NormalMode).url
