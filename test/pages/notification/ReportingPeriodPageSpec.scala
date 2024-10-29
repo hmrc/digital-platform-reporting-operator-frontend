@@ -17,7 +17,8 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.{CheckMode, NormalMode, NotificationType, UserAnswers}
+import controllers.{routes => baseRoutes}
+import models.{CheckMode, DueDiligence, NormalMode, NotificationType, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
@@ -46,9 +47,30 @@ class ReportingPeriodPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
     "in Check Mode" - {
 
-      "must go to Check Answers" in {
+      "must go to Check Answers if RPO and DueDiligence already answered" in {
 
-        ReportingPeriodPage.nextPage(CheckMode, operatorId, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+        val answers = emptyAnswers.set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended)).success.value
+                                  .set(NotificationTypePage, NotificationType.Rpo).success.value
+
+        ReportingPeriodPage.nextPage(CheckMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+      }
+
+      "must go to DueDiligencePage if RPO and DueDiligence not answered" in {
+
+        val answers = emptyAnswers.set(NotificationTypePage, NotificationType.Rpo).success.value
+
+        ReportingPeriodPage.nextPage(CheckMode, operatorId, answers) mustEqual routes.DueDiligenceController.onPageLoad(CheckMode, operatorId)
+      }
+
+      "must go to Check Answers if EPO" in {
+
+        val answers = emptyAnswers.set(NotificationTypePage, NotificationType.Epo).success.value
+
+        ReportingPeriodPage.nextPage(CheckMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+      }
+
+      "must go to JourneyRecovery if error" in {
+        ReportingPeriodPage.nextPage(CheckMode, operatorId, emptyAnswers) mustEqual baseRoutes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

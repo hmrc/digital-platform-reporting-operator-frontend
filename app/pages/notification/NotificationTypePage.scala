@@ -36,10 +36,10 @@ case object NotificationTypePage extends NotificationQuestionPage[NotificationTy
       case NotificationType.Rpo =>
         answers.get(DueDiligencePage)
           .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-          .getOrElse(routes.DueDiligenceController.onPageLoad(CheckMode, operatorId))
+          .getOrElse(routes.ReportingPeriodController.onPageLoad(CheckMode, operatorId))
 
       case NotificationType.Epo =>
-        routes.CheckYourAnswersController.onPageLoad(operatorId)
+        routes.ReportingPeriodController.onPageLoad(CheckMode, operatorId)
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 
   override def cleanup(value: Option[NotificationType], userAnswers: UserAnswers): Try[UserAnswers] =

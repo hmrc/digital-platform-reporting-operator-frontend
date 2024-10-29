@@ -19,9 +19,10 @@ package controllers.update
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import forms.RemovePlatformOperatorFormProvider
+import models.UserAnswers
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,6 +30,7 @@ import pages.update.BusinessNamePage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
 import views.html.update.RemovePlatformOperatorView
 
@@ -70,8 +72,10 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
     "must remove the platform operator and redirect to Platform Operator Removed for a POST when the answer is yes" in {
 
+      val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+
       when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
-      when(mockRepository.clear(any(), any())) thenReturn Future.successful(true)
+      when(mockRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -92,7 +96,10 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         redirectLocation(result).value mustEqual routes.PlatformOperatorRemovedController.onPageLoad(operatorId).url
 
         verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(any())
-        verify(mockRepository, times(1)).clear(eqTo("id"), eqTo(Some(operatorId)))
+        verify(mockRepository, times(1)).set(answersCaptor.capture())
+
+        val savedAnswers = answersCaptor.getValue
+        savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual "name"
       }
     }
 
