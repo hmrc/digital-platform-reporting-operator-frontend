@@ -18,6 +18,8 @@ package connectors
 
 import config.Service
 import connectors.PlatformOperatorConnector._
+import services.AuditService
+import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel}
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done
@@ -33,7 +35,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PlatformOperatorConnector @Inject() (
                                             configuration: Configuration,
-                                            httpClient: HttpClientV2
+                                            httpClient: HttpClientV2,
+                                            auditService: AuditService,
                                           )(implicit ec: ExecutionContext) {
 
   private val digitalPlatformReporting: Service = configuration.get[Service]("microservice.services.digital-platform-reporting")
@@ -45,8 +48,14 @@ class PlatformOperatorConnector @Inject() (
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK     => Future.successful(response.json.as[PlatformOperatorCreatedResponse])
-          case status => Future.failed(CreatePlatformOperatorFailure(status))
+          case OK     =>
+            auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
+              CreatePlatformOperatorAuditEventModel(Json.toJsObject(request), response.json.as[PlatformOperatorCreatedResponse]).toAuditModel)
+            Future.successful(response.json.as[PlatformOperatorCreatedResponse])
+          case status =>
+            auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
+              CreatePlatformOperatorAuditEventModel(Json.toJsObject(request)).toAuditModel)
+            Future.failed(CreatePlatformOperatorFailure(status))
         }
       }
 
@@ -57,8 +66,14 @@ class PlatformOperatorConnector @Inject() (
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK     => Future.successful(Done)
-          case status => Future.failed(UpdatePlatformOperatorFailure(status))
+          case OK     =>
+            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
+              CreateReportingNotificationAuditEventModel(Json.toJsObject(request), request.operatorId).toAuditModel)
+            Future.successful(Done)
+          case status =>
+            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
+              CreateReportingNotificationAuditEventModel(Json.toJsObject(request)).toAuditModel)
+            Future.failed(UpdatePlatformOperatorFailure(status))
         }
       }
 

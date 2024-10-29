@@ -24,7 +24,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.notification._
 import viewmodels.govuk.summarylist._
-import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.notification.NotificationAddedView
 
 import javax.inject.Inject

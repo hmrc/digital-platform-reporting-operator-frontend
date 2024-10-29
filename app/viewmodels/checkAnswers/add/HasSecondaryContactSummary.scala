@@ -18,7 +18,7 @@ package viewmodels.checkAnswers.add
 
 import controllers.add.routes
 import models.{CheckMode, UserAnswers}
-import pages.add.{HasSecondaryContactPage, PrimaryContactNamePage, SecondaryContactNamePage}
+import pages.add.{HasSecondaryContactPage, PrimaryContactNamePage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._

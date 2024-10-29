@@ -27,7 +27,6 @@ import viewmodels.checkAnswers.notification.{DueDiligenceSummary, NotificationTy
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.notification.NotificationAddedView
 import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
 
 import java.time.Instant
 

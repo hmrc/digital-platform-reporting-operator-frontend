@@ -21,11 +21,11 @@ import cats.implicits._
 import models.UkTaxIdentifiers._
 import models.operator._
 import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
-import models.operator.responses.{NotificationDetails, PlatformOperator}
+import models.operator.responses.PlatformOperator
 import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.Writes
 import queries.{NotificationDetailsQuery, Query, Settable}
 
 import javax.inject.{Inject, Singleton}

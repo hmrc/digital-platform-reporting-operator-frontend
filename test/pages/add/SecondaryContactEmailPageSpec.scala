@@ -17,7 +17,6 @@
 package pages.add
 
 import controllers.add.routes
-import controllers.{routes => baseRoutes}
 import models.{CheckMode, NormalMode, UserAnswers}
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec

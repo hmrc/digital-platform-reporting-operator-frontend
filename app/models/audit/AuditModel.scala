@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,8 @@
  * limitations under the License.
  */
 
-package pages.update
+package models.audit
 
-import controllers.update.routes
-import models.UserAnswers
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-
-class PrimaryContactEmailPageSpec extends AnyFreeSpec with Matchers {
-
-  ".nextPage" - {
-
-    val emptyAnswers = UserAnswers("id")
-    val operatorId = "operatorId"
-
-    "must go to Check Answers" in {
-
-      PrimaryContactEmailPage.nextPage(operatorId, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
-    }
-  }
-}
+case class AuditModel[T](auditType: String,
+                         detail: T
+                        )

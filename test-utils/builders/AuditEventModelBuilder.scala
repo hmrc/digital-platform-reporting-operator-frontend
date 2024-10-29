@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers.notification
+package builders
 
-import models.UserAnswers
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import builders.SuccessResponseDataBuilder.aSuccessResponseData
+import models.audit.CreatePlatformOperatorAuditEventModel
+import play.api.libs.json.Json
 
-object OperatorIdSummary {
+object AuditEventModelBuilder {
 
-  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.operatorId.map { operatorId =>
-
-      SummaryListRowViewModel(
-        key     = messages("notificationAdded.operatorId"),
-        value   = ValueViewModel(operatorId),
-        actions = Nil
-      )
-    }
+  val anAuditEventModel: CreatePlatformOperatorAuditEventModel = CreatePlatformOperatorAuditEventModel(
+    auditType = "default-audit-type",
+    requestData = Json.obj(),
+    responseData = aSuccessResponseData
+  )
 }

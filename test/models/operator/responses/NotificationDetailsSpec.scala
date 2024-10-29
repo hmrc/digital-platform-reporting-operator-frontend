@@ -16,7 +16,6 @@
 
 package models.operator.responses
 
-import models.DueDiligence
 import models.DueDiligence.{ActiveSeller, Extended, NoDueDiligence}
 import models.operator.NotificationType.{Epo, Rpo}
 import org.scalatest.freespec.AnyFreeSpec

@@ -19,27 +19,27 @@ package controllers.update
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
-import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
-import models.operator.responses.PlatformOperatorCreatedResponse
-import models.operator.{AddressDetails, ContactDetails}
-import models.{Country, UkAddress, UserAnswers}
+import models.operator.requests.UpdatePlatformOperatorRequest
+import models.operator.responses.{NotificationDetails, PlatformOperator}
+import models.operator.{AddressDetails, ContactDetails, NotificationType}
+import models.{Country, UkAddress}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.Mockito
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.update._
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import queries.PlatformOperatorAddedQuery
+import queries.OriginalPlatformOperatorQuery
 import repositories.SessionRepository
-import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.update.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.update.CheckYourAnswersView
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
@@ -134,6 +134,18 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
       "must submit an Update Operator request and redirect to the next page" in {
 
+        val platformOperator = PlatformOperator(
+          operatorId = "operatorId",
+          operatorName = "business",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notifications = Seq(NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now))
+        )
+
         val answers =
           emptyUserAnswers
             .copy(operatorId = Some("operatorId"))
@@ -147,6 +159,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(PrimaryContactEmailPage, "email").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
             .set(HasSecondaryContactPage, false).success.value
+            .set(OriginalPlatformOperatorQuery, platformOperator).success.value
 
         val expectedRequest = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",

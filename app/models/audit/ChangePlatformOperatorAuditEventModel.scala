@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package pages.update
+package models.audit
 
-import controllers.update.routes
-import models.UserAnswers
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.{JsObject, OWrites}
 
-class PrimaryContactEmailPageSpec extends AnyFreeSpec with Matchers {
-
-  ".nextPage" - {
-
-    val emptyAnswers = UserAnswers("id")
-    val operatorId = "operatorId"
-
-    "must go to Check Answers" in {
-
-      PrimaryContactEmailPage.nextPage(operatorId, emptyAnswers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
-    }
+case class ChangePlatformOperatorAuditEventModel(requestData: JsObject){
+  private def name = "ChangePlatformOperatorDetails"
+  def toAuditModel: AuditModel[ChangePlatformOperatorAuditEventModel] = {
+    AuditModel(name, this)
   }
+}
+
+object ChangePlatformOperatorAuditEventModel {
+
+  implicit lazy val writes: OWrites[ChangePlatformOperatorAuditEventModel] = (o: ChangePlatformOperatorAuditEventModel) =>
+    o.requestData
+
 }
