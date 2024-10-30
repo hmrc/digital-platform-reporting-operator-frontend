@@ -19,17 +19,13 @@ package models.audit
 import base.SpecBase
 import builders.AuditEventModelBuilder.anAuditEventModel
 import builders.FailureResponseDataBuilder.aFailureResponseData
-import builders.PlatformCreatedResponseDataBuilder.aPlatformCreatedResponseData
 import builders.SuccessResponseDataBuilder.aSuccessResponseData
-import builders.UserAnswersBuilder.aUserAnswers
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 
 import java.time.LocalDateTime
 
-class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
-
-  private val underTest = CreatePlatformOperatorAuditEventModel
+class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
 
   "Audit event" - {
     "must serialise correctly with success data" in {
@@ -70,33 +66,6 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           "processedAt" -> "2001-01-01T02:30:23"
         )
       )
-    }
-  }
-
-  ".apply(requestData: JsObject, platformOperatorCreatedResponse: PlatformOperatorCreatedResponse)" - {
-    "must return AddPlatformOperator audit event when platform operator created response exists" in {
-      val answers = aUserAnswers
-      val platformOperatorResponse = aPlatformCreatedResponseData
-      val expected = CreatePlatformOperatorAuditEventModel(answers.data, platformOperatorResponse)
-      val result = underTest.apply(answers.data, platformOperatorResponse)
-
-      result.auditType mustBe expected.auditType
-      result.requestData mustBe expected.requestData
-      result.responseData.asInstanceOf[SuccessResponseData].platformOperatorId mustBe "default-platform-operator-id"
-    }
-  }
-
-  ".apply(requestData: JsObject)" - {
-    "must return AddPlatformOperator audit event when platform operator created response does not exists" in {
-      val answers = aUserAnswers
-      val expected = CreatePlatformOperatorAuditEventModel(answers.data)
-      val result = underTest.apply(answers.data)
-
-      result.auditType mustBe expected.auditType
-      result.requestData mustBe expected.requestData
-      result.responseData.asInstanceOf[FailureResponseData].statusCode mustBe INTERNAL_SERVER_ERROR
-      result.responseData.asInstanceOf[FailureResponseData].category mustBe "Failure"
-      result.responseData.asInstanceOf[FailureResponseData].reason mustBe "Internal Server Error"
     }
   }
 

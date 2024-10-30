@@ -19,7 +19,6 @@ package models.audit
 import base.SpecBase
 import builders.AuditEventModelBuilder.anAuditEventModel
 import builders.FailureResponseDataBuilder.aFailureResponseData
-import builders.PlatformCreatedResponseDataBuilder.aPlatformCreatedResponseData
 import builders.SuccessResponseDataBuilder.aSuccessResponseData
 import builders.UserAnswersBuilder.aUserAnswers
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
@@ -27,9 +26,9 @@ import play.api.libs.json.Json
 
 import java.time.LocalDateTime
 
-class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
+class CreateReportingNotificationAuditEventModelSpec extends SpecBase {
 
-  private val underTest = CreatePlatformOperatorAuditEventModel
+  private val underTest = CreateReportingNotificationAuditEventModel
 
   "Audit event" - {
     "must serialise correctly with success data" in {
@@ -73,12 +72,12 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
     }
   }
 
-  ".apply(requestData: JsObject, platformOperatorCreatedResponse: PlatformOperatorCreatedResponse)" - {
+  ".apply(requestData: JsObject, platformOperatorId: String)" - {
     "must return AddPlatformOperator audit event when platform operator created response exists" in {
       val answers = aUserAnswers
-      val platformOperatorResponse = aPlatformCreatedResponseData
-      val expected = CreatePlatformOperatorAuditEventModel(answers.data, platformOperatorResponse)
-      val result = underTest.apply(answers.data, platformOperatorResponse)
+      val platformOperatorId = "default-platform-operator-id"
+      val expected = CreateReportingNotificationAuditEventModel(answers.data, platformOperatorId)
+      val result = underTest.apply(answers.data, platformOperatorId)
 
       result.auditType mustBe expected.auditType
       result.requestData mustBe expected.requestData
@@ -89,7 +88,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
   ".apply(requestData: JsObject)" - {
     "must return AddPlatformOperator audit event when platform operator created response does not exists" in {
       val answers = aUserAnswers
-      val expected = CreatePlatformOperatorAuditEventModel(answers.data)
+      val expected = CreateReportingNotificationAuditEventModel(answers.data)
       val result = underTest.apply(answers.data)
 
       result.auditType mustBe expected.auditType

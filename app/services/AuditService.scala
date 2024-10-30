@@ -30,11 +30,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AuditService @Inject()(auditConnector: AuditConnector,
-                             appConfig: FrontendAppConfig)
-                            (implicit ec: ExecutionContext) extends Logging {
+                             appConfig: FrontendAppConfig) extends Logging {
 
   def sendAudit[T](event: AuditModel[T])
-                  (implicit hc: HeaderCarrier, writer: Writes[T]): Future[AuditResult] = {
+                  (implicit hc: HeaderCarrier, ec: ExecutionContext, writer: Writes[T]): Future[AuditResult] = {
     val dataEvent = ExtendedDataEvent(
       auditSource = appConfig.appName,
       auditType = event.auditType,
