@@ -42,7 +42,7 @@ object CreateReportingNotificationAuditEventModel {
   def apply(requestData: JsObject): CreateReportingNotificationAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = FailureResponseData(INTERNAL_SERVER_ERROR, localDateTime, "Failure", "Internal Server Error")
-    CreateReportingNotificationAuditEventModel("AddPlatformOperator", requestData, responseData)
+    CreateReportingNotificationAuditEventModel("AddReportingNotification", requestData, responseData)
   }
 
 }
