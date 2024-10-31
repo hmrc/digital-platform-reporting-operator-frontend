@@ -49,7 +49,7 @@ object ChangePlatformOperatorAuditEventModel {
 
   private def toJson1(info: PlatformOperator): JsObject = {
 
-    val businessNameJson = info.businessName.map(businessName => Json.obj("businessName" -> businessName)).getOrElse(Json.obj())
+    val businessNameJson = Json.obj("businessName" -> info.operatorName)
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
@@ -75,22 +75,25 @@ object ChangePlatformOperatorAuditEventModel {
         Json.obj("registeredBusinessAddressInUk" -> false)}
     }.getOrElse(Json.obj())
 
-    val country = info.addressDetails.countryCode.map { countryCode => Country.allCountries.find(_.code == countryCode).get}
+    val addressLine2 = info.addressDetails.line2.map {line2 => Json.obj("addressLine2" -> line2)}.getOrElse(Json.obj())
+    val city = info.addressDetails.line3.map {line3 => Json.obj("city" -> line3)}.getOrElse(Json.obj())
+    val region = info.addressDetails.line4.map {line4 => Json.obj("region" -> line4)}.getOrElse(Json.obj())
+    val postCode = info.addressDetails.postCode.map {postCode => Json.obj("postCode" -> postCode)}.getOrElse(Json.obj())
+    val countryCode = info.addressDetails.countryCode.map {countryCode => Json.obj("countryCode" -> countryCode)}.getOrElse(Json.obj())
+    val country = info.addressDetails.countryCode.flatMap { countryCode => Country.allCountries.find(_.code == countryCode).map(c => c.name)}
+    val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
+
     val registeredBusinessAddress =
       Json.obj(
-        "registeredBusinessAddress" -> Json.obj(
-          "addressLine1" -> info.addressDetails.line1,
-          "addressLine1" -> info.addressDetails.line2,
-          "city" -> info.addressDetails.line3,
-          "countryCode" -> info.addressDetails.countryCode,
-          "country" -> country
-        )
+        "businessAddress" -> Json.obj(
+          "addressLine1" -> info.addressDetails.line1
+        ).++(addressLine2).++(city).++(region).++(postCode).++(countryCode).++(countryName)
       )
 
     val canPhonePrimaryContactJson = info.primaryContactDetails.phoneNumber.map(phoneNumber => Json.obj(
       "canPhonePrimaryContact" -> true,
       "primaryContactPhoneNumber" -> phoneNumber
-    )).getOrElse(Json.obj())
+    )).getOrElse(Json.obj("canPhonePrimaryContact" -> false))
 
     val primaryContactDetails = Json.obj(
       "primaryContactName" -> info.primaryContactDetails.contactName,
@@ -99,14 +102,17 @@ object ChangePlatformOperatorAuditEventModel {
 
     val hasSecondaryContactJson = if (info.secondaryContactDetails.nonEmpty) {Json.obj("hasSecondaryContact" -> true)} else {Json.obj("hasSecondaryContact" -> false)}
 
-    val canPhoneSecondaryContactJson = info.secondaryContactDetails.map(details => Json.obj(
-      "canPhonePrimaryContact" -> true,
-      "primaryContactPhoneNumber" -> details.phoneNumber
-    )).getOrElse(Json.obj())
+    val canPhoneSecondaryContactJson = info.secondaryContactDetails.map(secondaryContact =>
+      secondaryContact.phoneNumber.map( phone =>
+        Json.obj(
+          "canPhoneSecondaryContact" -> true,
+          "secondaryContactPhoneNumber" -> phone
+        )).getOrElse(Json.obj("canPhoneSecondaryContact" -> false))
+    ).getOrElse(Json.obj())
 
     val secondaryContactDetails = info.secondaryContactDetails.map(details => Json.obj(
-      "primaryContactName" -> details.contactName,
-      "primaryContactEmail" -> details.emailAddress,
+      "secondaryContactName" -> details.contactName,
+      "secondaryContactEmail" -> details.emailAddress,
     )).getOrElse(Json.obj()) ++ canPhoneSecondaryContactJson
 
     businessNameJson ++ tradingNameJson ++ hasTaxIdentifier ++ taxResidentInUk ++
@@ -116,8 +122,7 @@ object ChangePlatformOperatorAuditEventModel {
   }
 
   private def toJson2(info: UpdatePlatformOperatorRequest): JsObject = {
-
-    val businessNameJson = info.businessName.map(businessName => Json.obj("businessName" -> businessName)).getOrElse(Json.obj())
+    val businessNameJson = Json.obj("businessName" -> info.operatorName)
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
@@ -143,22 +148,25 @@ object ChangePlatformOperatorAuditEventModel {
         Json.obj("registeredBusinessAddressInUk" -> false)}
     }.getOrElse(Json.obj())
 
-    val country = info.addressDetails.countryCode.map { countryCode => Country.allCountries.find(_.code == countryCode).get}
+    val addressLine2 = info.addressDetails.line2.map {line2 => Json.obj("addressLine2" -> line2)}.getOrElse(Json.obj())
+    val city = info.addressDetails.line3.map {line3 => Json.obj("city" -> line3)}.getOrElse(Json.obj())
+    val region = info.addressDetails.line4.map {line4 => Json.obj("region" -> line4)}.getOrElse(Json.obj())
+    val postCode = info.addressDetails.postCode.map {postCode => Json.obj("postCode" -> postCode)}.getOrElse(Json.obj())
+    val countryCode = info.addressDetails.countryCode.map {countryCode => Json.obj("countryCode" -> countryCode)}.getOrElse(Json.obj())
+    val country = info.addressDetails.countryCode.flatMap { countryCode => Country.allCountries.find(_.code == countryCode).map(c => c.name)}
+    val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
+
     val registeredBusinessAddress =
       Json.obj(
-        "registeredBusinessAddress" -> Json.obj(
-          "addressLine1" -> info.addressDetails.line1,
-          "addressLine1" -> info.addressDetails.line2,
-          "city" -> info.addressDetails.line3,
-          "countryCode" -> info.addressDetails.countryCode,
-          "country" -> country
-        )
+        "businessAddress" -> Json.obj(
+          "addressLine1" -> info.addressDetails.line1
+        ).++(addressLine2).++(city).++(region).++(postCode).++(countryCode).++(countryName)
       )
 
     val canPhonePrimaryContactJson = info.primaryContactDetails.phoneNumber.map(phoneNumber => Json.obj(
       "canPhonePrimaryContact" -> true,
       "primaryContactPhoneNumber" -> phoneNumber
-    )).getOrElse(Json.obj())
+    )).getOrElse(Json.obj("canPhonePrimaryContact" -> false))
 
     val primaryContactDetails = Json.obj(
       "primaryContactName" -> info.primaryContactDetails.contactName,
@@ -167,14 +175,17 @@ object ChangePlatformOperatorAuditEventModel {
 
     val hasSecondaryContactJson = if (info.secondaryContactDetails.nonEmpty) {Json.obj("hasSecondaryContact" -> true)} else {Json.obj("hasSecondaryContact" -> false)}
 
-    val canPhoneSecondaryContactJson = info.secondaryContactDetails.map(details => Json.obj(
-      "canPhonePrimaryContact" -> true,
-      "primaryContactPhoneNumber" -> details.phoneNumber
-    )).getOrElse(Json.obj())
+    val canPhoneSecondaryContactJson = info.secondaryContactDetails.map(secondaryContact =>
+      secondaryContact.phoneNumber.map( phone =>
+        Json.obj(
+          "canPhoneSecondaryContact" -> true,
+          "secondaryContactPhoneNumber" -> phone
+        )).getOrElse(Json.obj("canPhoneSecondaryContact" -> false))
+    ).getOrElse(Json.obj())
 
     val secondaryContactDetails = info.secondaryContactDetails.map(details => Json.obj(
-      "primaryContactName" -> details.contactName,
-      "primaryContactEmail" -> details.emailAddress,
+      "secondaryContactName" -> details.contactName,
+      "secondaryContactEmail" -> details.emailAddress,
     )).getOrElse(Json.obj()) ++ canPhoneSecondaryContactJson
 
     businessNameJson ++ tradingNameJson ++ hasTaxIdentifier ++ taxResidentInUk ++

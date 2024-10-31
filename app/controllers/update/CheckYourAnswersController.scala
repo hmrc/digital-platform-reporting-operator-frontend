@@ -24,7 +24,6 @@ import models.UserAnswers
 import models.audit.ChangePlatformOperatorAuditEventModel
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.OriginalPlatformOperatorQuery
 import services.{AuditService, UserAnswersService}

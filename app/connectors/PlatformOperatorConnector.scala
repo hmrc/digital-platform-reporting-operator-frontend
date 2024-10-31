@@ -19,7 +19,7 @@ package connectors
 import config.Service
 import connectors.PlatformOperatorConnector._
 import services.AuditService
-import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel}
+import models.audit.CreatePlatformOperatorAuditEventModel
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done
@@ -66,14 +66,8 @@ class PlatformOperatorConnector @Inject() (
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK     =>
-            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
-              CreateReportingNotificationAuditEventModel(Json.toJsObject(request), request.operatorId).toAuditModel)
-            Future.successful(Done)
-          case status =>
-            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
-              CreateReportingNotificationAuditEventModel(Json.toJsObject(request)).toAuditModel)
-            Future.failed(UpdatePlatformOperatorFailure(status))
+          case OK     => Future.successful(Done)
+          case status => Future.failed(UpdatePlatformOperatorFailure(status))
         }
       }
 
