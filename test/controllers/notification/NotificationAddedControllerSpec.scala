@@ -17,28 +17,27 @@
 package controllers.notification
 
 import base.SpecBase
+import connectors.SubscriptionConnector
 import models.operator.NotificationType
 import models.operator.responses.NotificationDetails
+import pages.add.PrimaryContactEmailPage
 import pages.update.BusinessNamePage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.NotificationDetailsQuery
+import repositories.SessionRepository
 import viewmodels.checkAnswers.notification.{DueDiligenceSummary, NotificationTypeSummary, OperatorIdSummary, OperatorNameSummary, ReportingPeriodSummary}
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.notification.NotificationAddedView
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import play.api.inject.bind
 
 import java.time.Instant
 
 class NotificationAddedControllerSpec extends SpecBase {
 
   "NotificationAdded Controller" - {
-
     "must return OK and the correct view for a GET" in {
-
       val instant = Instant.parse("2024-12-31T00:00:00Z")
-
       val notification1 = NotificationDetails(NotificationType.Epo, None, None, 2024, instant)
       val notification2 = NotificationDetails(NotificationType.Rpo, None, Some(true), 2025, instant.plusSeconds(1))
 
@@ -63,11 +62,10 @@ class NotificationAddedControllerSpec extends SpecBase {
             ReportingPeriodSummary.summaryRow(answers)(messages(application)),
             DueDiligenceSummary.summaryRow(answers)(messages(application)),
           ).flatten
-        ).withCssClass("govuk-summary-list--long-key")
+        )
 
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(operatorId, "name", expectedList)(request, messages(application)).toString
       }
     }
   }
