@@ -86,8 +86,8 @@ class CheckYourAnswersController @Inject()(
           for {
             _ <- connector.updatePlatformOperator(updateRequest)
             originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
-            newJson = Json.obj() + ("from" -> Json.toJsObject(originalPlatformOperatorInfo)) + ("to" -> Json.toJsObject(updateRequest))
-            _ <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](ChangePlatformOperatorAuditEventModel(newJson).toAuditModel)
+            _ <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](
+              ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
           } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))
         )
   }
