@@ -77,7 +77,7 @@
                     @notifications.sortBy(_.receivedDateTime).reverse.map { notification =>
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">@shortDate(notification.receivedDateTime)</td>
-                            <td class="govuk-table__cell">@notification.notificationType.toString.toUpperCase</td>
+                            <td class="govuk-table__cell">@messages(s"viewNotifications.notificationType.${notification.notificationType.toString.toUpperCase}")</td>
                             <td class="govuk-table__cell">@notification.firstPeriod</td>
                             <td class="govuk-table__cell">
                                 @if(notification.dueDiligence.isEmpty) {

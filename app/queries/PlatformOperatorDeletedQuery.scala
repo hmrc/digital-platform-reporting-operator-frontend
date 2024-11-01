@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import controllers.routes
+package queries
 
-@this(
-        layout: templates.Layout
-)
+import play.api.libs.json.JsPath
 
-@(operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+case object PlatformOperatorDeletedQuery extends Gettable[String] with Settable[String] {
 
-@layout(pageTitle = titleNoForm(messages("platformOperatorRemoved.title"))) {
-
-    <h1 class="govuk-heading-xl">@messages("platformOperatorRemoved.heading", businessName, operatorId)</h1>
-
-    <p class="govuk-body">
-        <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-button">@messages("platformOperatorRemoved.button")</a>
-    </p>
+  override def path: JsPath = JsPath \ "platformOperatorDeletedInfo"
 }

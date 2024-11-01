@@ -18,9 +18,9 @@ package pages.notification
 
 import controllers.notification.routes
 import models.{CheckMode, DueDiligence, NormalMode, NotificationType, UserAnswers}
-import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
 class NotificationTypePageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
@@ -39,25 +39,24 @@ class NotificationTypePageSpec extends AnyFreeSpec with Matchers with TryValues 
 
     "in Check Mode" - {
 
-      "must go to Due Diligence when the answer is RPO and Due Diligence has not been answered" in {
+      "when answer changes from EPO to RPO, must go to ReportingPeriodPage " in {
 
         val answers = emptyAnswers.set(NotificationTypePage, NotificationType.Rpo).success.value
-        NotificationTypePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.DueDiligenceController.onPageLoad(CheckMode, operatorId)
+        NotificationTypePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.ReportingPeriodController.onPageLoad(CheckMode, operatorId)
+      }
+
+      "when answer changes from RPO to EPO, must go to ReportingPeriodPage " in {
+        val answers = emptyAnswers.set(NotificationTypePage, NotificationType.Epo).success.value
+        NotificationTypePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.ReportingPeriodController.onPageLoad(CheckMode, operatorId)
+        answers.get(DueDiligencePage) mustEqual None
       }
 
       "must go to Check Answers" - {
-
-        "when the answer is EPO" in {
-
-          val answers = emptyAnswers.set(NotificationTypePage, NotificationType.Epo).success.value
-          NotificationTypePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
-        }
-
         "when the answer is RPO and Due Diligence has been answered" in {
 
           val answers =
             emptyAnswers
-              .set(NotificationTypePage, NotificationType.Epo).success.value
+              .set(NotificationTypePage, NotificationType.Rpo).success.value
               .set(DueDiligencePage, Set[DueDiligence](DueDiligence.Extended)).success.value
 
           NotificationTypePage.nextPage(CheckMode, operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
@@ -67,14 +66,6 @@ class NotificationTypePageSpec extends AnyFreeSpec with Matchers with TryValues 
   }
 
   ".cleanup" - {
-
-    "must remove DueDiligence when the answer is EPO" in {
-
-      val answers = emptyAnswers.set(DueDiligencePage, DueDiligence.activeValues).success.value
-      val result = answers.set(NotificationTypePage, NotificationType.Epo).success.value
-
-      result.get(DueDiligencePage) must not be defined
-    }
 
     "must not remove DueDiligence when the answer is RPO" in {
 

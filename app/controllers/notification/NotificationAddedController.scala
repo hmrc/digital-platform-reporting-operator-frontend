@@ -48,7 +48,7 @@ class NotificationAddedController @Inject()(
           ReportingPeriodSummary.summaryRow(request.userAnswers),
           DueDiligenceSummary.summaryRow(request.userAnswers)
         ).flatten
-      ).withCssClass("govuk-summary-list--long-key")
+      )
 
       Ok(view(operatorId, businessName, list))
     }
