@@ -16,7 +16,12 @@
 
 package models.email.requests
 
+import cats.data.EitherNec
+import cats.implicits._
+import models.UserAnswers
+import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
 import play.api.libs.json.{Json, OFormat}
+import queries.Query
 
 sealed trait SendEmailRequest {
   def to: List[String]
@@ -27,7 +32,7 @@ sealed trait SendEmailRequest {
 }
 
 object SendEmailRequest {
-  implicit val format: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
+  //implicit val format: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
 }
 
 final case class AddedPlatformOperatorRequest(to: List[String],
@@ -35,5 +40,32 @@ final case class AddedPlatformOperatorRequest(to: List[String],
                                               parameters: Map[String, String]) extends SendEmailRequest
 
 object AddedPlatformOperatorRequest {
-  private val RegistrationSubmittedTemplateId: String = "dprs_added_platform_operator"
+  implicit val format: OFormat[AddedPlatformOperatorRequest] = Json.format[AddedPlatformOperatorRequest]
+  private val PlatformOperatorAddedTemplateId: String = "dprs_added_platform_operator"
+
+  def apply(email: String, name: String, businessName: String, poId: String): AddedPlatformOperatorRequest = AddedPlatformOperatorRequest(
+    to = List(email),
+    templateId = PlatformOperatorAddedTemplateId,
+    parameters = Map("userPrimaryContactName" -> name, "poBusinessName" -> businessName, "poId" -> poId)
+  )
+
+  def build(userAnswers: UserAnswers): EitherNec[Query, AddedPlatformOperatorRequest] =
+    (
+      getPrimaryContactEmail(userAnswers),
+      getPrimaryContactName(userAnswers),
+      getBusinessName(userAnswers)
+    ).parMapN(AddedPlatformOperatorRequest(_,_,_,userAnswers.operatorId.get))
+
+  private[requests] def getPrimaryContactEmail(answers: UserAnswers): EitherNec[Query, String] = {
+    answers.getEither(PrimaryContactEmailPage)
+  }
+
+  private[requests] def getPrimaryContactName(answers: UserAnswers): EitherNec[Query, String] = {
+    answers.getEither(PrimaryContactNamePage)
+  }
+
+  private[requests] def getBusinessName(answers: UserAnswers): EitherNec[Query, String] = {
+    answers.getEither(BusinessNamePage)
+  }
+
 }
