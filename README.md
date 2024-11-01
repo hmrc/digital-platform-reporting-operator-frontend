@@ -29,7 +29,7 @@ You can use service manage to run all dependent microservices using the command 
     sm2 --start DPRS_ALL
 Or you could run this microservice locally using
 
-    sm2 --start DIGITAL_PLATFORM_REPORTING_MANAGE_FRONTEND
+    sm2 --start DIGITAL_PLATFORM_REPORTING_OPERATOR_FRONTEND
     sbt run
 
 Stopping the service
