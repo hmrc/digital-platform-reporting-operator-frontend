@@ -16,12 +16,13 @@
 
 package models.audit
 
-import play.api.http.Status.INTERNAL_SERVER_ERROR
+import models.operator.NotificationType
+import models.operator.requests.UpdatePlatformOperatorRequest
 import play.api.libs.json.{JsObject, Json, OWrites}
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 
-case class CreateReportingNotificationAuditEventModel(auditType: String, requestData: JsObject, responseData: ResponseData) {
+case class CreateReportingNotificationAuditEventModel(auditType: String, requestData: UpdatePlatformOperatorRequest, responseData: ResponseData) {
   private def name = "AddReportingNotification"
   def toAuditModel: AuditModel[CreateReportingNotificationAuditEventModel] = {
     AuditModel(name, this)
@@ -31,17 +32,51 @@ case class CreateReportingNotificationAuditEventModel(auditType: String, request
 object CreateReportingNotificationAuditEventModel {
 
   implicit lazy val writes: OWrites[CreateReportingNotificationAuditEventModel] = (o: CreateReportingNotificationAuditEventModel) =>
-    o.requestData + ("outcome" -> Json.toJson(o.responseData))
+    toJson(o.requestData) + ("outcome" -> Json.toJson(o.responseData))
 
-  def apply(requestData: JsObject, platformOperatorId: String): CreateReportingNotificationAuditEventModel = {
+  private def toJson(info: UpdatePlatformOperatorRequest): JsObject = {
+    val notificationJson = getNotification(info)
+    notificationJson
+  }
+
+  private def getNotification(info: UpdatePlatformOperatorRequest): JsObject = {
+    val isRPO = info.notification.exists(notification =>
+      notification.notificationType == NotificationType.Rpo)
+    val notificationType = info.notification.map(notification =>
+      notification.notificationType match {
+        case NotificationType.Rpo => "Reporting platform operator (RPO)"
+        case NotificationType.Epo => "Excluded platform operator (EPO)"
+      })
+    val reportingNotificationType = info.notification.map(_ =>
+      Json.obj("reportingNotificationType" -> notificationType)).getOrElse(Json.obj())
+    val reportingPeriod = info.notification.map(period => Json.obj("reportingPeriod" -> period.firstPeriod)).getOrElse(Json.obj())
+    val activeSellerDueDiligence = info.notification.flatMap(dueDiligence =>
+      dueDiligence.isActiveSeller match {
+        case Some(true) => Some("Active seller due diligence")
+        case _ => None
+      })
+    val extendedDueDiligence = info.notification.flatMap(dueDiligence =>
+      dueDiligence.isDueDiligence match {
+        case Some(true) => Some("Extended due diligence")
+        case _ => None
+      })
+    val listOfOptions = List(activeSellerDueDiligence, extendedDueDiligence).flatten
+    val finalListOptions = if (listOfOptions.isEmpty) List("None of the above") else listOfOptions
+    val typeOfDueDiligenceTaken = info.notification.map(_ =>
+      Json.obj("typeOfDueDiligenceTaken" -> finalListOptions)
+    ).getOrElse(Json.obj())
+    reportingNotificationType ++ reportingPeriod ++ (if(isRPO) typeOfDueDiligenceTaken else Json.obj())
+  }
+
+  def apply(requestData: UpdatePlatformOperatorRequest, platformOperatorId: String): CreateReportingNotificationAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = SuccessResponseData(localDateTime, platformOperatorId)
     CreateReportingNotificationAuditEventModel("AddReportingNotification", requestData, responseData)
   }
 
-  def apply(requestData: JsObject): CreateReportingNotificationAuditEventModel = {
+  def apply(requestData: UpdatePlatformOperatorRequest, status: Int): CreateReportingNotificationAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
-    val responseData = FailureResponseData(INTERNAL_SERVER_ERROR, localDateTime, "Failure", "Internal Server Error")
+    val responseData = FailureResponseData(status, localDateTime, "Failure", "Internal Server Error")
     CreateReportingNotificationAuditEventModel("AddReportingNotification", requestData, responseData)
   }
 

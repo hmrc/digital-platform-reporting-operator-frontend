@@ -19,7 +19,7 @@ package connectors
 import config.Service
 import connectors.PlatformOperatorConnector._
 import services.AuditService
-import models.audit.CreatePlatformOperatorAuditEventModel
+import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel}
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done
@@ -50,11 +50,11 @@ class PlatformOperatorConnector @Inject() (
         response.status match {
           case OK     =>
             auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-              CreatePlatformOperatorAuditEventModel(Json.toJsObject(request), response.json.as[PlatformOperatorCreatedResponse]).toAuditModel)
+              CreatePlatformOperatorAuditEventModel(request, response.json.as[PlatformOperatorCreatedResponse]).toAuditModel)
             Future.successful(response.json.as[PlatformOperatorCreatedResponse])
           case status =>
             auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-              CreatePlatformOperatorAuditEventModel(Json.toJsObject(request)).toAuditModel)
+              CreatePlatformOperatorAuditEventModel(request, status).toAuditModel)
             Future.failed(CreatePlatformOperatorFailure(status))
         }
       }
@@ -66,8 +66,17 @@ class PlatformOperatorConnector @Inject() (
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK     => Future.successful(Done)
-          case status => Future.failed(UpdatePlatformOperatorFailure(status))
+          case OK     =>
+  // TODO - this is called for both platform operator update and when creating a new platform notification
+  // TODO - perhaps its better to make the call for the new platform notification from controllers.notification.CheckYourAnswersController.onSubmit
+  // TODO - although doing that would NOT allow us to capture errors from the backend
+            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
+              CreateReportingNotificationAuditEventModel(request, request.operatorId).toAuditModel)
+            Future.successful(Done)
+          case status =>
+            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
+              CreateReportingNotificationAuditEventModel(request, status).toAuditModel)
+            Future.failed(UpdatePlatformOperatorFailure(status))
         }
       }
 

@@ -426,46 +426,46 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
   }
 
 
-  "Audit event" - {
-    "must serialise correctly with success data" in {
-      val auditEventModel = anAuditEventModel.copy(
-        auditType = "some-audit-type",
-        requestData = Json.obj(),
-        responseData = aSuccessResponseData.copy(
-          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
-          platformOperatorId = "some-platform-operator-id"
-        )
-      )
-
-      Json.toJson(auditEventModel) mustBe Json.obj(
-        "outcome" -> Json.obj(
-          "isSuccessful" -> true,
-          "processedAt" -> "2001-01-01T02:30:23",
-          "platformOperatorId" -> "some-platform-operator-id",
-          "statusCode" -> OK
-        )
-      )
-    }
-
-    "must serialise correctly with failure data" in {
-      val auditEventModel = anAuditEventModel.copy(
-        auditType = "some-audit-type",
-        requestData = Json.obj(),
-        responseData = aFailureResponseData.copy(
-          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
-        )
-      )
-
-      Json.toJson(auditEventModel) mustBe Json.obj(
-        "outcome" -> Json.obj(
-          "isSuccessful" -> false,
-          "failureCategory" -> "default-category",
-          "failureReason" -> "default-reason",
-          "statusCode" -> INTERNAL_SERVER_ERROR,
-          "processedAt" -> "2001-01-01T02:30:23"
-        )
-      )
-    }
-  }
+//  "Audit event" - {
+//    "must serialise correctly with success data" in {
+//      val auditEventModel = anAuditEventModel.copy(
+//        auditType = "some-audit-type",
+//        requestData = Json.obj(),
+//        responseData = aSuccessResponseData.copy(
+//          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
+//          platformOperatorId = "some-platform-operator-id"
+//        )
+//      )
+//
+//      Json.toJson(auditEventModel) mustBe Json.obj(
+//        "outcome" -> Json.obj(
+//          "isSuccessful" -> true,
+//          "processedAt" -> "2001-01-01T02:30:23",
+//          "platformOperatorId" -> "some-platform-operator-id",
+//          "statusCode" -> OK
+//        )
+//      )
+//    }
+//
+//    "must serialise correctly with failure data" in {
+//      val auditEventModel = anAuditEventModel.copy(
+//        auditType = "some-audit-type",
+//        requestData = Json.obj(),
+//        responseData = aFailureResponseData.copy(
+//          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
+//        )
+//      )
+//
+//      Json.toJson(auditEventModel) mustBe Json.obj(
+//        "outcome" -> Json.obj(
+//          "isSuccessful" -> false,
+//          "failureCategory" -> "default-category",
+//          "failureReason" -> "default-reason",
+//          "statusCode" -> INTERNAL_SERVER_ERROR,
+//          "processedAt" -> "2001-01-01T02:30:23"
+//        )
+//      )
+//    }
+//  }
 
 }

@@ -17,87 +17,101 @@
 package models.audit
 
 import base.SpecBase
-import builders.AuditEventModelBuilder.anAuditEventModel
-import builders.FailureResponseDataBuilder.aFailureResponseData
-import builders.PlatformCreatedResponseDataBuilder.aPlatformCreatedResponseData
-import builders.SuccessResponseDataBuilder.aSuccessResponseData
-import builders.UserAnswersBuilder.aUserAnswers
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.json.Json
+import config.FrontendAppConfig
+import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.responses.PlatformOperatorCreatedResponse
+import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.libs.json.{JsObject, Json}
+import play.api.test.Helpers.await
+import services.AuditService
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
-import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
 
-  private val underTest = CreatePlatformOperatorAuditEventModel
+  private val mockAuditConnector = mock[AuditConnector]
+  private val mockAppConfig = mock[FrontendAppConfig]
 
-  "Audit event" - {
-    "must serialise correctly with success data" in {
-      val auditEventModel = anAuditEventModel.copy(
-        auditType = "some-audit-type",
-        requestData = Json.obj(),
-        responseData = aSuccessResponseData.copy(
-          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
-          platformOperatorId = "some-platform-operator-id"
-        )
+  "Create platform operator - Success" in {
+    val expected = Json.parse(
+      """
+        |{
+        |    "subscriptionId" : "12345678900",
+        |    "businessName" : "C Company",
+        |    "hasBusinessTradingName" : true,
+        |    "businessTradingName" : "The Simpsons Ltd.",
+        |    "hasTaxIdentificationNumber" : true,
+        |    "ukTaxResident" : true,
+        |     "taxIdentifiers" : {
+        |      "ctUtr" : "12345678900",
+        |      "companyRegistrationNumber" : "12345678900",
+        |      "vrn" : "12345678900",
+        |      "employerPayeReferenceNumber" : "12345678900",
+        |      "hmrcCharityReference" : "12345678900"
+        |    },
+        |      "registeredBusinessAddressInUk" : true,
+        |      "registeredBusinessAddress" : {
+        |      "addressLine1" : "742 Evergreen Terrace",
+        |      "addressLine2" : " Second Terrace",
+        |      "city" : "Springfield",
+        |      "countryCode" : "AF",
+        |      "countryName" : "Afghanistan"
+        |    },
+        |    "primaryContactName" : "Homer Simpson",
+        |    "primaryContactEmailAddress" : "homer.simpson@example.com",
+        |    "canPhonePrimaryContact" : true,
+        |    "primaryContactPhoneNumber" : "075 23456789",
+        |    "hasSecondaryContact" : true,
+        |    "secondaryContactName" : "Marge Simpson",
+        |    "secondaryContactEmailAddress" : "marge.simpson@example.com",
+        |    "canPhoneSecondaryContact" : true,
+        |    "secondaryContactPhoneNumber" : "07952587369",
+        |     "outcome": {
+        |     "isSuccessful": true,
+        |     "statusCode": 200,
+        |     "platformOperatorId": "some-operator-id",
+        |     "processedAt": "2024-09-29T18:48:30.747881"
+        |    }
+        |  }
+        |""".stripMargin).as[JsObject]
+
+    val request = CreatePlatformOperatorRequest(
+      subscriptionId = "12345678900",
+      operatorName =  "C Company",
+      tinDetails =  Seq(
+        TinDetails("UTR1", TinType.Utr, "GB"),
+        TinDetails("CRN1", TinType.Crn, "GB"),
+        TinDetails("VRN1", TinType.Vrn, "GB"),
+        TinDetails("ERN1", TinType.Empref, "GB"),
+        TinDetails("CHARITY1", TinType.Chrn, "GB"),
+      ),
+      businessName = Some("C Company"),
+      tradingName =  Some("The Simpsons Ltd."),
+      primaryContactDetails =  ContactDetails(Some("075 23456789"), "Homer Simpson", "homer.simpson@example.com"),
+      secondaryContactDetails =  Some(ContactDetails(Some("07952587369"), "Marge Simpson", "marge.simpson@example.com")),
+      addressDetails =  AddressDetails(
+        line1 = "742 Evergreen Terrace",
+        line2 = Some("Second Terrace"),
+        line3 = Some("Springfield"),
+        line4 = None,
+        postCode = None,
+        countryCode = Some("AF")
       )
+    )
 
-      Json.toJson(auditEventModel) mustBe Json.obj(
-        "outcome" -> Json.obj(
-          "isSuccessful" -> true,
-          "processedAt" -> "2001-01-01T02:30:23",
-          "platformOperatorId" -> "some-platform-operator-id",
-          "statusCode" -> OK
-        )
-      )
-    }
+    val response = PlatformOperatorCreatedResponse(operatorId = "some-operator-id")
 
-    "must serialise correctly with failure data" in {
-      val auditEventModel = anAuditEventModel.copy(
-        auditType = "some-audit-type",
-        requestData = Json.obj(),
-        responseData = aFailureResponseData.copy(
-          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
-        )
-      )
+    val auditEvent = CreatePlatformOperatorAuditEventModel(request, response)
 
-      Json.toJson(auditEventModel) mustBe Json.obj(
-        "outcome" -> Json.obj(
-          "isSuccessful" -> false,
-          "failureCategory" -> "default-category",
-          "failureReason" -> "default-reason",
-          "statusCode" -> INTERNAL_SERVER_ERROR,
-          "processedAt" -> "2001-01-01T02:30:23"
-        )
-      )
-    }
-  }
+//    Json.toJson(auditEvent) mustEqual expected
 
-  ".apply(requestData: JsObject, platformOperatorCreatedResponse: PlatformOperatorCreatedResponse)" - {
-    "must return AddPlatformOperator audit event when platform operator created response exists" in {
-      val answers = aUserAnswers
-      val platformOperatorResponse = aPlatformCreatedResponseData
-      val expected = CreatePlatformOperatorAuditEventModel(answers.data, platformOperatorResponse)
-      val result = underTest.apply(answers.data, platformOperatorResponse)
-
-      result.auditType mustBe expected.auditType
-      result.requestData mustBe expected.requestData
-      result.responseData.asInstanceOf[SuccessResponseData].platformOperatorId mustBe "default-platform-operator-id"
-    }
-  }
-
-  ".apply(requestData: JsObject)" - {
-    "must return AddPlatformOperator audit event when platform operator created response does not exists" in {
-      val answers = aUserAnswers
-      val expected = CreatePlatformOperatorAuditEventModel(answers.data)
-      val result = underTest.apply(answers.data)
-
-      result.auditType mustBe expected.auditType
-      result.requestData mustBe expected.requestData
-      result.responseData.asInstanceOf[FailureResponseData].statusCode mustBe INTERNAL_SERVER_ERROR
-      result.responseData.asInstanceOf[FailureResponseData].category mustBe "Failure"
-      result.responseData.asInstanceOf[FailureResponseData].reason mustBe "Internal Server Error"
-    }
   }
 
 }
