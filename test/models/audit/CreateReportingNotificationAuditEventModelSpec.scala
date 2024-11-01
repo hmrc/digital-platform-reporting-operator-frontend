@@ -21,82 +21,116 @@ import builders.AuditEventModelBuilder.anAuditEventModel
 import builders.FailureResponseDataBuilder.aFailureResponseData
 import builders.SuccessResponseDataBuilder.aSuccessResponseData
 import builders.UserAnswersBuilder.aUserAnswers
+import models.operator.{AddressDetails, ContactDetails, NotificationType, TinDetails, TinType}
+import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 
 import java.time.LocalDateTime
 
 class CreateReportingNotificationAuditEventModelSpec extends SpecBase {
 
-  private val underTest = CreateReportingNotificationAuditEventModel
+  "Create reporting notification - Success" in {
 
-//  "Audit event" - {
-//    "must serialise correctly with success data" in {
-//      val auditEventModel = anAuditEventModel.copy(
-//        auditType = "some-audit-type",
-//        requestData = Json.obj(),
-//        responseData = aSuccessResponseData.copy(
-//          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
-//          platformOperatorId = "some-platform-operator-id"
-//        )
-//      )
-//
-//      Json.toJson(auditEventModel) mustBe Json.obj(
-//        "outcome" -> Json.obj(
-//          "isSuccessful" -> true,
-//          "processedAt" -> "2001-01-01T02:30:23",
-//          "platformOperatorId" -> "some-platform-operator-id",
-//          "statusCode" -> OK
-//        )
-//      )
-//    }
-//
-//    "must serialise correctly with failure data" in {
-//      val auditEventModel = anAuditEventModel.copy(
-//        auditType = "some-audit-type",
-//        requestData = Json.obj(),
-//        responseData = aFailureResponseData.copy(
-//          processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23),
-//        )
-//      )
-//
-//      Json.toJson(auditEventModel) mustBe Json.obj(
-//        "outcome" -> Json.obj(
-//          "isSuccessful" -> false,
-//          "failureCategory" -> "default-category",
-//          "failureReason" -> "default-reason",
-//          "statusCode" -> INTERNAL_SERVER_ERROR,
-//          "processedAt" -> "2001-01-01T02:30:23"
-//        )
-//      )
-//    }
-//  }
-//
-//  ".apply(requestData: JsObject, platformOperatorId: String)" - {
-//    "must return AddPlatformOperator audit event when platform operator created response exists" in {
-//      val answers = aUserAnswers
-//      val platformOperatorId = "default-platform-operator-id"
-//      val expected = CreateReportingNotificationAuditEventModel(answers.data, platformOperatorId)
-//      val result = underTest.apply(answers.data, platformOperatorId)
-//
-//      result.auditType mustBe expected.auditType
-//      result.requestData mustBe expected.requestData
-//      result.responseData.asInstanceOf[SuccessResponseData].platformOperatorId mustBe "default-platform-operator-id"
-//    }
-//  }
-//
-//  ".apply(requestData: JsObject)" - {
-//    "must return AddPlatformOperator audit event when platform operator created response does not exists" in {
-//      val answers = aUserAnswers
-//      val expected = CreateReportingNotificationAuditEventModel(answers.data)
-//      val result = underTest.apply(answers.data)
-//
-//      result.auditType mustBe expected.auditType
-//      result.requestData mustBe expected.requestData
-//      result.responseData.asInstanceOf[FailureResponseData].statusCode mustBe INTERNAL_SERVER_ERROR
-//      result.responseData.asInstanceOf[FailureResponseData].category mustBe "Failure"
-//      result.responseData.asInstanceOf[FailureResponseData].reason mustBe "Internal Server Error"
-//    }
-//  }
+    val expected = Json.parse(
+      """
+        |{
+        | "reportingNotificationType":"Reporting platform operator (RPO)",
+        | "reportingPeriod":2014,
+        | "typeOfDueDiligenceTaken":["Active seller due diligence"],
+        | "outcome":{
+        |   "isSuccessful":true,
+        |   "processedAt":"2001-01-01T02:30:23",
+        |   "platformOperatorId":"some-operator-id",
+        |   "statusCode":200}
+        | }
+        |""".stripMargin
+    )
+
+    val request = UpdatePlatformOperatorRequest(
+      subscriptionId = "12345678900",
+      operatorId = "some-operator-id",
+      operatorName =  "C Company",
+      tinDetails =  Seq(
+        TinDetails("12345678900", TinType.Utr, "GB"),
+        TinDetails("12345678900", TinType.Crn, "GB"),
+        TinDetails("12345678900", TinType.Vrn, "GB"),
+        TinDetails("12345678900", TinType.Empref, "GB"),
+        TinDetails("12345678900", TinType.Chrn, "GB"),
+      ),
+      businessName = Some("C Company"),
+      tradingName =  Some("The Simpsons Ltd."),
+      primaryContactDetails =  ContactDetails(Some("075 23456789"), "Homer Simpson", "homer.simpson@example.com"),
+      secondaryContactDetails =  Some(ContactDetails(Some("07952587369"), "Marge Simpson", "marge.simpson@example.com")),
+      addressDetails =  AddressDetails(
+        line1 = "742 Evergreen Terrace",
+        line2 = Some("Second Terrace"),
+        line3 = Some("Springfield"),
+        line4 = None,
+        postCode = None,
+        countryCode = Some("AF")
+      ),
+      notification = Some(Notification(notificationType = NotificationType.Rpo,
+        isActiveSeller = Some(true), isDueDiligence = None, firstPeriod = 2014))
+    )
+
+    val response = SuccessResponseData(
+      processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
+
+    val auditEvent = CreateReportingNotificationAuditEventModel("AddPlatformOperator", request, response)
+
+    Json.toJson(auditEvent) mustEqual expected
+
+  }
+
+  "Create platform operator - Failure" in {
+
+    val expected = Json.parse(
+      """
+        |{
+        | "outcome":{
+        |  "isSuccessful":false,
+        |  "failureCategory":"Failure",
+        |  "failureReason":"Internal Server Error",
+        |  "statusCode":422,
+        |  "processedAt":"2001-01-01T02:30:23"
+        |  }
+        |}
+        |""".stripMargin
+    )
+
+    val request = UpdatePlatformOperatorRequest(
+      subscriptionId = "12345678900",
+      operatorId = "some-operator-id",
+      operatorName =  "C Company",
+      tinDetails =  Seq(
+        TinDetails("12345678900", TinType.Utr, "GB"),
+        TinDetails("12345678900", TinType.Crn, "GB"),
+        TinDetails("12345678900", TinType.Vrn, "GB"),
+        TinDetails("12345678900", TinType.Empref, "GB"),
+        TinDetails("12345678900", TinType.Chrn, "GB"),
+      ),
+      businessName = Some("C Company"),
+      tradingName =  Some("The Simpsons Ltd."),
+      primaryContactDetails =  ContactDetails(Some("075 23456789"), "Homer Simpson", "homer.simpson@example.com"),
+      secondaryContactDetails =  Some(ContactDetails(Some("07952587369"), "Marge Simpson", "marge.simpson@example.com")),
+      addressDetails =  AddressDetails(
+        line1 = "742 Evergreen Terrace",
+        line2 = Some("Second Terrace"),
+        line3 = Some("Springfield"),
+        line4 = None,
+        postCode = None,
+        countryCode = Some("AF")
+      ),
+      notification = None
+    )
+
+    val response = FailureResponseData(
+      statusCode = 422, processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), category = "Failure", reason = "Internal Server Error")
+
+    val auditEvent = CreateReportingNotificationAuditEventModel("AddPlatformOperator", request, response)
+
+    Json.toJson(auditEvent) mustEqual expected
+  }
 
 }

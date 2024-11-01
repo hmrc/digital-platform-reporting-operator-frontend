@@ -17,27 +17,13 @@
 package models.audit
 
 import base.SpecBase
-import config.FrontendAppConfig
 import models.operator.requests.CreatePlatformOperatorRequest
-import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.{JsObject, Json}
-import play.api.test.Helpers.await
-import services.AuditService
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import java.time.LocalDateTime
 
 class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
-
-  private val mockAuditConnector = mock[AuditConnector]
-  private val mockAppConfig = mock[FrontendAppConfig]
 
   "Create platform operator - Success" in {
     val expected = Json.parse(
@@ -56,28 +42,28 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
         |      "employerPayeReferenceNumber" : "12345678900",
         |      "hmrcCharityReference" : "12345678900"
         |    },
-        |      "registeredBusinessAddressInUk" : true,
-        |      "registeredBusinessAddress" : {
+        |      "registeredBusinessAddressInUk" : false,
+        |      "businessAddress" : {
         |      "addressLine1" : "742 Evergreen Terrace",
-        |      "addressLine2" : " Second Terrace",
+        |      "addressLine2" : "Second Terrace",
         |      "city" : "Springfield",
         |      "countryCode" : "AF",
-        |      "countryName" : "Afghanistan"
+        |      "country" : "Afghanistan"
         |    },
         |    "primaryContactName" : "Homer Simpson",
-        |    "primaryContactEmailAddress" : "homer.simpson@example.com",
+        |    "primaryContactEmail" : "homer.simpson@example.com",
         |    "canPhonePrimaryContact" : true,
         |    "primaryContactPhoneNumber" : "075 23456789",
         |    "hasSecondaryContact" : true,
         |    "secondaryContactName" : "Marge Simpson",
-        |    "secondaryContactEmailAddress" : "marge.simpson@example.com",
+        |    "secondaryContactEmail" : "marge.simpson@example.com",
         |    "canPhoneSecondaryContact" : true,
         |    "secondaryContactPhoneNumber" : "07952587369",
         |     "outcome": {
         |     "isSuccessful": true,
         |     "statusCode": 200,
         |     "platformOperatorId": "some-operator-id",
-        |     "processedAt": "2024-09-29T18:48:30.747881"
+        |     "processedAt": "2001-01-01T02:30:23"
         |    }
         |  }
         |""".stripMargin).as[JsObject]
@@ -86,11 +72,11 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
       subscriptionId = "12345678900",
       operatorName =  "C Company",
       tinDetails =  Seq(
-        TinDetails("UTR1", TinType.Utr, "GB"),
-        TinDetails("CRN1", TinType.Crn, "GB"),
-        TinDetails("VRN1", TinType.Vrn, "GB"),
-        TinDetails("ERN1", TinType.Empref, "GB"),
-        TinDetails("CHARITY1", TinType.Chrn, "GB"),
+        TinDetails("12345678900", TinType.Utr, "GB"),
+        TinDetails("12345678900", TinType.Crn, "GB"),
+        TinDetails("12345678900", TinType.Vrn, "GB"),
+        TinDetails("12345678900", TinType.Empref, "GB"),
+        TinDetails("12345678900", TinType.Chrn, "GB"),
       ),
       businessName = Some("C Company"),
       tradingName =  Some("The Simpsons Ltd."),
@@ -106,12 +92,90 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
       )
     )
 
-    val response = PlatformOperatorCreatedResponse(operatorId = "some-operator-id")
+    val response = SuccessResponseData(
+      processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
 
-    val auditEvent = CreatePlatformOperatorAuditEventModel(request, response)
+    val auditEvent = CreatePlatformOperatorAuditEventModel("AddPlatformOperator", request, response)
 
-//    Json.toJson(auditEvent) mustEqual expected
+    Json.toJson(auditEvent) mustEqual expected
 
   }
+
+  "Create platform operator - Failure" in {
+    val expected = Json.parse(
+      """
+        |{
+        |    "subscriptionId" : "12345678900",
+        |    "businessName" : "C Company",
+        |    "hasBusinessTradingName" : true,
+        |    "businessTradingName" : "The Simpsons Ltd.",
+        |    "hasTaxIdentificationNumber" : true,
+        |    "ukTaxResident" : true,
+        |     "taxIdentifiers" : {
+        |      "ctUtr" : "12345678900",
+        |      "companyRegistrationNumber" : "12345678900",
+        |      "vrn" : "12345678900",
+        |      "employerPayeReferenceNumber" : "12345678900",
+        |      "hmrcCharityReference" : "12345678900"
+        |    },
+        |      "registeredBusinessAddressInUk" : false,
+        |      "businessAddress" : {
+        |      "addressLine1" : "742 Evergreen Terrace",
+        |      "addressLine2" : "Second Terrace",
+        |      "city" : "Springfield",
+        |      "countryCode" : "AF",
+        |      "country" : "Afghanistan"
+        |    },
+        |    "primaryContactName" : "Homer Simpson",
+        |    "primaryContactEmail" : "homer.simpson@example.com",
+        |    "canPhonePrimaryContact" : true,
+        |    "primaryContactPhoneNumber" : "075 23456789",
+        |    "hasSecondaryContact" : true,
+        |    "secondaryContactName" : "Marge Simpson",
+        |    "secondaryContactEmail" : "marge.simpson@example.com",
+        |    "canPhoneSecondaryContact" : true,
+        |    "secondaryContactPhoneNumber" : "07952587369",
+        |     "outcome": {
+        |     "isSuccessful": false,
+        |     "statusCode": 422,
+        |     "failureCategory": "Failure",
+        |     "failureReason": "Internal Server Error",
+        |     "processedAt": "2001-01-01T02:30:23"
+        |    }
+        |  }
+        |""".stripMargin).as[JsObject]
+
+      val request = CreatePlatformOperatorRequest(
+        subscriptionId = "12345678900",
+        operatorName =  "C Company",
+        tinDetails =  Seq(
+          TinDetails("12345678900", TinType.Utr, "GB"),
+          TinDetails("12345678900", TinType.Crn, "GB"),
+          TinDetails("12345678900", TinType.Vrn, "GB"),
+          TinDetails("12345678900", TinType.Empref, "GB"),
+          TinDetails("12345678900", TinType.Chrn, "GB"),
+        ),
+        businessName = Some("C Company"),
+        tradingName =  Some("The Simpsons Ltd."),
+        primaryContactDetails =  ContactDetails(Some("075 23456789"), "Homer Simpson", "homer.simpson@example.com"),
+        secondaryContactDetails =  Some(ContactDetails(Some("07952587369"), "Marge Simpson", "marge.simpson@example.com")),
+        addressDetails =  AddressDetails(
+          line1 = "742 Evergreen Terrace",
+          line2 = Some("Second Terrace"),
+          line3 = Some("Springfield"),
+          line4 = None,
+          postCode = None,
+          countryCode = Some("AF")
+        )
+      )
+
+      val response = FailureResponseData(
+        statusCode = 422, processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), category = "Failure", reason = "Internal Server Error")
+
+      val auditEvent = CreatePlatformOperatorAuditEventModel("AddPlatformOperator", request, response)
+
+      Json.toJson(auditEvent) mustEqual expected
+  }
+
 
 }

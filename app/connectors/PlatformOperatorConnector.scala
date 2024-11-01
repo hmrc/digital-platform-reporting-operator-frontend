@@ -19,7 +19,7 @@ package connectors
 import config.Service
 import connectors.PlatformOperatorConnector._
 import services.AuditService
-import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel}
+import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel, FailureResponseData, SuccessResponseData}
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done

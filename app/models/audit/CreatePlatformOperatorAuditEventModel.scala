@@ -110,8 +110,7 @@ object CreatePlatformOperatorAuditEventModel {
     primaryContactDetails ++ hasSecondaryContactJson ++ secondaryContactDetails
   }
 
-
-  def apply(requestData: CreatePlatformOperatorRequest,
+    def apply(requestData: CreatePlatformOperatorRequest,
             platformOperatorCreatedResponse: PlatformOperatorCreatedResponse): CreatePlatformOperatorAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = SuccessResponseData(localDateTime, platformOperatorCreatedResponse.operatorId)
