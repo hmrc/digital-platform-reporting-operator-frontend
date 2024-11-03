@@ -19,6 +19,7 @@ package controllers.update
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
+import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.operator.responses.{NotificationDetails, PlatformOperator}
 import models.operator.{AddressDetails, ContactDetails, NotificationType}
@@ -35,6 +36,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.OriginalPlatformOperatorQuery
 import repositories.SessionRepository
+import services.AuditService
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import viewmodels.checkAnswers.update.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.update.CheckYourAnswersView
@@ -46,9 +49,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
   private val mockConnector = mock[PlatformOperatorConnector]
   private val mockRepository = mock[SessionRepository]
+  private val mockAuditService = mock[AuditService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService)
     super.beforeEach()
   }
 
@@ -175,17 +179,21 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         )
 
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
+          val auditType: String = "ChangePlatformOperatorDetails"
+          val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest)
 
           val result = route(app, request).value
 
@@ -194,6 +202,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(operatorId, answers).url
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
+          verify(mockAuditService, times(1)).sendAudit(
+            eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(),any(),any())
         }
       }
 
@@ -227,12 +237,14 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         )
 
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.failed(new Exception("foo"))
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
@@ -242,6 +254,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
+          verify(mockAuditService, never()).sendAudit(any())(any(),any(),any())
         }
       }
 
