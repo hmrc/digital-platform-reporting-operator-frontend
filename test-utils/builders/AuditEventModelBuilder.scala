@@ -20,12 +20,10 @@ import builders.SuccessResponseDataBuilder.aSuccessResponseData
 import models.audit.CreatePlatformOperatorAuditEventModel
 import models.operator.{AddressDetails, ContactDetails}
 import models.operator.requests.CreatePlatformOperatorRequest
-import play.api.libs.json.Json
 
 object AuditEventModelBuilder {
 
   val anAuditEventModel: CreatePlatformOperatorAuditEventModel = CreatePlatformOperatorAuditEventModel(
-    auditType = "default-audit-type",
     requestData = CreatePlatformOperatorRequest(subscriptionId = "", operatorName = "", tinDetails = Seq.empty,
       businessName = None, tradingName = None, primaryContactDetails = ContactDetails(phoneNumber = None, contactName = "", emailAddress = ""),
       secondaryContactDetails = None, addressDetails = AddressDetails(line1 = "", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = None)

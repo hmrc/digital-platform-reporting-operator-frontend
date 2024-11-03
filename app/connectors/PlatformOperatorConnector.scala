@@ -19,7 +19,7 @@ package connectors
 import config.Service
 import connectors.PlatformOperatorConnector._
 import services.AuditService
-import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel, FailureResponseData, SuccessResponseData}
+import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel}
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done
@@ -67,9 +67,6 @@ class PlatformOperatorConnector @Inject() (
       .flatMap { response =>
         response.status match {
           case OK     =>
-  // TODO - this is called for both platform operator update and when creating a new platform notification
-  // TODO - perhaps its better to make the call for the new platform notification from controllers.notification.CheckYourAnswersController.onSubmit
-  // TODO - although doing that would NOT allow us to capture errors from the backend
             auditService.sendAudit[CreateReportingNotificationAuditEventModel](
               CreateReportingNotificationAuditEventModel(request, request.operatorId).toAuditModel)
             Future.successful(Done)

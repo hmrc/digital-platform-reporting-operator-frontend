@@ -16,9 +16,9 @@
 
 package models.audit
 
-import play.api.libs.json.{JsObject, OWrites}
+import play.api.libs.json.{JsObject, Json, OWrites}
 
-case class RemovePlatformOperatorAuditEventModel(requestData: JsObject){
+case class RemovePlatformOperatorAuditEventModel(businessName: String, operatorId: String){
   private def name = "RemovePlatformOperator"
   def toAuditModel: AuditModel[RemovePlatformOperatorAuditEventModel] = {
     AuditModel(name, this)
@@ -27,7 +27,16 @@ case class RemovePlatformOperatorAuditEventModel(requestData: JsObject){
 
 object RemovePlatformOperatorAuditEventModel {
 
-  implicit lazy val writes: OWrites[RemovePlatformOperatorAuditEventModel] = (o: RemovePlatformOperatorAuditEventModel) =>
-    o.requestData
+  implicit lazy val writes: OWrites[RemovePlatformOperatorAuditEventModel] = new OWrites[RemovePlatformOperatorAuditEventModel] {
+    override def writes(o: RemovePlatformOperatorAuditEventModel): JsObject = {
+      Json.obj(
+        "confirmRemoval" -> true,
+        "platformOperatorIdentifiers" -> Json.obj(
+          "businessName" -> o.businessName,
+          "platformOperatorId" -> o.operatorId
+        )
+      )
+    }
+  }
 
 }

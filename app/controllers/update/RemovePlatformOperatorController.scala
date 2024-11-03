@@ -20,7 +20,7 @@ import connectors.PlatformOperatorConnector
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
-import models.audit.{RemovePlatformOperatorAuditEventModel, SuccessRemovalResponseData}
+import models.audit.RemovePlatformOperatorAuditEventModel
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
@@ -73,8 +73,8 @@ class RemovePlatformOperatorController @Inject()(
               cleanedData    = request.userAnswers.copy(data = Json.obj())
               updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
               _              <- sessionRepository.set(updatedAnswers)
-              responseData = Json.toJsObject(SuccessRemovalResponseData(businessName, operatorId))
-              _ <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](RemovePlatformOperatorAuditEventModel(responseData).toAuditModel)
+              _              <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
+                                  RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
             } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
           } else {
             Future.successful(Redirect(routes.PlatformOperatorController.onPageLoad(operatorId)))

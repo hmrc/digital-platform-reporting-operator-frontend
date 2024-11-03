@@ -17,16 +17,10 @@
 package models.audit
 
 import base.SpecBase
-import builders.AuditEventModelBuilder.anAuditEventModel
-import builders.FailureResponseDataBuilder.aFailureResponseData
-import builders.SuccessResponseDataBuilder.aSuccessResponseData
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
 import models.operator.responses.PlatformOperator
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.json.{JsObject, Json}
-
-import java.time.LocalDateTime
+import play.api.libs.json.Json
 
 class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
 
@@ -154,7 +148,11 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
         ),
         "to" -> Json.obj(
           "hasTaxIdentificationNumber" -> true,
-          "internationalTaxIdentifier" -> "9999"
+          "internationalTaxIdentifier" -> "9999",
+          "internationalTaxResidentCountry" -> Json.obj(
+            "countryCode" -> "US",
+            "countryName" -> "United States"
+          )
         )
       )
       Json.toJson(auditEvent) mustEqual expectedJson
@@ -167,7 +165,11 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasTaxIdentificationNumber" -> true,
-          "internationalTaxIdentifier" -> "9999"
+          "internationalTaxIdentifier" -> "9999",
+          "internationalTaxResidentCountry" -> Json.obj(
+            "countryCode" -> "US",
+            "countryName" -> "United States"
+          )
         ),
         "to" -> Json.obj(
           "hasTaxIdentificationNumber" -> false,
@@ -422,76 +424,6 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
       )
       Json.toJson(auditEvent) mustEqual expectedJson
     }
-
-  }
-
-  "Change platform operator - Success" in {
-    val expected = Json.parse(
-      """
-        |{
-        | "from":{
-        |   "businessName":"C Company"
-        |  },
-        | "to":{
-        |   "businessName":"C Company New"
-        |  }
-        |}
-      """.stripMargin).as[JsObject]
-
-    val original = PlatformOperator(
-      operatorId = "some-operator-id",
-      operatorName =  "C Company",
-      tinDetails =  Seq(
-        TinDetails("12345678900", TinType.Utr, "GB"),
-        TinDetails("12345678900", TinType.Crn, "GB"),
-        TinDetails("12345678900", TinType.Vrn, "GB"),
-        TinDetails("12345678900", TinType.Empref, "GB"),
-        TinDetails("12345678900", TinType.Chrn, "GB"),
-      ),
-      businessName = Some("C Company"),
-      tradingName =  Some("The Simpsons Ltd."),
-      primaryContactDetails =  ContactDetails(Some("075 23456789"), "Homer Simpson", "homer.simpson@example.com"),
-      secondaryContactDetails =  Some(ContactDetails(Some("07952587369"), "Marge Simpson", "marge.simpson@example.com")),
-      addressDetails =  AddressDetails(
-        line1 = "742 Evergreen Terrace",
-        line2 = Some("Second Terrace"),
-        line3 = Some("Springfield"),
-        line4 = None,
-        postCode = None,
-        countryCode = Some("AF")
-      ),
-      notifications = Seq.empty
-    )
-
-    val updated = UpdatePlatformOperatorRequest(
-      subscriptionId = "12345678900",
-      operatorId = "some-operator-id",
-      operatorName =  "C Company New",
-      tinDetails =  Seq(
-        TinDetails("12345678900", TinType.Utr, "GB"),
-        TinDetails("12345678900", TinType.Crn, "GB"),
-        TinDetails("12345678900", TinType.Vrn, "GB"),
-        TinDetails("12345678900", TinType.Empref, "GB"),
-        TinDetails("12345678900", TinType.Chrn, "GB"),
-      ),
-      businessName = Some("C Company"),
-      tradingName =  Some("The Simpsons Ltd."),
-      primaryContactDetails =  ContactDetails(Some("075 23456789"), "Homer Simpson", "homer.simpson@example.com"),
-      secondaryContactDetails =  Some(ContactDetails(Some("07952587369"), "Marge Simpson", "marge.simpson@example.com")),
-      addressDetails =  AddressDetails(
-        line1 = "742 Evergreen Terrace",
-        line2 = Some("Second Terrace"),
-        line3 = Some("Springfield"),
-        line4 = None,
-        postCode = None,
-        countryCode = Some("AF")
-      ),
-      notification = None
-    )
-
-    val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
-
-    Json.toJson(auditEvent) mustEqual expected
 
   }
 

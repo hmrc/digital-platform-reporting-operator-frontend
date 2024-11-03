@@ -71,7 +71,12 @@ object ChangePlatformOperatorAuditEventModel {
     {Json.obj("taxIdentifiers" -> {utr ++ crn ++ vrn ++ empRef ++ chrn ++ other})} else {Json.obj()}
     val internationalTaxIdentifier = if (info.tinDetails.exists(_.issuedBy != "GB"))
     {other} else {Json.obj()}
-    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier
+    val internationalTaxResidentCountry = if (info.tinDetails.exists(_.issuedBy != "GB")) {
+      val internationalCountryCode = info.tinDetails.head.issuedBy
+      val internationalCountryName = Country.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
+      Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
+    } else {Json.obj()}
+    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
   private def getAddressJsonPO(info: PlatformOperator): JsObject = {
@@ -145,7 +150,12 @@ object ChangePlatformOperatorAuditEventModel {
     {Json.obj("taxIdentifiers" -> {utr ++ crn ++ vrn ++ empRef ++ chrn ++ other})} else {Json.obj()}
     val internationalTaxIdentifier = if (info.tinDetails.exists(_.issuedBy != "GB"))
     {other} else {Json.obj()}
-    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier
+    val internationalTaxResidentCountry = if (info.tinDetails.exists(_.issuedBy != "GB")) {
+      val internationalCountryCode = info.tinDetails.head.issuedBy
+      val internationalCountryName = Country.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
+      Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
+    } else {Json.obj()}
+    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
   private def getAddressJsonUPO(info: UpdatePlatformOperatorRequest): JsObject = {

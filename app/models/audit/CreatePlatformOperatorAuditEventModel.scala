@@ -24,7 +24,7 @@ import play.api.libs.json.{JsObject, Json, OWrites}
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 
-case class CreatePlatformOperatorAuditEventModel(auditType: String, requestData: CreatePlatformOperatorRequest, responseData: ResponseData) {
+case class CreatePlatformOperatorAuditEventModel(requestData: CreatePlatformOperatorRequest, responseData: ResponseData) {
   private def name = "AddPlatformOperator"
   def toAuditModel: AuditModel[CreatePlatformOperatorAuditEventModel] = {
     AuditModel(name, this)
@@ -61,7 +61,12 @@ object CreatePlatformOperatorAuditEventModel {
     {Json.obj("taxIdentifiers" -> {utr ++ crn ++ vrn ++ empRef ++ chrn ++ other})} else {Json.obj()}
     val internationalTaxIdentifier = if (info.tinDetails.exists(_.issuedBy != "GB"))
     {other} else {Json.obj()}
-    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier
+    val internationalTaxResidentCountry = if (info.tinDetails.exists(_.issuedBy != "GB")) {
+      val internationalCountryCode = info.tinDetails.head.issuedBy
+      val internationalCountryName = Country.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
+      Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
+    } else {Json.obj()}
+    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
   private def getAddressJson(info: CreatePlatformOperatorRequest): JsObject = {
@@ -114,13 +119,13 @@ object CreatePlatformOperatorAuditEventModel {
             platformOperatorCreatedResponse: PlatformOperatorCreatedResponse): CreatePlatformOperatorAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = SuccessResponseData(localDateTime, platformOperatorCreatedResponse.operatorId)
-    CreatePlatformOperatorAuditEventModel("AddPlatformOperator", requestData, responseData)
+    CreatePlatformOperatorAuditEventModel(requestData, responseData)
   }
 
   def apply(requestData: CreatePlatformOperatorRequest, status: Int): CreatePlatformOperatorAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = FailureResponseData(status, localDateTime, "Failure", "Internal Server Error")
-    CreatePlatformOperatorAuditEventModel("AddPlatformOperator", requestData, responseData)
+    CreatePlatformOperatorAuditEventModel(requestData, responseData)
   }
 
 }

@@ -22,7 +22,7 @@ import play.api.libs.json.{JsObject, Json, OWrites}
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 
-case class CreateReportingNotificationAuditEventModel(auditType: String, requestData: UpdatePlatformOperatorRequest, responseData: ResponseData) {
+case class CreateReportingNotificationAuditEventModel(requestData: UpdatePlatformOperatorRequest, responseData: ResponseData) {
   private def name = "AddReportingNotification"
   def toAuditModel: AuditModel[CreateReportingNotificationAuditEventModel] = {
     AuditModel(name, this)
@@ -71,13 +71,13 @@ object CreateReportingNotificationAuditEventModel {
   def apply(requestData: UpdatePlatformOperatorRequest, platformOperatorId: String): CreateReportingNotificationAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = SuccessResponseData(localDateTime, platformOperatorId)
-    CreateReportingNotificationAuditEventModel("AddReportingNotification", requestData, responseData)
+    CreateReportingNotificationAuditEventModel(requestData, responseData)
   }
 
   def apply(requestData: UpdatePlatformOperatorRequest, status: Int): CreateReportingNotificationAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = FailureResponseData(status, localDateTime, "Failure", "Internal Server Error")
-    CreateReportingNotificationAuditEventModel("AddReportingNotification", requestData, responseData)
+    CreateReportingNotificationAuditEventModel(requestData, responseData)
   }
 
 }
