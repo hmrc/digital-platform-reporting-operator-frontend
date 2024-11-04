@@ -117,6 +117,7 @@ object CreatePlatformOperatorAuditEventModel {
 
     def apply(requestData: CreatePlatformOperatorRequest,
             platformOperatorCreatedResponse: PlatformOperatorCreatedResponse): CreatePlatformOperatorAuditEventModel = {
+    // val localDateTime = LocalDateTime.of(2001, 1, 1, 2, 30, 23)
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = SuccessResponseData(localDateTime, platformOperatorCreatedResponse.operatorId)
     CreatePlatformOperatorAuditEventModel(requestData, responseData)

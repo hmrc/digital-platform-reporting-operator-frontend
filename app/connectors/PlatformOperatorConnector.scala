@@ -48,14 +48,8 @@ class PlatformOperatorConnector @Inject() (
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK     =>
-            auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-              CreatePlatformOperatorAuditEventModel(request, response.json.as[PlatformOperatorCreatedResponse]).toAuditModel)
-            Future.successful(response.json.as[PlatformOperatorCreatedResponse])
-          case status =>
-            auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-              CreatePlatformOperatorAuditEventModel(request, status).toAuditModel)
-            Future.failed(CreatePlatformOperatorFailure(status))
+          case OK     => Future.successful(response.json.as[PlatformOperatorCreatedResponse])
+          case status => Future.failed(CreatePlatformOperatorFailure(status))
         }
       }
 
