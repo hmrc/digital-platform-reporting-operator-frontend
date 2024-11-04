@@ -18,8 +18,6 @@ package connectors
 
 import config.Service
 import connectors.PlatformOperatorConnector._
-import services.AuditService
-import models.audit.{CreatePlatformOperatorAuditEventModel, CreateReportingNotificationAuditEventModel}
 import models.operator.responses.{PlatformOperator, PlatformOperatorCreatedResponse, ViewPlatformOperatorsResponse}
 import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
 import org.apache.pekko.Done
@@ -35,8 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PlatformOperatorConnector @Inject() (
                                             configuration: Configuration,
-                                            httpClient: HttpClientV2,
-                                            auditService: AuditService,
+                                            httpClient: HttpClientV2
                                           )(implicit ec: ExecutionContext) {
 
   private val digitalPlatformReporting: Service = configuration.get[Service]("microservice.services.digital-platform-reporting")
@@ -60,14 +57,8 @@ class PlatformOperatorConnector @Inject() (
       .execute[HttpResponse]
       .flatMap { response =>
         response.status match {
-          case OK     =>
-            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
-              CreateReportingNotificationAuditEventModel(request, request.operatorId).toAuditModel)
-            Future.successful(Done)
-          case status =>
-            auditService.sendAudit[CreateReportingNotificationAuditEventModel](
-              CreateReportingNotificationAuditEventModel(request, status).toAuditModel)
-            Future.failed(UpdatePlatformOperatorFailure(status))
+          case OK     => Future.successful(Done)
+          case status => Future.failed(UpdatePlatformOperatorFailure(status))
         }
       }
 
