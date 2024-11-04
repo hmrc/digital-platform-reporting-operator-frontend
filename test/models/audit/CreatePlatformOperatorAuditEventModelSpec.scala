@@ -50,7 +50,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -84,7 +84,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : true,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "JE",
           |      "country" : "Jersey"
@@ -120,7 +120,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -158,7 +158,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |       "ctUtr":"12345678900"
           |    },
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -198,7 +198,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |      "countryName" : "Afghanistan"
           |    },
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -233,7 +233,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : true,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "addressLine2" : "Address line 2",
           |      "city" : "Address line 3",
@@ -281,7 +281,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -317,7 +317,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -356,7 +356,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"
@@ -396,7 +396,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |    "hasTaxIdentificationNumber" : false,
           |    "ukTaxResident" : false,
           |    "registeredBusinessAddressInUk" : false,
-          |    "businessAddress" : {
+          |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
           |      "countryCode" : "AF",
           |      "country" : "Afghanistan"

@@ -222,7 +222,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "registeredBusinessAddressInUk" -> false,
-          "businessAddress" -> Json.obj(
+          "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "US",
             "country" -> "United States"
@@ -230,7 +230,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
         ),
         "to" -> Json.obj(
           "registeredBusinessAddressInUk" -> true,
-          "businessAddress" -> Json.obj(
+          "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "GB",
             "country" -> "United Kingdom"
@@ -249,7 +249,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "registeredBusinessAddressInUk" -> true,
-          "businessAddress" -> Json.obj(
+          "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "GB",
             "country" -> "United Kingdom"
@@ -257,7 +257,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
         ),
         "to" -> Json.obj(
           "registeredBusinessAddressInUk" -> false,
-          "businessAddress" -> Json.obj(
+          "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "US",
             "country" -> "United States"
@@ -276,7 +276,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
       val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
-          "businessAddress" -> Json.obj(
+          "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "addressLine2" -> "22 Street",
             "countryCode" -> "GB",
@@ -284,7 +284,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends SpecBase {
           )
         ),
         "to" -> Json.obj(
-          "businessAddress" -> Json.obj(
+          "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "addressLine2" -> "33 Street",
             "countryCode" -> "GB",

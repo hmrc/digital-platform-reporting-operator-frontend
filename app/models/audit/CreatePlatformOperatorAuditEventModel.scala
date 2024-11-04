@@ -83,7 +83,7 @@ object CreatePlatformOperatorAuditEventModel {
     val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
     val registeredBusinessAddress =
       Json.obj(
-        "businessAddress" -> Json.obj(
+        "registeredBusinessAddress" -> Json.obj(
           "addressLine1" -> info.addressDetails.line1
         ).++(addressLine2).++(city).++(region).++(postCode).++(countryCode).++(countryName)
       )
