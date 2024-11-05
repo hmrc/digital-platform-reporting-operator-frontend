@@ -17,7 +17,7 @@
 package pages.update
 
 import controllers.update.routes
-import models.{CheckMode, Country, InternationalAddress, NormalMode, UkAddress, UserAnswers}
+import models.{Country, InternationalAddress, UkAddress, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}

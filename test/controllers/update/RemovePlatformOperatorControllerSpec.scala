@@ -20,6 +20,7 @@ import base.SpecBase
 import connectors.PlatformOperatorConnector
 import forms.RemovePlatformOperatorFormProvider
 import models.UserAnswers
+import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -32,6 +33,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
+import services.AuditService
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import views.html.update.RemovePlatformOperatorView
 
 import scala.concurrent.Future
@@ -40,6 +43,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
   private val mockConnector = mock[PlatformOperatorConnector]
   private val mockRepository = mock[SessionRepository]
+  private val mockAuditService = mock[AuditService]
 
   private val formProvider = new RemovePlatformOperatorFormProvider()
   private val businessName = "name"
@@ -48,7 +52,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService)
     super.beforeEach()
   }
 
@@ -76,12 +80,14 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
       when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
       when(mockRepository.set(any())) thenReturn Future.successful(true)
+      when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
           .overrides(
             bind[PlatformOperatorConnector].toInstance(mockConnector),
-            bind[SessionRepository].toInstance(mockRepository)
+            bind[SessionRepository].toInstance(mockRepository),
+            bind[AuditService].toInstance(mockAuditService)
           )
           .build()
 
@@ -89,7 +95,9 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val request =
           FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
             .withFormUrlEncodedBody(("value", "true"))
-
+        val businessName: String = "name"
+        val auditType: String = "RemovePlatformOperator"
+        val expectedAuditEvent = RemovePlatformOperatorAuditEventModel(businessName, operatorId)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -97,6 +105,8 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
         verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
+        verify(mockAuditService, times(1)).sendAudit(
+          eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(),any(),any())
 
         val savedAnswers = answersCaptor.getValue
         savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual "name"
@@ -109,7 +119,8 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         applicationBuilder(userAnswers = Some(baseAnswers))
           .overrides(
             bind[PlatformOperatorConnector].toInstance(mockConnector),
-            bind[SessionRepository].toInstance(mockRepository)
+            bind[SessionRepository].toInstance(mockRepository),
+            bind[AuditService].toInstance(mockAuditService)
           )
           .build()
 
@@ -125,6 +136,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
         verify(mockConnector, never()).removePlatformOperator(any())(any())
         verify(mockRepository, never()).clear(any(), any())
+        verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
       }
     }
   }

@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers.notification
+package builders
 
 import models.UserAnswers
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import play.api.libs.json.Json
 
-object OperatorIdSummary {
+object UserAnswersBuilder {
 
-  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.operatorId.map { operatorId =>
+  val aUserAnswers: UserAnswers = UserAnswers(
+    userId = "default-user-id",
+    operatorId = Some("default-platform-operator-id"),
+    data = Json.obj()
+  )
 
-      SummaryListRowViewModel(
-        key     = messages("notificationAdded.operatorId"),
-        value   = ValueViewModel(operatorId),
-        actions = Nil
-      )
-    }
+  val anEmptyAnswer: UserAnswers = aUserAnswers.copy(
+    operatorId = None,
+    data = Json.obj())
 }

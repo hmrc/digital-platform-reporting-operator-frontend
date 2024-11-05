@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers.notification
+package queries
 
-import models.UserAnswers
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import models.operator.responses.PlatformOperator
+import play.api.libs.json.JsPath
 
-object OperatorIdSummary {
+case object OriginalPlatformOperatorQuery extends Gettable[PlatformOperator] with Settable[PlatformOperator] {
 
-  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.operatorId.map { operatorId =>
-
-      SummaryListRowViewModel(
-        key     = messages("notificationAdded.operatorId"),
-        value   = ValueViewModel(operatorId),
-        actions = Nil
-      )
-    }
+  override def path: JsPath = JsPath \ "originalPlatformOperatorInfo"
 }

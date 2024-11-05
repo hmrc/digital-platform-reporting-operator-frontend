@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers.notification
+package builders
 
-import models.UserAnswers
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import models.operator.responses.PlatformOperatorCreatedResponse
 
-object OperatorIdSummary {
+object PlatformCreatedResponseDataBuilder {
 
-  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.operatorId.map { operatorId =>
-
-      SummaryListRowViewModel(
-        key     = messages("notificationAdded.operatorId"),
-        value   = ValueViewModel(operatorId),
-        actions = Nil
-      )
-    }
+  def aPlatformCreatedResponseData: PlatformOperatorCreatedResponse = PlatformOperatorCreatedResponse(
+    operatorId = "default-platform-operator-id"
+  )
 }

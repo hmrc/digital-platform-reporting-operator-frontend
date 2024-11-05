@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
 import viewmodels.PlatformOperatorViewModel
-import views.html.update.{PlatformOperatorUpdatedView, PlatformOperatorView}
+import views.html.update.PlatformOperatorView
 
 import scala.concurrent.Future
 

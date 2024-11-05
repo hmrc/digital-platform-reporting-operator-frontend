@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package viewmodels.checkAnswers.notification
+package models.audit
 
-import models.UserAnswers
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import base.SpecBase
+import play.api.libs.json.Json
 
-object OperatorIdSummary {
+class RemovePlatformOperatorAuditEventModelSpec extends SpecBase {
 
-  def summaryRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.operatorId.map { operatorId =>
+  "Remove platform operator" in {
 
-      SummaryListRowViewModel(
-        key     = messages("notificationAdded.operatorId"),
-        value   = ValueViewModel(operatorId),
-        actions = Nil
-      )
-    }
+    val expected = Json.parse(
+      """
+        |{
+        | "confirmRemoval":true,
+        | "platformOperatorIdentifiers":{
+        |   "businessName":"some-business-name",
+        |   "platformOperatorId":"some-operator-id"}
+        | }
+        |""".stripMargin
+    )
+
+    val auditEvent = RemovePlatformOperatorAuditEventModel("some-business-name","some-operator-id")
+
+    Json.toJson(auditEvent) mustEqual expected
+
+  }
+
 }
