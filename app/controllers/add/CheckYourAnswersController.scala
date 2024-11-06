@@ -18,7 +18,9 @@ package controllers.add
 
 import com.google.inject.Inject
 import connectors.PlatformOperatorConnector
+import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.actions._
+import models.audit.CreatePlatformOperatorAuditEventModel
 import models.{NormalMode, UserAnswers}
 import pages.add.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -26,7 +28,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
-import services.UserAnswersService
+import services.{AuditService, UserAnswersService}
 import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -36,6 +38,8 @@ import viewmodels.govuk.summarylist._
 import views.html.add.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
+import scala.util.control.NonFatal
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
@@ -46,7 +50,8 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
-                                            sessionRepository: SessionRepository
+                                            sessionRepository: SessionRepository,
+                                            auditService: AuditService,
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
@@ -83,13 +88,20 @@ class CheckYourAnswersController @Inject()(
         .fold(
           errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
           createRequest =>
-            for {
+            (for {
               createResponse       <- connector.createPlatformOperator(createRequest)
               cleanedAnswers       =  request.userAnswers.copy(data = Json.obj())
               platformOperatorInfo =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
               updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
               _                    <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))
+              _                    <- auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
+                CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
+            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
+              error =>
+                auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
+                  CreatePlatformOperatorAuditEventModel(createRequest, error.asInstanceOf[CreatePlatformOperatorFailure].status).toAuditModel)
+                throw error
+            }
         )
   }
 

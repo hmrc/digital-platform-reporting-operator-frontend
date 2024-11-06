@@ -20,10 +20,14 @@ import connectors.PlatformOperatorConnector
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
+import models.audit.RemovePlatformOperatorAuditEventModel
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
+import services.AuditService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.update.RemovePlatformOperatorView
 
@@ -39,7 +43,8 @@ class RemovePlatformOperatorController @Inject()(
                                                   formProvider: RemovePlatformOperatorFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: RemovePlatformOperatorView,
-                                                  connector: PlatformOperatorConnector
+                                                  connector: PlatformOperatorConnector,
+                                                  auditService: AuditService
                                                 )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
@@ -64,8 +69,12 @@ class RemovePlatformOperatorController @Inject()(
         value =>
           if (value) {
             for {
-              _ <- connector.removePlatformOperator(operatorId)
-              _ <- sessionRepository.clear(request.userId, Some(operatorId))
+              _              <- connector.removePlatformOperator(operatorId)
+              cleanedData    = request.userAnswers.copy(data = Json.obj())
+              updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
+              _              <- sessionRepository.set(updatedAnswers)
+              _              <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
+                                  RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
             } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
           } else {
             Future.successful(Redirect(routes.PlatformOperatorController.onPageLoad(operatorId)))

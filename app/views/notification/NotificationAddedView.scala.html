@@ -38,15 +38,20 @@
     @govukSummaryList(list)
 
     <p class="govuk-body">@messages("notificationAdded.p1", businessName)</p>
-    <p class="govuk-body">@messages("notificationAdded.p2")</p>
+
+    <h2 class="govuk-heading-m">@messages("notificationAdded.h2")</h2>
 
     <p class="govuk-body">
-        @messages("notificationAdded.p3")
-        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("notificationAdded.p3.link.text")</a>.
+        @messages("notificationAdded.p2")
+        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("notificationAdded.p2.link.text")</a>.
     </p>
 
     <p class="govuk-body">
-        @messages("notificationAdded.p4")
-        <a href="@routes.AddGuidanceController.onPageLoad(operatorId)" class="govuk-link">@messages("notificationAdded.p4.link.text")</a>.
+        @messages("notificationAdded.p3")
+        <a href="@routes.SelectPlatformOperatorController.onPageLoad" class="govuk-link">@messages("notificationAdded.p3.link.text")</a>.
+    </p>
+
+    <p class="govuk-body">
+        <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
     </p>
 }

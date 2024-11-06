@@ -20,6 +20,7 @@ import connectors.PlatformOperatorConnector
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.OriginalPlatformOperatorQuery
 import repositories.SessionRepository
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -43,7 +44,8 @@ class PlatformOperatorController @Inject()(
     for {
       platformOperator <- connector.viewPlatformOperator(operatorId)
       userAnswers      <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
-      _                <- sessionRepository.set(userAnswers)
+      updatedAnswers   <- Future.fromTry(userAnswers.set(OriginalPlatformOperatorQuery, platformOperator))
+      _                <- sessionRepository.set(updatedAnswers)
       viewModel        = PlatformOperatorViewModel(platformOperator)
     } yield Ok(view(viewModel))
   }

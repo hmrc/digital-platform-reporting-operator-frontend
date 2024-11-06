@@ -17,8 +17,10 @@
 package controllers.update
 
 import controllers.actions._
+import controllers.AnswerExtractor
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.PlatformOperatorDeletedQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.update.PlatformOperatorRemovedView
 
@@ -27,11 +29,14 @@ import javax.inject.Inject
 class PlatformOperatorRemovedController @Inject()(
                                                    override val messagesApi: MessagesApi,
                                                    identify: IdentifierAction,
+                                                   getData: DataRetrievalActionProvider,
+                                                   requireData: DataRequiredAction,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: PlatformOperatorRemovedView
-                                                 ) extends FrontendBaseController with I18nSupport {
+                                                 ) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  def onPageLoad(operatorId: String): Action[AnyContent] = identify { implicit request =>
-      Ok(view(operatorId))
+  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
+    getAnswer(PlatformOperatorDeletedQuery) { businessName => Ok(view(operatorId, businessName))
+    }
   }
 }

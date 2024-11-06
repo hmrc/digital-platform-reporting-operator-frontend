@@ -19,6 +19,7 @@ package controllers.update
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import queries.PlatformOperatorDeletedQuery
 import views.html.update.PlatformOperatorRemovedView
 
 class PlatformOperatorRemovedControllerSpec extends SpecBase {
@@ -27,7 +28,8 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val updatedAnswers = emptyUserAnswers.set(PlatformOperatorDeletedQuery, "businessName").success.value
+      val application = applicationBuilder(userAnswers = Some(updatedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.PlatformOperatorRemovedController.onPageLoad(operatorId).url)
@@ -37,7 +39,7 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PlatformOperatorRemovedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(operatorId, "businessName")(request, messages(application)).toString
       }
     }
   }

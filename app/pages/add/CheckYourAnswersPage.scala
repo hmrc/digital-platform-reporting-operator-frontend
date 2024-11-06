@@ -18,7 +18,6 @@ package pages.add
 
 import controllers.add.routes
 import models.UserAnswers
-import pages.Page
 import play.api.mvc.Call
 
 case object CheckYourAnswersPage extends AddPage {

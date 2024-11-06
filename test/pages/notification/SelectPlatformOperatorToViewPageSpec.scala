@@ -17,15 +17,10 @@
 package pages.notification
 
 import controllers.notification.routes
-import models.operator.NotificationType
-import models.operator.responses.NotificationDetails
 import models.{NormalMode, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
-import queries.NotificationDetailsQuery
-
-import java.time.Instant
 
 class SelectPlatformOperatorToViewPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 

@@ -18,13 +18,15 @@ package controllers.notification
 
 import com.google.inject.Inject
 import connectors.PlatformOperatorConnector
+import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.actions.{DataRequiredAction, DataRetrievalActionProvider, IdentifierAction}
 import models.NormalMode
+import models.audit.CreateReportingNotificationAuditEventModel
 import pages.notification.CheckYourAnswersPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.UserAnswersService
+import services.{AuditService, UserAnswersService}
 import services.UserAnswersService.BuildAddNotificationRequestFailure
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.notification._
@@ -42,7 +44,8 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
-                                            sessionRepository: SessionRepository
+                                            sessionRepository: SessionRepository,
+                                            auditService: AuditService,
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
@@ -65,12 +68,19 @@ class CheckYourAnswersController @Inject()(
         .fold(
           errors => Future.failed(BuildAddNotificationRequestFailure(errors)),
           addNotificationRequest =>
-            for {
+            (for {
               _                       <- connector.updatePlatformOperator(addNotificationRequest)
               updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
               newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
               _                       <- sessionRepository.set(newAnswers)
-            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))
+              _                       <- auditService.sendAudit[CreateReportingNotificationAuditEventModel](
+                CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
+            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))).recover {
+              error =>
+                auditService.sendAudit[CreateReportingNotificationAuditEventModel](
+                  CreateReportingNotificationAuditEventModel(addNotificationRequest, error.asInstanceOf[UpdatePlatformOperatorFailure].status).toAuditModel)
+                throw error
+            }
         )
   }
 }

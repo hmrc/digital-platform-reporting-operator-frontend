@@ -19,36 +19,40 @@ package controllers.update
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import controllers.{routes => baseRoutes}
-import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
-import models.operator.responses.PlatformOperatorCreatedResponse
-import models.operator.{AddressDetails, ContactDetails}
-import models.{Country, UkAddress, UserAnswers}
+import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
+import models.operator.requests.UpdatePlatformOperatorRequest
+import models.operator.responses.{NotificationDetails, PlatformOperator}
+import models.operator.{AddressDetails, ContactDetails, NotificationType}
+import models.{Country, UkAddress}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.Mockito
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.update._
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import queries.PlatformOperatorAddedQuery
+import queries.OriginalPlatformOperatorQuery
 import repositories.SessionRepository
-import viewmodels.PlatformOperatorSummaryViewModel
+import services.AuditService
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import viewmodels.checkAnswers.update.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.update.CheckYourAnswersView
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
 
   private val mockConnector = mock[PlatformOperatorConnector]
   private val mockRepository = mock[SessionRepository]
+  private val mockAuditService = mock[AuditService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService)
     super.beforeEach()
   }
 
@@ -134,6 +138,18 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
       "must submit an Update Operator request and redirect to the next page" in {
 
+        val platformOperator = PlatformOperator(
+          operatorId = "operatorId",
+          operatorName = "business",
+          tinDetails = Seq.empty,
+          businessName = None,
+          tradingName = None,
+          primaryContactDetails = ContactDetails(None, "name", "email"),
+          secondaryContactDetails = None,
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          notifications = Seq(NotificationDetails(NotificationType.Epo, None, None, 2024, Instant.now))
+        )
+
         val answers =
           emptyUserAnswers
             .copy(operatorId = Some("operatorId"))
@@ -147,6 +163,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(PrimaryContactEmailPage, "email").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
             .set(HasSecondaryContactPage, false).success.value
+            .set(OriginalPlatformOperatorQuery, platformOperator).success.value
 
         val expectedRequest = UpdatePlatformOperatorRequest(
           subscriptionId = "dprsId",
@@ -162,17 +179,21 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         )
 
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
+          val auditType: String = "ChangePlatformOperatorDetails"
+          val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest)
 
           val result = route(app, request).value
 
@@ -181,6 +202,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(operatorId, answers).url
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
+          verify(mockAuditService, times(1)).sendAudit(
+            eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(),any(),any())
         }
       }
 
@@ -214,12 +237,14 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         )
 
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.failed(new Exception("foo"))
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
@@ -229,6 +254,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
+          verify(mockAuditService, never()).sendAudit(any())(any(),any(),any())
         }
       }
 

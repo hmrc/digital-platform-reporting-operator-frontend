@@ -18,6 +18,7 @@ package controllers.add
 
 import base.SpecBase
 import connectors.PlatformOperatorConnector
+import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.responses.PlatformOperatorCreatedResponse
@@ -34,6 +35,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
+import services.AuditService
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
@@ -45,9 +48,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
   private val mockConnector = mock[PlatformOperatorConnector]
   private val mockRepository = mock[SessionRepository]
+  private val mockAuditService = mock[AuditService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService)
     super.beforeEach()
   }
 
@@ -164,12 +168,14 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
@@ -183,6 +189,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(NormalMode, answers).url
           verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, times(1)).set(answersCaptor.capture())
+          verify(mockAuditService, times(1)).sendAudit(any())(any(),any(),any())
 
           val savedAnswers = answersCaptor.getValue
           savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual expectedOperatorInfo
@@ -215,13 +222,15 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
         )
 
-        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.failed(new Exception("foo"))
+        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.failed(CreatePlatformOperatorFailure(422))
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
@@ -231,6 +240,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
+          verify(mockAuditService, times(1)).sendAudit(any())(any(),any(),any())
         }
       }
 
@@ -242,7 +252,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository)
+              bind[SessionRepository].toInstance(mockRepository),
+              bind[AuditService].toInstance(mockAuditService)
             )
             .build()
 
@@ -252,6 +263,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, never()).createPlatformOperator(any())(any())
           verify(mockRepository, never()).set(any())
+          verify(mockAuditService, never()).sendAudit(any())(any(),any(),any())
         }
       }
     }

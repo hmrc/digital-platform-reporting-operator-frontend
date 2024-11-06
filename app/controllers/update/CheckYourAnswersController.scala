@@ -18,12 +18,15 @@ package controllers.update
 
 import com.google.inject.Inject
 import connectors.PlatformOperatorConnector
+import controllers.AnswerExtractor
 import controllers.actions._
 import models.UserAnswers
+import models.audit.ChangePlatformOperatorAuditEventModel
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.UserAnswersService
+import queries.OriginalPlatformOperatorQuery
+import services.{AuditService, UserAnswersService}
 import services.UserAnswersService._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -41,8 +44,9 @@ class CheckYourAnswersController @Inject()(
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
-                                            connector: PlatformOperatorConnector
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                            connector: PlatformOperatorConnector,
+                                            auditService: AuditService
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
     implicit request =>
@@ -78,9 +82,12 @@ class CheckYourAnswersController @Inject()(
         .fold(
           errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
           updateRequest =>
-            connector
-              .updatePlatformOperator(updateRequest)
-              .map(_ => Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers)))
+          for {
+            _ <- connector.updatePlatformOperator(updateRequest)
+            originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
+            _ <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](
+              ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
+          } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))
         )
   }
 

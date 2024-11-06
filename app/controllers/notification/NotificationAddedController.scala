@@ -24,7 +24,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.notification._
 import viewmodels.govuk.summarylist._
-import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.notification.NotificationAddedView
 
 import javax.inject.Inject
@@ -49,7 +48,7 @@ class NotificationAddedController @Inject()(
           ReportingPeriodSummary.summaryRow(request.userAnswers),
           DueDiligenceSummary.summaryRow(request.userAnswers)
         ).flatten
-      ).withCssClass("govuk-summary-list--long-key")
+      )
 
       Ok(view(operatorId, businessName, list))
     }
