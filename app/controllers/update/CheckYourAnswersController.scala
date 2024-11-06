@@ -17,19 +17,23 @@
 package controllers.update
 
 import com.google.inject.Inject
-import connectors.PlatformOperatorConnector
+import connectors.{EmailConnector, PlatformOperatorConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import models.UserAnswers
 import models.audit.ChangePlatformOperatorAuditEventModel
+import models.email.requests.{UpdatedAsPlatformOperatorRequest, UpdatedPlatformOperatorRequest}
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.OriginalPlatformOperatorQuery
 import services.{AuditService, UserAnswersService}
 import services.UserAnswersService._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.update._
 import viewmodels.govuk.summarylist._
 import views.html.update.CheckYourAnswersView
@@ -45,8 +49,9 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
-                                            auditService: AuditService
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport {
+                                            auditService: AuditService,
+                                            emailConnector: EmailConnector
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport with Logging {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
     implicit request =>
@@ -78,12 +83,30 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
 
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
       userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId)
         .fold(
           errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
           updateRequest =>
           for {
             _ <- connector.updatePlatformOperator(updateRequest)
+            _ <- UpdatedPlatformOperatorRequest.build(request.userAnswers).fold(
+                  errors => {
+                    logger.warn(s"Unable to send updated platform operator email, path(s) missing:" +
+                      s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                    Future.successful(false)
+                  },
+                  request => emailConnector.send(request)
+                )
+            _  <- UpdatedAsPlatformOperatorRequest.build(request.userAnswers).fold(
+                  errors => {
+                    logger.warn(s"Unable to send updated as platform operator email, path(s) missing:" +
+                      s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                    Future.successful(false)
+                  },
+                  request => emailConnector.send(request)
+                )
             originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
             _ <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](
               ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)

@@ -122,7 +122,7 @@ object RemovedPlatformOperatorRequest {
 final case class RemovedAsPlatformOperatorRequest(to: List[String],
                                                 templateId: String,
                                                 parameters: Map[String, String]) extends SendEmailRequest
-                                                
+
 object RemovedAsPlatformOperatorRequest {
   implicit val format: OFormat[RemovedAsPlatformOperatorRequest] = Json.format[RemovedAsPlatformOperatorRequest]
   private val PlatformOperatorRemovedTemplateId: String = "dprs_removed_as_platform_operator"
@@ -145,3 +145,58 @@ object RemovedAsPlatformOperatorRequest {
     userAnswers.getEither(BusinessNamePage)
   ).parMapN(RemovedAsPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
 }
+
+final case class UpdatedPlatformOperatorRequest(to: List[String],
+                                                templateId: String,
+                                                parameters: Map[String, String]) extends SendEmailRequest
+
+object UpdatedPlatformOperatorRequest {
+  implicit val format: OFormat[UpdatedPlatformOperatorRequest] = Json.format[UpdatedPlatformOperatorRequest]
+  private val PlatformOperatorUpdatedTemplateId: String = "dprs_updated_platform_operator"
+
+  def apply(email: String,
+            name: String,
+            businessName: String,
+            platformOperatorId: String): UpdatedPlatformOperatorRequest = UpdatedPlatformOperatorRequest(
+    to = List(email),
+    templateId = PlatformOperatorUpdatedTemplateId,
+    parameters = Map(
+      "userPrimaryContactName" -> name,
+      "poBusinessName" -> businessName,
+      "poId" -> platformOperatorId)
+  )
+
+  def build(userAnswers: UserAnswers): EitherNec[Query, UpdatedPlatformOperatorRequest] = (
+    userAnswers.getEither(PrimaryContactEmailPage),
+    userAnswers.getEither(PrimaryContactNamePage),
+    userAnswers.getEither(BusinessNamePage)
+  ).parMapN(UpdatedPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+}
+
+final case class UpdatedAsPlatformOperatorRequest(to: List[String],
+                                                  templateId: String,
+                                                  parameters: Map[String, String]) extends SendEmailRequest
+
+object UpdatedAsPlatformOperatorRequest {
+  implicit val format: OFormat[UpdatedAsPlatformOperatorRequest] = Json.format[UpdatedAsPlatformOperatorRequest]
+  private val PlatformOperatorUpdatedTemplateId: String = "dprs_updated_as_platform_operator"
+
+  def apply(email: String,
+            name: String,
+            businessName: String,
+            platformOperatorId: String): UpdatedAsPlatformOperatorRequest = UpdatedAsPlatformOperatorRequest(
+    to = List(email),
+    templateId = PlatformOperatorUpdatedTemplateId,
+    parameters = Map(
+      "poPrimaryContactName" -> name,
+      "poBusinessName" -> businessName,
+      "poId" -> platformOperatorId)
+  )
+
+  def build(userAnswers: UserAnswers): EitherNec[Query, UpdatedAsPlatformOperatorRequest] = (
+    userAnswers.getEither(PrimaryContactEmailPage),
+    userAnswers.getEither(PrimaryContactNamePage),
+    userAnswers.getEither(BusinessNamePage)
+  ).parMapN(UpdatedAsPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+}
+
