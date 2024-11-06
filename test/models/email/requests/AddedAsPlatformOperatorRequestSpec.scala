@@ -22,7 +22,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
 
-class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
+class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
   with Matchers
   with TryValues
   with OptionValues
@@ -30,8 +30,10 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
 
   private val underTest = AddedPlatformOperatorRequest
 
+  // TODO - update tests once correct fields have been applied
+
   ".apply(...)" - {
-    "must create AddedPlatformOperatorRequest object" in {
+    "must create AddedAsPlatformOperatorRequest object" in {
       AddedPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-business-name", "some-po-id") mustBe AddedPlatformOperatorRequest(
         to = List("some.email@example.com"),
         templateId = "dprs_added_platform_operator",
@@ -43,7 +45,7 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
   }
 
   ".build(...)" - {
-    "must return correct AddedPlatformOperatorRequest" in {
+    "must return correct AddedAsPlatformOperatorRequest" in {
       val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
         .set(PrimaryContactEmailPage, "some@example.com").success.value
         .set(PrimaryContactNamePage, "some-name").success.value
