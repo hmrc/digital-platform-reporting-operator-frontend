@@ -17,9 +17,10 @@
 package controllers.add
 
 import base.SpecBase
-import connectors.PlatformOperatorConnector
+import connectors.{EmailConnector, PlatformOperatorConnector}
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
+import models.email.requests.AddedPlatformOperatorRequest
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, ContactDetails}
@@ -49,9 +50,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
   private val mockConnector = mock[PlatformOperatorConnector]
   private val mockRepository = mock[SessionRepository]
   private val mockAuditService = mock[AuditService]
+  private val mockEmailConnector = mock[EmailConnector]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailConnector)
     super.beforeEach()
   }
 
@@ -135,10 +137,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
     "for a POST" - {
 
-      "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" in {
+      "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" - {
 
         val answers =
-          emptyUserAnswers
+          UserAnswers(userAnswersId, Some(operatorId))
             .set(BusinessNamePage, "business").success.value
             .set(HasTradingNamePage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
@@ -150,7 +152,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(CanPhonePrimaryContactPage, false).success.value
             .set(HasSecondaryContactPage, false).success.value
 
-        val response = PlatformOperatorCreatedResponse("operator id")
+        val response = PlatformOperatorCreatedResponse(operatorId)
 
         val expectedRequest = CreatePlatformOperatorRequest(
           subscriptionId = "dprsId",
@@ -163,37 +165,82 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
         )
 
-        val expectedOperatorInfo = PlatformOperatorSummaryViewModel("operator id", "business", "email")
+        val expectedOperatorInfo = PlatformOperatorSummaryViewModel(operatorId, "business", "email")
+        val expectedSendEmailRequest = AddedPlatformOperatorRequest("email", "name", "business", operatorId)
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
-        when(mockRepository.set(any())) thenReturn Future.successful(true)
-        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+        "when send emails successful" in {
 
-        val app =
-          applicationBuilder(Some(answers))
-            .overrides(
-              bind[PlatformOperatorConnector].toInstance(mockConnector),
-              bind[SessionRepository].toInstance(mockRepository),
-              bind[AuditService].toInstance(mockAuditService)
-            )
-            .build()
+          when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
+          when(mockRepository.set(any())) thenReturn Future.successful(true)
+          when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
+          when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
-        running(app) {
-          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+          val app =
+            applicationBuilder(Some(answers))
+              .overrides(
+                bind[PlatformOperatorConnector].toInstance(mockConnector),
+                bind[SessionRepository].toInstance(mockRepository),
+                bind[EmailConnector].toInstance(mockEmailConnector),
+                bind[AuditService].toInstance(mockAuditService)
+              )
+              .build()
 
-          val result = route(app, request).value
+          running(app) {
+            val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
 
-          status(result) mustEqual SEE_OTHER
+            val result = route(app, request).value
 
-          redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(NormalMode, answers).url
-          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockRepository, times(1)).set(answersCaptor.capture())
-          verify(mockAuditService, times(1)).sendAudit(any())(any(),any(),any())
+            status(result) mustEqual SEE_OTHER
 
-          val savedAnswers = answersCaptor.getValue
-          savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual expectedOperatorInfo
+            redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(NormalMode, answers).url
+            verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+            verify(mockRepository, times(1)).set(answersCaptor.capture())
+            verify(mockEmailConnector, times(2)).send(eqTo(expectedSendEmailRequest))(any())
+            verify(mockAuditService, times(1)).sendAudit(any())(any(),any(),any())
+
+            val savedAnswers = answersCaptor.getValue
+            savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual expectedOperatorInfo
+          }
+
         }
+
+        "when send emails fail" in {
+          when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
+          when(mockRepository.set(any())) thenReturn Future.successful(true)
+          when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(false))
+          when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+
+          val app =
+            applicationBuilder(Some(answers))
+              .overrides(
+                bind[PlatformOperatorConnector].toInstance(mockConnector),
+                bind[SessionRepository].toInstance(mockRepository),
+                bind[EmailConnector].toInstance(mockEmailConnector),
+                bind[AuditService].toInstance(mockAuditService)
+              )
+              .build()
+
+          running(app) {
+            val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+            val result = route(app, request).value
+
+            status(result) mustEqual SEE_OTHER
+
+            redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(NormalMode, answers).url
+            verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+            verify(mockRepository, times(1)).set(answersCaptor.capture())
+            verify(mockEmailConnector, times(2)).send(eqTo(expectedSendEmailRequest))(any())
+            verify(mockAuditService, times(1)).sendAudit(any())(any(),any(),any())
+
+            val savedAnswers = answersCaptor.getValue
+            savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual expectedOperatorInfo
+          }
+
+        }
+
+
       }
 
       "must return a failed future when creating the operator fails" in {
@@ -230,6 +277,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
               bind[SessionRepository].toInstance(mockRepository),
+              bind[EmailConnector].toInstance(mockEmailConnector),
               bind[AuditService].toInstance(mockAuditService)
             )
             .build()
@@ -240,6 +288,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
           verify(mockRepository, never()).set(any())
+          verify(mockEmailConnector, never()).send(any())(any())
           verify(mockAuditService, times(1)).sendAudit(any())(any(),any(),any())
         }
       }
@@ -253,6 +302,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
               bind[SessionRepository].toInstance(mockRepository),
+              bind[EmailConnector].toInstance(mockEmailConnector),
               bind[AuditService].toInstance(mockAuditService)
             )
             .build()
@@ -263,6 +313,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, never()).createPlatformOperator(any())(any())
           verify(mockRepository, never()).set(any())
+          verify(mockEmailConnector, never()).send(any())(any())
           verify(mockAuditService, never()).sendAudit(any())(any(),any(),any())
         }
       }

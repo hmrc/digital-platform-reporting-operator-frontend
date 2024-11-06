@@ -31,6 +31,10 @@ sealed trait SendEmailRequest {
   def parameters: Map[String, String]
 }
 
+object SendEmailRequest {
+  implicit val format: OFormat[SendEmailRequest] = Json.format[SendEmailRequest]
+}
+
 final case class AddedPlatformOperatorRequest(to: List[String],
                                               templateId: String,
                                               parameters: Map[String, String]) extends SendEmailRequest
@@ -45,10 +49,12 @@ object AddedPlatformOperatorRequest {
             platformOperatorId: String): AddedPlatformOperatorRequest = AddedPlatformOperatorRequest(
     to = List(email),
     templateId = PlatformOperatorAddedTemplateId,
-    parameters = Map("userPrimaryContactName" -> name, "poBusinessName" -> businessName, "poId" -> platformOperatorId)
+    parameters = Map(
+      "userPrimaryContactName" -> name,
+      "poBusinessName" -> businessName,
+      "poId" -> platformOperatorId)
   )
 
-  // TODO: Check if this is correct
   def build(userAnswers: UserAnswers): EitherNec[Query, AddedPlatformOperatorRequest] = (
     userAnswers.getEither(PrimaryContactEmailPage),
     userAnswers.getEither(PrimaryContactNamePage),
@@ -66,16 +72,22 @@ object AddedAsPlatformOperatorRequest {
 
   def apply(email: String,
             platformOperatorContactName: String,
-            userBusinessName: String,
             platformOperatorId: String,
             platformOperatorBusinessName: String): AddedAsPlatformOperatorRequest = AddedAsPlatformOperatorRequest(
     to = List(email),
     templateId = PlatformOperatorAddedTemplateId,
     parameters = Map(
       "poPrimaryContactName" -> platformOperatorContactName,
-      "userBusinessName"     -> userBusinessName,
       "poId"                 -> platformOperatorId,
       "poBusinessName"       -> platformOperatorBusinessName
     )
   )
+
+  // TODO need to correct these
+  def build(userAnswers: UserAnswers): EitherNec[Query, AddedPlatformOperatorRequest] = (
+    userAnswers.getEither(PrimaryContactEmailPage),
+    userAnswers.getEither(PrimaryContactNamePage),
+    userAnswers.getEither(BusinessNamePage)
+  ).parMapN(AddedPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+
 }
