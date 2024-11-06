@@ -91,3 +91,57 @@ object AddedAsPlatformOperatorRequest {
   ).parMapN(AddedPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
 
 }
+
+final case class RemovedPlatformOperatorRequest(to: List[String],
+                                              templateId: String,
+                                              parameters: Map[String, String]) extends SendEmailRequest
+
+object RemovedPlatformOperatorRequest {
+  implicit val format: OFormat[RemovedPlatformOperatorRequest] = Json.format[RemovedPlatformOperatorRequest]
+  private val PlatformOperatorRemovedTemplateId: String = "dprs_removed_platform_operator"
+
+  def apply(email: String,
+            name: String,
+            businessName: String,
+            platformOperatorId: String): RemovedPlatformOperatorRequest = RemovedPlatformOperatorRequest(
+    to = List(email),
+    templateId = PlatformOperatorRemovedTemplateId,
+    parameters = Map(
+      "userPrimaryContactName" -> name,
+      "poBusinessName" -> businessName,
+      "poId" -> platformOperatorId)
+  )
+
+  def build(userAnswers: UserAnswers): EitherNec[Query, RemovedPlatformOperatorRequest] = (
+    userAnswers.getEither(PrimaryContactEmailPage),
+    userAnswers.getEither(PrimaryContactNamePage),
+    userAnswers.getEither(BusinessNamePage)
+  ).parMapN(RemovedPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+}
+
+final case class RemovedAsPlatformOperatorRequest(to: List[String],
+                                                templateId: String,
+                                                parameters: Map[String, String]) extends SendEmailRequest
+                                                
+object RemovedAsPlatformOperatorRequest {
+  implicit val format: OFormat[RemovedAsPlatformOperatorRequest] = Json.format[RemovedAsPlatformOperatorRequest]
+  private val PlatformOperatorRemovedTemplateId: String = "dprs_removed_as_platform_operator"
+
+  def apply(email: String,
+            name: String,
+            businessName: String,
+            platformOperatorId: String): RemovedAsPlatformOperatorRequest = RemovedAsPlatformOperatorRequest(
+    to = List(email),
+    templateId = PlatformOperatorRemovedTemplateId,
+    parameters = Map(
+      "poPrimaryContactName" -> name,
+      "poBusinessName" -> businessName,
+      "poId" -> platformOperatorId)
+  )
+
+  def build(userAnswers: UserAnswers): EitherNec[Query, RemovedAsPlatformOperatorRequest] = (
+    userAnswers.getEither(PrimaryContactEmailPage),
+    userAnswers.getEither(PrimaryContactNamePage),
+    userAnswers.getEither(BusinessNamePage)
+  ).parMapN(RemovedAsPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+}

@@ -16,19 +16,23 @@
 
 package controllers.update
 
-import connectors.PlatformOperatorConnector
+import connectors.{EmailConnector, PlatformOperatorConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.RemovePlatformOperatorAuditEventModel
+import models.email.requests.{RemovedAsPlatformOperatorRequest, RemovedPlatformOperatorRequest}
 import pages.update.BusinessNamePage
+import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
 import services.AuditService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.update.RemovePlatformOperatorView
 
 import javax.inject.Inject
@@ -44,7 +48,8 @@ class RemovePlatformOperatorController @Inject()(
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: RemovePlatformOperatorView,
                                                   connector: PlatformOperatorConnector,
-                                                  auditService: AuditService
+                                                  auditService: AuditService,
+                                                  emailConnector: EmailConnector
                                                 )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
@@ -58,6 +63,9 @@ class RemovePlatformOperatorController @Inject()(
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
+
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
     getAnswerAsync(BusinessNamePage) { businessName =>
 
       val form = formProvider(businessName)
@@ -73,6 +81,22 @@ class RemovePlatformOperatorController @Inject()(
               cleanedData    = request.userAnswers.copy(data = Json.obj())
               updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
               _              <- sessionRepository.set(updatedAnswers)
+              _              <- RemovedPlatformOperatorRequest.build(request.userAnswers).fold(
+                                errors => {
+                                  logger.warn(s"Unable to send removed platform operator email, path(s) missing:" +
+                                    s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                                  Future.successful(false)
+                                },
+                                request => emailConnector.send(request)
+                              )
+              _               <- RemovedAsPlatformOperatorRequest.build(request.userAnswers).fold(
+                                errors => {
+                                  logger.warn(s"Unable to send removed as platform operator email, path(s) missing:" +
+                                    s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                                  Future.successful(false)
+                                },
+                                request => emailConnector.send(request)
+                              )
               _              <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
                                   RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
             } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
