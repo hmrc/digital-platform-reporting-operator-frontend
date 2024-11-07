@@ -17,6 +17,7 @@
 package models.email.requests
 
 import builders.UserAnswersBuilder.{aUserAnswers, anEmptyUserAnswer}
+import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
@@ -29,13 +30,15 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
   with EitherValues {
 
   private val underTest = AddedPlatformOperatorRequest
+  val subscriptionInfo: SubscriptionInfo = SubscriptionInfo(
+    "id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email@example.com", None), None)
 
   ".apply(...)" - {
     "must create AddedPlatformOperatorRequest object" in {
-      AddedPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-business-name", "some-po-id") mustBe AddedPlatformOperatorRequest(
-        to = List("some.email@example.com"),
+      AddedPlatformOperatorRequest.apply("email@example.com", "first last", "some-business-name", "some-po-id") mustBe AddedPlatformOperatorRequest(
+        to = List("email@example.com"),
         templateId = "dprs_added_platform_operator",
-        parameters = Map("userPrimaryContactName" -> "some-name",
+        parameters = Map("userPrimaryContactName" -> "first last",
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-po-id")
       )
@@ -45,15 +48,15 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
   ".build(...)" - {
     "must return correct AddedPlatformOperatorRequest" in {
       val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
-        .set(PrimaryContactEmailPage, "some@example.com").success.value
+        .set(PrimaryContactEmailPage, "email@example.com").success.value
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers) mustBe Right(AddedPlatformOperatorRequest(
-        to = List("some@example.com"),
+      underTest.build(answers, subscriptionInfo) mustBe Right(AddedPlatformOperatorRequest(
+        to = List("email@example.com"),
         templateId = "dprs_added_platform_operator",
         parameters = Map(
-          "userPrimaryContactName" -> "some-name",
+          "userPrimaryContactName" -> "first last",
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-operator-id"
         )
@@ -62,14 +65,10 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
 
     "must return list of missing field errors when not found in user answers" in {
       val answers = aUserAnswers
-        .remove(PrimaryContactEmailPage).success.value
-        .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers)
+      val result = underTest.build(answers, subscriptionInfo)
       result.left.value.toChain.toList must contain theSameElementsAs Seq(
-        PrimaryContactEmailPage,
-        PrimaryContactNamePage,
         BusinessNamePage
       )
     }

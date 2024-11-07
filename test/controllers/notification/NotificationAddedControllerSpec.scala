@@ -17,19 +17,15 @@
 package controllers.notification
 
 import base.SpecBase
-import connectors.SubscriptionConnector
 import models.operator.NotificationType
 import models.operator.responses.NotificationDetails
-import pages.add.PrimaryContactEmailPage
 import pages.update.BusinessNamePage
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.NotificationDetailsQuery
-import repositories.SessionRepository
 import viewmodels.checkAnswers.notification.{DueDiligenceSummary, NotificationTypeSummary, OperatorIdSummary, OperatorNameSummary, ReportingPeriodSummary}
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.notification.NotificationAddedView
-import play.api.inject.bind
 
 import java.time.Instant
 

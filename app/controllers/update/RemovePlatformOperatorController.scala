@@ -16,7 +16,7 @@
 
 package controllers.update
 
-import connectors.{EmailConnector, PlatformOperatorConnector}
+import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
@@ -47,7 +47,8 @@ class RemovePlatformOperatorController @Inject()(
                                                   formProvider: RemovePlatformOperatorFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: RemovePlatformOperatorView,
-                                                  connector: PlatformOperatorConnector,
+                                                  platformConnector: PlatformOperatorConnector,
+                                                  subscriptionConnector: SubscriptionConnector,
                                                   auditService: AuditService,
                                                   emailConnector: EmailConnector
                                                 )(implicit ec: ExecutionContext)
@@ -77,27 +78,28 @@ class RemovePlatformOperatorController @Inject()(
         value =>
           if (value) {
             for {
-              _              <- connector.removePlatformOperator(operatorId)
+              _                 <- platformConnector.removePlatformOperator(operatorId)
               cleanedData    = request.userAnswers.copy(data = Json.obj())
-              updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
-              _              <- sessionRepository.set(updatedAnswers)
-              _              <- RemovedPlatformOperatorRequest.build(request.userAnswers).fold(
-                                errors => {
-                                  logger.warn(s"Unable to send removed platform operator email, path(s) missing:" +
-                                    s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                                  Future.successful(false)
-                                },
-                                request => emailConnector.send(request)
-                              )
-              _               <- RemovedAsPlatformOperatorRequest.build(request.userAnswers).fold(
-                                errors => {
-                                  logger.warn(s"Unable to send removed as platform operator email, path(s) missing:" +
-                                    s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                                  Future.successful(false)
-                                },
-                                request => emailConnector.send(request)
-                              )
-              _              <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
+              updatedAnswers    <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
+              _                 <- sessionRepository.set(updatedAnswers)
+              subscriptionInfo  <- subscriptionConnector.getSubscriptionInfo
+              _                 <- RemovedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo).fold(
+                                    errors => {
+                                      logger.warn(s"Unable to send removed platform operator email, path(s) missing:" +
+                                        s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                                      Future.successful(false)
+                                    },
+                                    request => emailConnector.send(request)
+                                  )
+              _                 <- RemovedAsPlatformOperatorRequest.build(request.userAnswers).fold(
+                                    errors => {
+                                      logger.warn(s"Unable to send removed as platform operator email, path(s) missing:" +
+                                        s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                                      Future.successful(false)
+                                    },
+                                    request => emailConnector.send(request)
+                                  )
+              _                  <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
                                   RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
             } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
           } else {

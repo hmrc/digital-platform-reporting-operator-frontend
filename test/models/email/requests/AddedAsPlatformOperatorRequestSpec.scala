@@ -28,9 +28,7 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
   with OptionValues
   with EitherValues {
 
-  private val underTest = AddedPlatformOperatorRequest
-
-  // TODO - update tests once correct fields have been applied
+  private val underTest = AddedAsPlatformOperatorRequest
 
   ".apply(...)" - {
     "must create AddedAsPlatformOperatorRequest object" in {

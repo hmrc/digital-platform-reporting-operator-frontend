@@ -17,7 +17,7 @@
 package controllers.update
 
 import com.google.inject.Inject
-import connectors.{EmailConnector, PlatformOperatorConnector}
+import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import models.UserAnswers
@@ -49,6 +49,7 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
+                                            subscriptionConnector: SubscriptionConnector,
                                             auditService: AuditService,
                                             emailConnector: EmailConnector
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport with Logging {
@@ -90,26 +91,27 @@ class CheckYourAnswersController @Inject()(
           errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
           updateRequest =>
           for {
-            _ <- connector.updatePlatformOperator(updateRequest)
-            _ <- UpdatedPlatformOperatorRequest.build(request.userAnswers).fold(
-                  errors => {
-                    logger.warn(s"Unable to send updated platform operator email, path(s) missing:" +
-                      s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                    Future.successful(false)
-                  },
-                  request => emailConnector.send(request)
-                )
-            _  <- UpdatedAsPlatformOperatorRequest.build(request.userAnswers).fold(
-                  errors => {
-                    logger.warn(s"Unable to send updated as platform operator email, path(s) missing:" +
-                      s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                    Future.successful(false)
-                  },
-                  request => emailConnector.send(request)
-                )
+            _                 <- connector.updatePlatformOperator(updateRequest)
+            subscriptionInfo  <- subscriptionConnector.getSubscriptionInfo
+            _                 <- UpdatedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo).fold(
+                                  errors => {
+                                    logger.warn(s"Unable to send updated platform operator email, path(s) missing:" +
+                                      s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                                    Future.successful(false)
+                                  },
+                                  request => emailConnector.send(request)
+                                )
+            _                 <- UpdatedAsPlatformOperatorRequest.build(request.userAnswers).fold(
+                                  errors => {
+                                    logger.warn(s"Unable to send updated as platform operator email, path(s) missing:" +
+                                      s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+                                    Future.successful(false)
+                                  },
+                                  request => emailConnector.send(request)
+                                )
             originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
-            _ <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](
-              ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
+            _                 <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](
+                                  ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
           } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))
         )
   }

@@ -17,7 +17,7 @@
 package controllers.add
 
 import com.google.inject.Inject
-import connectors.{EmailConnector, PlatformOperatorConnector}
+import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
@@ -52,6 +52,7 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
+                                            subscriptionConnector: SubscriptionConnector,
                                             sessionRepository: SessionRepository,
                                             auditService: AuditService,
                                             emailConnector: EmailConnector
@@ -99,7 +100,8 @@ class CheckYourAnswersController @Inject()(
               platformOperatorInfo =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
               updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
               _                    <- sessionRepository.set(updatedAnswers)
-              _                    <- AddedPlatformOperatorRequest.build(request.userAnswers).fold(
+              subscriptionInfo     <- subscriptionConnector.getSubscriptionInfo
+              _                    <- AddedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo).fold(
                                         errors => {
                                             logger.warn(s"Unable to send platform operator added email, path(s) missing:" +
                                               s"${errors.toChain.toList.map(_.path).mkString(", ")}")
