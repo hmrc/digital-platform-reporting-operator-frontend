@@ -66,12 +66,12 @@ object AddedPlatformOperatorRequest {
       "poId" -> platformOperatorId)
   )
 
-  def build(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo): EitherNec[Query, AddedPlatformOperatorRequest] = {
+  def build(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo, operatorId: String): EitherNec[Query, AddedPlatformOperatorRequest] = {
     val contactName: String = getContactName(subscriptionInfo)
     (
       Right(subscriptionInfo.primaryContact.email),
       userAnswers.getEither(BusinessNamePage)
-    ).parMapN(AddedPlatformOperatorRequest(_, contactName, _ , userAnswers.operatorId.get))
+    ).parMapN(AddedPlatformOperatorRequest(_, contactName, _ , operatorId))
   }
 }
 
@@ -96,11 +96,11 @@ object AddedAsPlatformOperatorRequest {
     )
   )
 
-  def build(userAnswers: UserAnswers): EitherNec[Query, AddedPlatformOperatorRequest] = (
+  def build(userAnswers: UserAnswers, operatorId: String): EitherNec[Query, AddedPlatformOperatorRequest] = (
     userAnswers.getEither(PrimaryContactEmailPage),
     userAnswers.getEither(PrimaryContactNamePage),
     userAnswers.getEither(BusinessNamePage)
-  ).parMapN(AddedPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+  ).parMapN(AddedPlatformOperatorRequest(_, _, _, operatorId))
 
 }
 

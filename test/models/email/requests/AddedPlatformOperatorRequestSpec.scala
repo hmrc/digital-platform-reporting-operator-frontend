@@ -52,7 +52,7 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, subscriptionInfo) mustBe Right(AddedPlatformOperatorRequest(
+      underTest.build(answers, subscriptionInfo, "some-operator-id") mustBe Right(AddedPlatformOperatorRequest(
         to = List("email@example.com"),
         templateId = "dprs_added_platform_operator",
         parameters = Map(
@@ -67,7 +67,7 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
       val answers = aUserAnswers
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, subscriptionInfo)
+      val result = underTest.build(answers, subscriptionInfo, "some-operator-id")
       result.left.value.toChain.toList must contain theSameElementsAs Seq(
         BusinessNamePage
       )

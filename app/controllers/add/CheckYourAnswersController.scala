@@ -101,7 +101,7 @@ class CheckYourAnswersController @Inject()(
               updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
               _                    <- sessionRepository.set(updatedAnswers)
               subscriptionInfo     <- subscriptionConnector.getSubscriptionInfo
-              _                    <- AddedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo).fold(
+              _                    <- AddedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo, createResponse.operatorId).fold(
                                         errors => {
                                             logger.warn(s"Unable to send platform operator added email, path(s) missing:" +
                                               s"${errors.toChain.toList.map(_.path).mkString(", ")}")
@@ -109,7 +109,7 @@ class CheckYourAnswersController @Inject()(
                                         },
                                         request => emailConnector.send(request)
                                       )
-              _                    <- AddedAsPlatformOperatorRequest.build(request.userAnswers).fold(
+              _                    <- AddedAsPlatformOperatorRequest.build(request.userAnswers, createResponse.operatorId).fold(
                                         errors => {
                                           logger.warn(s"Unable to send platform operator added email, path(s) missing:" +
                                             s"${errors.toChain.toList.map(_.path).mkString(", ")}")
