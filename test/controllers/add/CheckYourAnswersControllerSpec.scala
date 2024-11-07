@@ -149,7 +149,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "name").success.value
+            .set(PrimaryContactNamePage, "first last").success.value
             .set(PrimaryContactEmailPage, "email").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
             .set(HasSecondaryContactPage, false).success.value
@@ -162,14 +162,14 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           tinDetails = Seq.empty,
           businessName = None,
           tradingName = None,
-          primaryContactDetails = ContactDetails(None, "name", "email"),
+          primaryContactDetails = ContactDetails(None, "first last", "email"),
           secondaryContactDetails = None,
           addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
         )
 
         val expectedOperatorInfo = PlatformOperatorSummaryViewModel(operatorId, "business", "email")
         val expectedSendEmailRequest = AddedPlatformOperatorRequest("email", "first last", "business", operatorId)
-        val expectedSendAsEmailRequest = AddedPlatformOperatorRequest("email", "name", "business", operatorId)
+        val expectedSendAsEmailRequest = AddedPlatformOperatorRequest("email", "first last", "business", operatorId)
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
 

@@ -17,25 +17,28 @@
 package models.email.requests
 
 import builders.UserAnswersBuilder.{aUserAnswers, anEmptyUserAnswer}
+import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
 
-class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
+class RemovedPlatformOperatorRequestSpec extends AnyFreeSpec
   with Matchers
   with TryValues
   with OptionValues
   with EitherValues {
 
-  private val underTest = AddedAsPlatformOperatorRequest
+  private val underTest = RemovedPlatformOperatorRequest
+  val subscriptionInfo: SubscriptionInfo = SubscriptionInfo(
+    "id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email@example.com", None), None)
 
   ".apply(...)" - {
-    "must create AddedAsPlatformOperatorRequest object" in {
-      AddedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-po-id", "some-business-name") mustBe AddedAsPlatformOperatorRequest(
-        to = List("some.email@example.com"),
-        templateId = "dprs_added_as_platform_operator",
-        parameters = Map("poPrimaryContactName" -> "some-name",
+    "must create RemovedPlatformOperatorRequest object" in {
+      RemovedPlatformOperatorRequest.apply("email@example.com", "first last", "some-business-name", "some-po-id") mustBe RemovedPlatformOperatorRequest(
+        to = List("email@example.com"),
+        templateId = "dprs_removed_platform_operator",
+        parameters = Map("userPrimaryContactName" -> "first last",
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-po-id")
       )
@@ -43,17 +46,17 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
   }
 
   ".build(...)" - {
-    "must return correct AddedAsPlatformOperatorRequest" in {
+    "must return correct RemovedPlatformOperatorRequest" in {
       val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
-        .set(PrimaryContactEmailPage, "some@example.com").success.value
+        .set(PrimaryContactEmailPage, "email@example.com").success.value
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, "some-operator-id") mustBe Right(AddedAsPlatformOperatorRequest(
-        to = List("some@example.com"),
-        templateId = "dprs_added_as_platform_operator",
+      underTest.build(answers, subscriptionInfo) mustBe Right(RemovedPlatformOperatorRequest(
+        to = List("email@example.com"),
+        templateId = "dprs_removed_platform_operator",
         parameters = Map(
-          "poPrimaryContactName" -> "some-name",
+          "userPrimaryContactName" -> "first last",
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-operator-id"
         )
@@ -62,14 +65,10 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
 
     "must return list of missing field errors when not found in user answers" in {
       val answers = aUserAnswers
-        .remove(PrimaryContactEmailPage).success.value
-        .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, "some-operator-id")
+      val result = underTest.build(answers, subscriptionInfo)
       result.left.value.toChain.toList must contain theSameElementsAs Seq(
-        PrimaryContactEmailPage,
-        PrimaryContactNamePage,
         BusinessNamePage
       )
     }

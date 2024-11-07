@@ -22,19 +22,19 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
 
-class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
+class RemovedAsPlatformOperatorRequestSpec extends AnyFreeSpec
   with Matchers
   with TryValues
   with OptionValues
   with EitherValues {
 
-  private val underTest = AddedAsPlatformOperatorRequest
+  private val underTest = RemovedAsPlatformOperatorRequest
 
   ".apply(...)" - {
-    "must create AddedAsPlatformOperatorRequest object" in {
-      AddedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-po-id", "some-business-name") mustBe AddedAsPlatformOperatorRequest(
+    "must create RemovedAsPlatformOperatorRequest object" in {
+      RemovedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-business-name", "some-po-id") mustBe RemovedAsPlatformOperatorRequest(
         to = List("some.email@example.com"),
-        templateId = "dprs_added_as_platform_operator",
+        templateId = "dprs_removed_as_platform_operator",
         parameters = Map("poPrimaryContactName" -> "some-name",
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-po-id")
@@ -43,15 +43,15 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
   }
 
   ".build(...)" - {
-    "must return correct AddedAsPlatformOperatorRequest" in {
+    "must return correct RemovedAsPlatformOperatorRequest" in {
       val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
         .set(PrimaryContactEmailPage, "some@example.com").success.value
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, "some-operator-id") mustBe Right(AddedAsPlatformOperatorRequest(
+      underTest.build(answers) mustBe Right(RemovedAsPlatformOperatorRequest(
         to = List("some@example.com"),
-        templateId = "dprs_added_as_platform_operator",
+        templateId = "dprs_removed_as_platform_operator",
         parameters = Map(
           "poPrimaryContactName" -> "some-name",
           "poBusinessName" -> "some-business-name",
@@ -66,7 +66,7 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
         .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, "some-operator-id")
+      val result = underTest.build(answers)
       result.left.value.toChain.toList must contain theSameElementsAs Seq(
         PrimaryContactEmailPage,
         PrimaryContactNamePage,

@@ -96,11 +96,11 @@ object AddedAsPlatformOperatorRequest {
     )
   )
 
-  def build(userAnswers: UserAnswers, operatorId: String): EitherNec[Query, AddedPlatformOperatorRequest] = (
+  def build(userAnswers: UserAnswers, operatorId: String): EitherNec[Query, AddedAsPlatformOperatorRequest] = (
     userAnswers.getEither(PrimaryContactEmailPage),
     userAnswers.getEither(PrimaryContactNamePage),
     userAnswers.getEither(BusinessNamePage)
-  ).parMapN(AddedPlatformOperatorRequest(_, _, _, operatorId))
+  ).parMapN(AddedAsPlatformOperatorRequest(_, _, operatorId, _))
 
 }
 
