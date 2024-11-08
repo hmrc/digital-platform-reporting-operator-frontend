@@ -31,9 +31,7 @@ import queries.OriginalPlatformOperatorQuery
 import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.update._
 import viewmodels.govuk.summarylist._
 import views.html.update.CheckYourAnswersView
@@ -84,7 +82,7 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
 
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      super.hc(request)
 
       userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId)
         .fold(

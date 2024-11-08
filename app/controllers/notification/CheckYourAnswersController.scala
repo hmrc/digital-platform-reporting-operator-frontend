@@ -30,9 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService.BuildAddNotificationRequestFailure
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.notification._
 import viewmodels.govuk.summarylist._
 import views.html.notification.CheckYourAnswersView
@@ -71,7 +69,7 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
 
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      super.hc(request)
 
       userAnswersService.addNotificationRequest(request.userAnswers, request.dprsId, operatorId)
         .fold(

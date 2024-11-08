@@ -29,9 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.update.RemovePlatformOperatorView
 
 import javax.inject.Inject
@@ -64,7 +62,7 @@ class RemovePlatformOperatorController @Inject()(
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
 
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    super.hc(request)
 
     getAnswerAsync(BusinessNamePage) { businessName =>
 

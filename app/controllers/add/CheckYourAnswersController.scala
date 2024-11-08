@@ -33,9 +33,7 @@ import repositories.SessionRepository
 import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.add._
 import viewmodels.govuk.summarylist._
@@ -88,7 +86,7 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
     implicit request =>
 
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      super.hc(request)
 
       userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId)
         .fold(
