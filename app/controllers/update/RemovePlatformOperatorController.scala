@@ -16,20 +16,19 @@
 
 package controllers.update
 
-import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.RemovePlatformOperatorAuditEventModel
 import models.email.requests.{RemovedAsPlatformOperatorRequest, RemovedPlatformOperatorRequest}
 import pages.update.BusinessNamePage
-import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
-import services.AuditService
+import services.{AuditService, EmailService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -50,7 +49,7 @@ class RemovePlatformOperatorController @Inject()(
                                                   platformConnector: PlatformOperatorConnector,
                                                   subscriptionConnector: SubscriptionConnector,
                                                   auditService: AuditService,
-                                                  emailConnector: EmailConnector
+                                                  emailService: EmailService
                                                 )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
@@ -83,23 +82,9 @@ class RemovePlatformOperatorController @Inject()(
               updatedAnswers    <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
               _                 <- sessionRepository.set(updatedAnswers)
               subscriptionInfo  <- subscriptionConnector.getSubscriptionInfo
-              _                 <- RemovedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo).fold(
-                                    errors => {
-                                      logger.warn(s"Unable to send removed platform operator email, path(s) missing:" +
-                                        s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                                      Future.successful(false)
-                                    },
-                                    request => emailConnector.send(request)
-                                  )
-              _                 <- RemovedAsPlatformOperatorRequest.build(request.userAnswers).fold(
-                                    errors => {
-                                      logger.warn(s"Unable to send removed as platform operator email, path(s) missing:" +
-                                        s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                                      Future.successful(false)
-                                    },
-                                    request => emailConnector.send(request)
-                                  )
-              _                  <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
+              _                 <- emailService.sendEmail(RemovedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo))
+              _                 <- emailService.sendEmail(RemovedAsPlatformOperatorRequest.build(request.userAnswers))
+              _                 <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
                                   RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
             } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
           } else {

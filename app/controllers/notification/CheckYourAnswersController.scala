@@ -17,7 +17,7 @@
 package controllers.notification
 
 import com.google.inject.Inject
-import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.actions.{DataRequiredAction, DataRetrievalActionProvider, IdentifierAction}
 import models.NormalMode
@@ -28,7 +28,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.{AuditService, UserAnswersService}
+import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService.BuildAddNotificationRequestFailure
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -51,7 +51,7 @@ class CheckYourAnswersController @Inject()(
                                             subscriptionConnector: SubscriptionConnector,
                                             sessionRepository: SessionRepository,
                                             auditService: AuditService,
-                                            emailConnector: EmailConnector
+                                            emailService: EmailService
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
@@ -83,22 +83,8 @@ class CheckYourAnswersController @Inject()(
               newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
               _                       <- sessionRepository.set(newAnswers)
               subscriptionInfo        <- subscriptionConnector.getSubscriptionInfo
-              _                       <- AddedReportingNotificationRequest.build(request.userAnswers, subscriptionInfo).fold(
-                                          errors => {
-                                            logger.warn(s"Unable to send updated platform operator email, path(s) missing:" +
-                                              s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                                            Future.successful(false)
-                                          },
-                                          request => emailConnector.send(request)
-                                        )
-            _                         <- AddedAsReportingNotificationRequest.build(request.userAnswers, addNotificationRequest).fold(
-                                          errors => {
-                                            logger.warn(s"Unable to send updated as platform operator email, path(s) missing:" +
-                                              s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-                                            Future.successful(false)
-                                          },
-                                          request => emailConnector.send(request)
-                                        )
+              _                       <- emailService.sendEmail(AddedReportingNotificationRequest.build(request.userAnswers, subscriptionInfo))
+              _                       <- emailService.sendEmail(AddedAsReportingNotificationRequest.build(request.userAnswers, addNotificationRequest))
               _                       <- auditService.sendAudit[CreateReportingNotificationAuditEventModel](
                 CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))).recover {
