@@ -21,7 +21,7 @@ import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
-import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
+import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
 
 class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
   with Matchers
@@ -47,9 +47,8 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
 
   ".build(...)" - {
     "must return correct AddedPlatformOperatorRequest" in {
-      val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
+      val answers = anEmptyUserAnswer
         .set(PrimaryContactEmailPage, "email@example.com").success.value
-        .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
       underTest.build(answers, subscriptionInfo, "some-operator-id") mustBe Right(AddedPlatformOperatorRequest(
