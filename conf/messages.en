@@ -475,7 +475,7 @@ reportingPeriod.change.hidden = the reportable period
 
 notificationAdded.title = Reporting notification added
 notificationAdded.panel.heading = Reporting notification added
-notificationAdded.p1 = A new reporting notification has been successfully added for {0}.
+notificationAdded.p1 = A new reporting notification has been successfully added for {0}. We have sent a confirmation email to {1} and {2}.
 notificationAdded.h2 = What you need to do next
 notificationAdded.p2 = To send submissions for this platform operator,
 notificationAdded.p2.link.text = return to manage your digital platform reporting
