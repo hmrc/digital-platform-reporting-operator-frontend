@@ -32,12 +32,11 @@ class UpdatedAsPlatformOperatorRequestSpec extends AnyFreeSpec
 
   ".apply(...)" - {
     "must create UpdatedAsPlatformOperatorRequest object" in {
-      UpdatedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-business-name", "some-po-id") mustBe UpdatedAsPlatformOperatorRequest(
+      UpdatedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-business-name") mustBe UpdatedAsPlatformOperatorRequest(
         to = List("some.email@example.com"),
         templateId = "dprs_updated_as_platform_operator",
         parameters = Map("poPrimaryContactName" -> "some-name",
-          "poBusinessName" -> "some-business-name",
-          "poId" -> "some-po-id")
+          "poBusinessName" -> "some-business-name")
       )
     }
   }
@@ -54,8 +53,7 @@ class UpdatedAsPlatformOperatorRequestSpec extends AnyFreeSpec
         templateId = "dprs_updated_as_platform_operator",
         parameters = Map(
           "poPrimaryContactName" -> "some-name",
-          "poBusinessName" -> "some-business-name",
-          "poId" -> "some-operator-id"
+          "poBusinessName" -> "some-business-name"
         )
       ))
     }

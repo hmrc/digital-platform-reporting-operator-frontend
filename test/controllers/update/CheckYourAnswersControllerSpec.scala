@@ -182,8 +182,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           notification = None
         )
 
-        val expectedSendEmailRequest = UpdatedPlatformOperatorRequest("email", "first last", "business", operatorId)
-        val expectedSendAsEmailRequest = UpdatedAsPlatformOperatorRequest("email", "name", "business", operatorId)
+        val expectedSendEmailRequest = UpdatedPlatformOperatorRequest("email", "first last", "business")
+        val expectedSendAsEmailRequest = UpdatedAsPlatformOperatorRequest("email", "name", "business")
         val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
 
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)

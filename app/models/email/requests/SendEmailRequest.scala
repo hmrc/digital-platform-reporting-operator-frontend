@@ -170,14 +170,12 @@ object UpdatedPlatformOperatorRequest {
 
   def apply(email: String,
             name: String,
-            businessName: String,
-            platformOperatorId: String): UpdatedPlatformOperatorRequest = UpdatedPlatformOperatorRequest(
+            businessName: String): UpdatedPlatformOperatorRequest = UpdatedPlatformOperatorRequest(
     to = List(email),
     templateId = PlatformOperatorUpdatedTemplateId,
     parameters = Map(
       "userPrimaryContactName" -> name,
-      "poBusinessName" -> businessName,
-      "poId" -> platformOperatorId)
+      "poBusinessName" -> businessName)
   )
 
   def build(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo): EitherNec[Query, UpdatedPlatformOperatorRequest] = {
@@ -185,7 +183,7 @@ object UpdatedPlatformOperatorRequest {
     (
       Right(subscriptionInfo.primaryContact.email),
       userAnswers.getEither(BusinessNamePage)
-    ).parMapN(UpdatedPlatformOperatorRequest(_, contactName, _ , userAnswers.operatorId.get))
+    ).parMapN(UpdatedPlatformOperatorRequest(_, contactName, _))
   }
 }
 
@@ -199,21 +197,19 @@ object UpdatedAsPlatformOperatorRequest {
 
   def apply(email: String,
             name: String,
-            businessName: String,
-            platformOperatorId: String): UpdatedAsPlatformOperatorRequest = UpdatedAsPlatformOperatorRequest(
+            businessName: String): UpdatedAsPlatformOperatorRequest = UpdatedAsPlatformOperatorRequest(
     to = List(email),
     templateId = PlatformOperatorUpdatedTemplateId,
     parameters = Map(
       "poPrimaryContactName" -> name,
-      "poBusinessName" -> businessName,
-      "poId" -> platformOperatorId)
+      "poBusinessName" -> businessName)
   )
 
   def build(userAnswers: UserAnswers): EitherNec[Query, UpdatedAsPlatformOperatorRequest] = (
     userAnswers.getEither(PrimaryContactEmailPage),
     userAnswers.getEither(PrimaryContactNamePage),
     userAnswers.getEither(BusinessNamePage)
-  ).parMapN(UpdatedAsPlatformOperatorRequest(_, _, _, userAnswers.operatorId.get))
+  ).parMapN(UpdatedAsPlatformOperatorRequest(_, _, _))
 }
 
 final case class AddedReportingNotificationRequest(to: List[String],
