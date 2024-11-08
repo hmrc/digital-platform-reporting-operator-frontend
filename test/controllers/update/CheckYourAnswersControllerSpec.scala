@@ -17,12 +17,14 @@
 package controllers.update
 
 import base.SpecBase
-import connectors.PlatformOperatorConnector
+import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
+import models.email.requests.{UpdatedAsPlatformOperatorRequest, UpdatedPlatformOperatorRequest}
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.operator.responses.{NotificationDetails, PlatformOperator}
 import models.operator.{AddressDetails, ContactDetails, NotificationType}
+import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import models.{Country, UkAddress}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
@@ -48,11 +50,13 @@ import scala.concurrent.Future
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
 
   private val mockConnector = mock[PlatformOperatorConnector]
+  private val mockSubscriptionConnector = mock[SubscriptionConnector]
   private val mockRepository = mock[SessionRepository]
   private val mockAuditService = mock[AuditService]
+  private val mockEmailConnector = mock[EmailConnector]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailConnector, mockSubscriptionConnector)
     super.beforeEach()
   }
 
@@ -178,14 +182,22 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           notification = None
         )
 
+        val expectedSendEmailRequest = UpdatedPlatformOperatorRequest("email", "first last", "business")
+        val expectedSendAsEmailRequest = UpdatedAsPlatformOperatorRequest("email", "name", "business")
+        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
+
         when(mockConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+        when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(subscriptionInfo))
+        when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app =
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
               bind[SessionRepository].toInstance(mockRepository),
+              bind[EmailConnector].toInstance(mockEmailConnector),
               bind[AuditService].toInstance(mockAuditService)
             )
             .build()
@@ -201,7 +213,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(operatorId, answers).url
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
           verify(mockRepository, never()).set(any())
+          verify(mockEmailConnector, times(1)).send(eqTo(expectedSendEmailRequest))(any())
+          verify(mockEmailConnector, times(1)).send(eqTo(expectedSendAsEmailRequest))(any())
           verify(mockAuditService, times(1)).sendAudit(
             eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(),any(),any())
         }
@@ -243,7 +258,9 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
               bind[SessionRepository].toInstance(mockRepository),
+              bind[EmailConnector].toInstance(mockEmailConnector),
               bind[AuditService].toInstance(mockAuditService)
             )
             .build()
@@ -253,7 +270,9 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
           verify(mockRepository, never()).set(any())
+          verify(mockEmailConnector, never()).send(any())(any())
           verify(mockAuditService, never()).sendAudit(any())(any(),any(),any())
         }
       }
@@ -266,6 +285,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           applicationBuilder(Some(answers))
             .overrides(
               bind[PlatformOperatorConnector].toInstance(mockConnector),
+              bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+              bind[EmailConnector].toInstance(mockEmailConnector),
               bind[SessionRepository].toInstance(mockRepository)
             )
             .build()
@@ -275,6 +296,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           route(app, request).value.failed.futureValue
           verify(mockConnector, never()).createPlatformOperator(any())(any())
+          verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
+          verify(mockEmailConnector, never()).send(any())(any())
           verify(mockRepository, never()).set(any())
         }
       }

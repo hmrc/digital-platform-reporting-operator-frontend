@@ -16,18 +16,19 @@
 
 package controllers.update
 
-import connectors.PlatformOperatorConnector
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.RemovePlatformOperatorAuditEventModel
+import models.email.requests.{RemovedAsPlatformOperatorRequest, RemovedPlatformOperatorRequest}
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
-import services.AuditService
+import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.update.RemovePlatformOperatorView
 
@@ -43,8 +44,10 @@ class RemovePlatformOperatorController @Inject()(
                                                   formProvider: RemovePlatformOperatorFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: RemovePlatformOperatorView,
-                                                  connector: PlatformOperatorConnector,
-                                                  auditService: AuditService
+                                                  platformConnector: PlatformOperatorConnector,
+                                                  subscriptionConnector: SubscriptionConnector,
+                                                  auditService: AuditService,
+                                                  emailService: EmailService
                                                 )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
@@ -58,6 +61,9 @@ class RemovePlatformOperatorController @Inject()(
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
+
+    super.hc(request)
+
     getAnswerAsync(BusinessNamePage) { businessName =>
 
       val form = formProvider(businessName)
@@ -69,11 +75,14 @@ class RemovePlatformOperatorController @Inject()(
         value =>
           if (value) {
             for {
-              _              <- connector.removePlatformOperator(operatorId)
+              _                 <- platformConnector.removePlatformOperator(operatorId)
               cleanedData    = request.userAnswers.copy(data = Json.obj())
-              updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
-              _              <- sessionRepository.set(updatedAnswers)
-              _              <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
+              updatedAnswers    <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
+              _                 <- sessionRepository.set(updatedAnswers)
+              subscriptionInfo  <- subscriptionConnector.getSubscriptionInfo
+              _                 <- emailService.sendEmail(RemovedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo))
+              _                 <- emailService.sendEmail(RemovedAsPlatformOperatorRequest.build(request.userAnswers))
+              _                 <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
                                   RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
             } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
           } else {

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package builders
+package base
 
-import models.UserAnswers
-import play.api.libs.json.Json
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.test.WireMockSupport
 
-object UserAnswersBuilder {
+trait ConnectorSpecBase extends SpecBase
+  with ScalaFutures
+  with IntegrationPatience
+  with WireMockSupport
+  with GuiceOneAppPerSuite {
 
-  val aUserAnswers: UserAnswers = UserAnswers(
-    userId = "default-user-id",
-    operatorId = Some("default-operator-id"),
-    data = Json.obj()
-  )
-
-  val anEmptyUserAnswer: UserAnswers = aUserAnswers.copy(operatorId = None)
+  implicit protected lazy val hc: HeaderCarrier = HeaderCarrier()
 }

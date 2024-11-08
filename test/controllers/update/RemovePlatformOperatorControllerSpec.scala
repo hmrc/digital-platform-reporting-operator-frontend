@@ -17,17 +17,19 @@
 package controllers.update
 
 import base.SpecBase
-import connectors.PlatformOperatorConnector
+import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
 import forms.RemovePlatformOperatorFormProvider
-import models.UserAnswers
+import models.{Country, UkAddress, UserAnswers}
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
+import models.email.requests.{RemovedAsPlatformOperatorRequest, RemovedPlatformOperatorRequest}
+import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.update.BusinessNamePage
+import pages.update.{BusinessNamePage, CanPhonePrimaryContactPage, HasSecondaryContactPage, HasTaxIdentifierPage, HasTradingNamePage, PrimaryContactEmailPage, PrimaryContactNamePage, RegisteredInUkPage, TaxResidentInUkPage, UkAddressPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -42,17 +44,19 @@ import scala.concurrent.Future
 class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private val mockConnector = mock[PlatformOperatorConnector]
+  private val mockSubscriptionConnector = mock[SubscriptionConnector]
   private val mockRepository = mock[SessionRepository]
   private val mockAuditService = mock[AuditService]
+  private val mockEmailConnector = mock[EmailConnector]
 
   private val formProvider = new RemovePlatformOperatorFormProvider()
-  private val businessName = "name"
+  private val businessName = "businessName"
   private val form = formProvider(businessName)
 
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailConnector, mockSubscriptionConnector)
     super.beforeEach()
   }
 
@@ -76,17 +80,37 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
     "must remove the platform operator and redirect to Platform Operator Removed for a POST when the answer is yes" in {
 
+      val answers =
+        UserAnswers(userAnswersId, Some(operatorId))
+          .set(BusinessNamePage, "business").success.value
+          .set(HasTradingNamePage, false).success.value
+          .set(TaxResidentInUkPage, true).success.value
+          .set(HasTaxIdentifierPage, false).success.value
+          .set(RegisteredInUkPage, true).success.value
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+          .set(PrimaryContactNamePage, "name").success.value
+          .set(PrimaryContactEmailPage, "email").success.value
+          .set(CanPhonePrimaryContactPage, false).success.value
+          .set(HasSecondaryContactPage, false).success.value
+
       val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+      val expectedSendEmailRequest = RemovedPlatformOperatorRequest("email", "first last", "business", operatorId)
+      val expectedSendAsEmailRequest = RemovedAsPlatformOperatorRequest("email", "name", "business", operatorId)
+      val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
 
       when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(subscriptionInfo))
       when(mockRepository.set(any())) thenReturn Future.successful(true)
       when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
 
       val application =
-        applicationBuilder(userAnswers = Some(baseAnswers))
+        applicationBuilder(userAnswers = Some(answers))
           .overrides(
             bind[PlatformOperatorConnector].toInstance(mockConnector),
             bind[SessionRepository].toInstance(mockRepository),
+            bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+            bind[EmailConnector].toInstance(mockEmailConnector),
             bind[AuditService].toInstance(mockAuditService)
           )
           .build()
@@ -95,7 +119,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val request =
           FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
             .withFormUrlEncodedBody(("value", "true"))
-        val businessName: String = "name"
+        val businessName: String = "business"
         val auditType: String = "RemovePlatformOperator"
         val expectedAuditEvent = RemovePlatformOperatorAuditEventModel(businessName, operatorId)
         val result = route(application, request).value
@@ -105,11 +129,14 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
         verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
+        verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
+        verify(mockEmailConnector, times(1)).send(eqTo(expectedSendEmailRequest))(any())
+        verify(mockEmailConnector, times(1)).send(eqTo(expectedSendAsEmailRequest))(any())
         verify(mockAuditService, times(1)).sendAudit(
           eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(),any(),any())
 
         val savedAnswers = answersCaptor.getValue
-        savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual "name"
+        savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual "business"
       }
     }
 
@@ -120,6 +147,8 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
           .overrides(
             bind[PlatformOperatorConnector].toInstance(mockConnector),
             bind[SessionRepository].toInstance(mockRepository),
+            bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+            bind[EmailConnector].toInstance(mockEmailConnector),
             bind[AuditService].toInstance(mockAuditService)
           )
           .build()
@@ -135,7 +164,9 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         redirectLocation(result).value mustEqual routes.PlatformOperatorController.onPageLoad(operatorId).url
 
         verify(mockConnector, never()).removePlatformOperator(any())(any())
+        verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
         verify(mockRepository, never()).clear(any(), any())
+        verify(mockEmailConnector, never()).send(any())(any())
         verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
       }
     }

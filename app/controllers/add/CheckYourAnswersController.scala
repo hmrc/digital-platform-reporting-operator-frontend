@@ -17,18 +17,20 @@
 package controllers.add
 
 import com.google.inject.Inject
-import connectors.PlatformOperatorConnector
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
+import models.email.requests.{AddedAsPlatformOperatorRequest, AddedPlatformOperatorRequest}
 import models.{NormalMode, UserAnswers}
 import pages.add.{CheckYourAnswersPage, HasSecondaryContactPage}
+import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
-import services.{AuditService, UserAnswersService}
+import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -38,8 +40,6 @@ import viewmodels.govuk.summarylist._
 import views.html.add.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Failure
-import scala.util.control.NonFatal
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
@@ -50,9 +50,11 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
+                                            subscriptionConnector: SubscriptionConnector,
                                             sessionRepository: SessionRepository,
                                             auditService: AuditService,
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                            emailService: EmailService
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
     implicit request =>
@@ -84,6 +86,8 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
     implicit request =>
 
+      super.hc(request)
+
       userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId)
         .fold(
           errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
@@ -94,12 +98,18 @@ class CheckYourAnswersController @Inject()(
               platformOperatorInfo =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
               updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
               _                    <- sessionRepository.set(updatedAnswers)
+              subscriptionInfo     <- subscriptionConnector.getSubscriptionInfo
+              _                    <- emailService.sendEmail(AddedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo, createResponse.operatorId))
+              _                    <- emailService.sendEmail(AddedAsPlatformOperatorRequest.build(request.userAnswers, createResponse.operatorId))
               _                    <- auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
                 CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
-              error =>
+              case error: CreatePlatformOperatorFailure =>
                 auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-                  CreatePlatformOperatorAuditEventModel(createRequest, error.asInstanceOf[CreatePlatformOperatorFailure].status).toAuditModel)
+                  CreatePlatformOperatorAuditEventModel(createRequest, error.status).toAuditModel
+                )
+                throw error
+              case error =>
                 throw error
             }
         )

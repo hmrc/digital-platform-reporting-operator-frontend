@@ -16,16 +16,16 @@
 
 package builders
 
-import models.UserAnswers
-import play.api.libs.json.Json
+import models.email.requests.{AddedPlatformOperatorRequest, SendEmailRequest}
 
-object UserAnswersBuilder {
+object SendEmailRequestBuilder {
 
-  val aUserAnswers: UserAnswers = UserAnswers(
-    userId = "default-user-id",
-    operatorId = Some("default-operator-id"),
-    data = Json.obj()
+  val aSendEmailRequest: SendEmailRequest = AddedPlatformOperatorRequest(
+    to = List("default.email@example.com"),
+    templateId = "default-template-id",
+    parameters = Map(
+      "param-1" -> "value-1",
+      "param-" -> "value-2"
+    )
   )
-
-  val anEmptyUserAnswer: UserAnswers = aUserAnswers.copy(operatorId = None)
 }

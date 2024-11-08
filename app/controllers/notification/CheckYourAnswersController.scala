@@ -17,16 +17,18 @@
 package controllers.notification
 
 import com.google.inject.Inject
-import connectors.PlatformOperatorConnector
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.actions.{DataRequiredAction, DataRetrievalActionProvider, IdentifierAction}
 import models.NormalMode
 import models.audit.CreateReportingNotificationAuditEventModel
+import models.email.requests.{AddedAsReportingNotificationRequest, AddedReportingNotificationRequest}
 import pages.notification.CheckYourAnswersPage
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.{AuditService, UserAnswersService}
+import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService.BuildAddNotificationRequestFailure
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.notification._
@@ -44,9 +46,11 @@ class CheckYourAnswersController @Inject()(
                                             view: CheckYourAnswersView,
                                             userAnswersService: UserAnswersService,
                                             connector: PlatformOperatorConnector,
+                                            subscriptionConnector: SubscriptionConnector,
                                             sessionRepository: SessionRepository,
                                             auditService: AuditService,
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                            emailService: EmailService
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
     implicit request =>
@@ -64,6 +68,9 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
+
+      super.hc(request)
+
       userAnswersService.addNotificationRequest(request.userAnswers, request.dprsId, operatorId)
         .fold(
           errors => Future.failed(BuildAddNotificationRequestFailure(errors)),
@@ -73,6 +80,9 @@ class CheckYourAnswersController @Inject()(
               updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
               newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
               _                       <- sessionRepository.set(newAnswers)
+              subscriptionInfo        <- subscriptionConnector.getSubscriptionInfo
+              _                       <- emailService.sendEmail(AddedReportingNotificationRequest.build(request.userAnswers, subscriptionInfo))
+              _                       <- emailService.sendEmail(AddedAsReportingNotificationRequest.build(request.userAnswers, addNotificationRequest))
               _                       <- auditService.sendAudit[CreateReportingNotificationAuditEventModel](
                 CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))).recover {
