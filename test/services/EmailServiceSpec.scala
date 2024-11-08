@@ -18,11 +18,9 @@ package services
 
 import base.SpecBase
 import builders.UserAnswersBuilder.anEmptyUserAnswer
-import cats.data.Chain
 import connectors.EmailConnector
 import models.email.requests.AddedPlatformOperatorRequest
 import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
-import org.apache.pekko.http.scaladsl.model.Uri.Query
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
 import org.mockito.Mockito.{never, times, verify, when}
