@@ -24,7 +24,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(operatorId: String, businessName: String, list: SummaryList)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, businessName: String, list: SummaryList, subscriptionPrimaryEmail: String, poPrimaryEmail: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("notificationAdded.title")),
@@ -37,7 +37,7 @@
 
     @govukSummaryList(list)
 
-    <p class="govuk-body">@messages("notificationAdded.p1", businessName)</p>
+    <p class="govuk-body">@messages("notificationAdded.p1", businessName, subscriptionPrimaryEmail, poPrimaryEmail)</p>
 
     <h2 class="govuk-heading-m">@messages("notificationAdded.h2")</h2>
 
