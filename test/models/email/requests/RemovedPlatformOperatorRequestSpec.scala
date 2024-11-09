@@ -16,12 +16,12 @@
 
 package models.email.requests
 
+import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import builders.UserAnswersBuilder.{aUserAnswers, anEmptyUserAnswer}
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
-import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
+import pages.add.BusinessNamePage
 
 class RemovedPlatformOperatorRequestSpec extends AnyFreeSpec
   with Matchers
@@ -30,8 +30,6 @@ class RemovedPlatformOperatorRequestSpec extends AnyFreeSpec
   with EitherValues {
 
   private val underTest = RemovedPlatformOperatorRequest
-  val subscriptionInfo: SubscriptionInfo = SubscriptionInfo(
-    "id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email@example.com", None), None)
 
   ".apply(...)" - {
     "must create RemovedPlatformOperatorRequest object" in {
@@ -48,15 +46,13 @@ class RemovedPlatformOperatorRequestSpec extends AnyFreeSpec
   ".build(...)" - {
     "must return correct RemovedPlatformOperatorRequest" in {
       val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
-        .set(PrimaryContactEmailPage, "email@example.com").success.value
-        .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, subscriptionInfo) mustBe Right(RemovedPlatformOperatorRequest(
-        to = List("email@example.com"),
+      underTest.build(answers, aSubscriptionInfo) mustBe Right(RemovedPlatformOperatorRequest(
+        to = List(aSubscriptionInfo.primaryContact.email),
         templateId = "dprs_removed_platform_operator",
         parameters = Map(
-          "userPrimaryContactName" -> "first last",
+          "userPrimaryContactName" -> aSubscriptionInfo.primaryContactName,
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-operator-id"
         )
@@ -67,11 +63,8 @@ class RemovedPlatformOperatorRequestSpec extends AnyFreeSpec
       val answers = aUserAnswers
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, subscriptionInfo)
-      result.left.value.toChain.toList must contain theSameElementsAs Seq(
-        BusinessNamePage
-      )
+      val result = underTest.build(answers, aSubscriptionInfo)
+      result.left.value.toChain.toList must contain theSameElementsAs Seq(BusinessNamePage)
     }
-
   }
 }

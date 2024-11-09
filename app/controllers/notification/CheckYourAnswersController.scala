@@ -22,7 +22,6 @@ import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.actions.{DataRequiredAction, DataRetrievalActionProvider, IdentifierAction}
 import models.NormalMode
 import models.audit.CreateReportingNotificationAuditEventModel
-import models.email.requests.{AddedAsReportingNotificationRequest, AddedReportingNotificationRequest}
 import pages.notification.CheckYourAnswersPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -69,28 +68,25 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
 
-      super.hc(request)
-
-      userAnswersService.addNotificationRequest(request.userAnswers, request.dprsId, operatorId)
-        .fold(
-          errors => Future.failed(BuildAddNotificationRequestFailure(errors)),
-          addNotificationRequest =>
-            (for {
-              _                       <- connector.updatePlatformOperator(addNotificationRequest)
-              updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
-              newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
-              _                       <- sessionRepository.set(newAnswers)
-              subscriptionInfo        <- subscriptionConnector.getSubscriptionInfo
-              _                       <- emailService.sendEmail(AddedReportingNotificationRequest.build(request.userAnswers, subscriptionInfo))
-              _                       <- emailService.sendEmail(AddedAsReportingNotificationRequest.build(request.userAnswers, addNotificationRequest))
-              _                       <- auditService.sendAudit[CreateReportingNotificationAuditEventModel](
-                CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
-            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))).recover {
-              error =>
-                auditService.sendAudit[CreateReportingNotificationAuditEventModel](
-                  CreateReportingNotificationAuditEventModel(addNotificationRequest, error.asInstanceOf[UpdatePlatformOperatorFailure].status).toAuditModel)
-                throw error
-            }
-        )
+      userAnswersService.addNotificationRequest(request.userAnswers, request.dprsId, operatorId).fold(
+        errors => Future.failed(BuildAddNotificationRequestFailure(errors)),
+        addNotificationRequest =>
+          (for {
+            _                       <- connector.updatePlatformOperator(addNotificationRequest)
+            updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
+            newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
+            _                       <- sessionRepository.set(newAnswers)
+            subscriptionInfo        <- subscriptionConnector.getSubscriptionInfo
+            _                       <- emailService.sendAddReportingNotificationEmails(request.userAnswers, subscriptionInfo, addNotificationRequest)
+            _                       <- auditService.sendAudit(CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
+          } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))).recover {
+            error =>
+              auditService
+                .sendAudit(CreateReportingNotificationAuditEventModel(
+                  addNotificationRequest,
+                  error.asInstanceOf[UpdatePlatformOperatorFailure].status).toAuditModel)
+              throw error
+          }
+      )
   }
 }

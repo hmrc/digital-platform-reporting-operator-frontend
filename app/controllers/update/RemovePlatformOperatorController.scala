@@ -21,7 +21,6 @@ import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.RemovePlatformOperatorAuditEventModel
-import models.email.requests.{RemovedAsPlatformOperatorRequest, RemovedPlatformOperatorRequest}
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
@@ -53,41 +52,27 @@ class RemovePlatformOperatorController @Inject()(
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
-      Ok(view(form, operatorId, businessName))
+      Ok(view(formProvider(businessName), operatorId, businessName))
     }
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-
-    super.hc(request)
-
     getAnswerAsync(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
-
-        value =>
-          if (value) {
-            for {
-              _                 <- platformConnector.removePlatformOperator(operatorId)
-              cleanedData    = request.userAnswers.copy(data = Json.obj())
-              updatedAnswers    <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
-              _                 <- sessionRepository.set(updatedAnswers)
-              subscriptionInfo  <- subscriptionConnector.getSubscriptionInfo
-              _                 <- emailService.sendEmail(RemovedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo))
-              _                 <- emailService.sendEmail(RemovedAsPlatformOperatorRequest.build(request.userAnswers))
-              _                 <- auditService.sendAudit[RemovePlatformOperatorAuditEventModel](
-                                  RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
-            } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
-          } else {
-            Future.successful(Redirect(routes.PlatformOperatorController.onPageLoad(operatorId)))
-          }
+      formProvider(businessName).bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
+        value => if (value) {
+          for {
+            _                <- platformConnector.removePlatformOperator(operatorId)
+            cleanedData      = request.userAnswers.copy(data = Json.obj())
+            updatedAnswers   <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
+            _                <- sessionRepository.set(updatedAnswers)
+            subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
+            _                <- emailService.sendRemovePlatformOperatorEmails(request.userAnswers, subscriptionInfo)
+            _                <- auditService.sendAudit(RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
+          } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
+        } else {
+          Future.successful(Redirect(routes.PlatformOperatorController.onPageLoad(operatorId)))
+        }
       )
     }
   }

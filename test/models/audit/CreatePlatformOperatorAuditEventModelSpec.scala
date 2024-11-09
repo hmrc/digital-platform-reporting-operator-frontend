@@ -16,27 +16,27 @@
 
 package models.audit
 
-import base.SpecBase
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.LocalDateTime
 
-class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
+class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matchers {
 
   ".writes" - {
-
     val baseContact = ContactDetails(phoneNumber = None, contactName = "Homer Simpson", emailAddress = "homer.simpson@example.com")
     val baseAddress = AddressDetails(line1 = "742 Evergreen Terrace", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("AF"))
     val basePlatformOperator = CreatePlatformOperatorRequest(
       subscriptionId = "12345678900",
-      operatorName =  "C Company",
-      tinDetails =  Seq.empty,
+      operatorName = "C Company",
+      tinDetails = Seq.empty,
       businessName = None,
-      tradingName =  None,
+      tradingName = None,
       primaryContactDetails = baseContact,
-      secondaryContactDetails =  None,
+      secondaryContactDetails = None,
       addressDetails = baseAddress
     )
 
@@ -176,7 +176,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |  }
           |""".stripMargin).as[JsObject]
 
-      val requestData = basePlatformOperator.copy(tinDetails =  Seq(TinDetails("12345678900", TinType.Utr, "GB")))
+      val requestData = basePlatformOperator.copy(tinDetails = Seq(TinDetails("12345678900", TinType.Utr, "GB")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
       val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
@@ -216,7 +216,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends SpecBase {
           |  }
           |""".stripMargin).as[JsObject]
 
-      val requestData = basePlatformOperator.copy(tinDetails =  Seq(TinDetails("9999", TinType.Other, "AF")))
+      val requestData = basePlatformOperator.copy(tinDetails = Seq(TinDetails("9999", TinType.Other, "AF")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
       val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)

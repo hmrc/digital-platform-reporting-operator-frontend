@@ -16,27 +16,36 @@
 
 package services
 
-import base.SpecBase
-import builders.UserAnswersBuilder.anEmptyUserAnswer
+import builders.SubscriptionInfoBuilder.aSubscriptionInfo
+import builders.UpdatePlatformOperatorRequestBuilder.aUpdatePlatformOperatorRequest
+import builders.UserAnswersBuilder.aUserAnswers
 import connectors.EmailConnector
-import models.email.requests.AddedPlatformOperatorRequest
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
+import models.email.requests._
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
 import org.mockito.Mockito.{never, times, verify, when}
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.{BeforeAndAfterEach, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
+import pages.notification.ReportingPeriodPage
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class EmailServiceSpec extends SpecBase
+class EmailServiceSpec extends AnyFreeSpec
+  with Matchers
   with MockitoSugar
   with FutureAwaits
+  with TryValues
   with DefaultAwaitTimeout
   with BeforeAndAfterEach {
+
+  private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
 
   private val mockEmailConnector = mock[EmailConnector]
 
@@ -45,28 +54,133 @@ class EmailServiceSpec extends SpecBase
     super.beforeEach()
   }
 
-  private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
-  private val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
-    .set(PrimaryContactEmailPage, "email@example.com").success.value
-    .set(PrimaryContactNamePage, "some-name").success.value
-    .set(BusinessNamePage, "some-business-name").success.value
-  private val subscriptionInfo: SubscriptionInfo = SubscriptionInfo(
-    "id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email@example.com", None), None)
-  private val requestBuildSuccess = AddedPlatformOperatorRequest.build(answers, subscriptionInfo, "some-operator-id")
-  private val requestBuildFailure = AddedPlatformOperatorRequest.build(answers.remove(BusinessNamePage).success.value, subscriptionInfo, "some-operator-id")
-  private val request = AddedPlatformOperatorRequest(List("email@example.com"), "dprs_added_platform_operator"
-  , Map("userPrimaryContactName" -> "first last", "poBusinessName" -> "some-business-name", "poId" -> "some-operator-id")
-  )
   private val underTest = new EmailService(mockEmailConnector)
 
-  ".sendEmail" - {
-    "send successful request build to email connector" in {
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
-      await(underTest.sendEmail(requestBuildSuccess)) mustBe true
-      verify(mockEmailConnector, times(1)).send(eqTo(request))(any())
+  ".sendAddPlatformOperatorEmails(...)" - {
+    "must send AddedPlatformOperatorRequest AddedAsPlatformOperatorRequest when relevant data available" in {
+      val userAnswers = aUserAnswers
+        .set(PrimaryContactEmailPage, "some-email").success.value
+        .set(PrimaryContactNamePage, "some-name").success.value
+        .set(BusinessNamePage, "some-business-name").success.value
+      val expectedAddedPORequest = AddedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
+      val expectedAddedAsPORequest = AddedAsPlatformOperatorRequest.build(userAnswers).toOption.get
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendAddPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedPORequest))(any())
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedAsPORequest))(any())
     }
-    "errors from request build" in {
-      await(underTest.sendEmail(requestBuildFailure)) mustBe false
+
+    "must not send emails when relevant data not available" in {
+      val userAnswers = aUserAnswers
+        .remove(PrimaryContactEmailPage).success.value
+        .remove(PrimaryContactNamePage).success.value
+        .remove(BusinessNamePage).success.value
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendAddPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+
+      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never()).send(any())(any())
+    }
+  }
+
+  ".sendRemovePlatformOperatorEmails(...)" - {
+    "must send RemovedPlatformOperatorRequest RemovedAsPlatformOperatorRequest when relevant data available" in {
+      val userAnswers = aUserAnswers
+        .set(PrimaryContactEmailPage, "some-email@example.com").success.value
+        .set(PrimaryContactNamePage, "some-name").success.value
+        .set(BusinessNamePage, "some-business-name").success.value
+      val expectedRemovedPORequest = RemovedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
+      val expectedRemovedAsPORequest = RemovedAsPlatformOperatorRequest.build(userAnswers).toOption.get
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendRemovePlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedRemovedPORequest))(any())
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedRemovedAsPORequest))(any())
+    }
+
+    "must not send emails when relevant data not available" in {
+      val userAnswers = aUserAnswers
+        .remove(PrimaryContactEmailPage).success.value
+        .remove(PrimaryContactNamePage).success.value
+        .remove(BusinessNamePage).success.value
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendRemovePlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+
+      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never()).send(any())(any())
+    }
+  }
+
+  ".sendUpdatedPlatformOperatorEmails(...)" - {
+    "must send UpdatedPlatformOperatorRequest UpdatedAsPlatformOperatorRequest when relevant data available" in {
+      val userAnswers = aUserAnswers
+        .set(PrimaryContactEmailPage, "some-email@example.com").success.value
+        .set(PrimaryContactNamePage, "some-name").success.value
+        .set(BusinessNamePage, "some-business-name").success.value
+      val expectedUpdatedPORequest = UpdatedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
+      val expectedUpdatedAsPORequest = UpdatedAsPlatformOperatorRequest.build(userAnswers).toOption.get
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendUpdatedPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedUpdatedPORequest))(any())
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedUpdatedAsPORequest))(any())
+    }
+
+    "must not send emails when relevant data not available" in {
+      val userAnswers = aUserAnswers
+        .remove(PrimaryContactEmailPage).success.value
+        .remove(PrimaryContactNamePage).success.value
+        .remove(BusinessNamePage).success.value
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendUpdatedPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+
+      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never()).send(any())(any())
+    }
+  }
+
+  ".sendAddReportingNotificationEmails(...)" - {
+    "must send AddedReportingNotificationRequest, AddedAsReportingNotificationRequest when relevant data available" in {
+      val userAnswers = aUserAnswers
+        .set(PrimaryContactEmailPage, "some-email@example.com").success.value
+        .set(PrimaryContactNamePage, "some-name").success.value
+        .set(ReportingPeriodPage, 2024).success.value
+        .set(BusinessNamePage, "some-business-name").success.value
+      val expectedAddedRNRequest = AddedReportingNotificationRequest.build(userAnswers, aSubscriptionInfo).toOption.get
+      val expectedAddedAsRNRequest = AddedAsReportingNotificationRequest.build(userAnswers, aUpdatePlatformOperatorRequest).toOption.get
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendAddReportingNotificationEmails(userAnswers, aSubscriptionInfo, aUpdatePlatformOperatorRequest).futureValue
+
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedRNRequest))(any())
+      verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedAsRNRequest))(any())
+    }
+
+    "must not send emails when relevant data not available" in {
+      val userAnswers = aUserAnswers
+        .remove(PrimaryContactEmailPage).success.value
+        .remove(PrimaryContactNamePage).success.value
+        .remove(BusinessNamePage).success.value
+
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+
+      underTest.sendAddReportingNotificationEmails(userAnswers, aSubscriptionInfo, aUpdatePlatformOperatorRequest).futureValue
+
+      verify(mockEmailConnector, never()).send(any())(any())
       verify(mockEmailConnector, never()).send(any())(any())
     }
   }

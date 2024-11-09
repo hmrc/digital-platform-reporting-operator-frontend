@@ -16,12 +16,12 @@
 
 package models.email.requests
 
+import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import builders.UserAnswersBuilder.{aUserAnswers, anEmptyUserAnswer}
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
-import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
+import pages.add.BusinessNamePage
 
 class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
   with Matchers
@@ -30,15 +30,14 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
   with EitherValues {
 
   private val underTest = AddedPlatformOperatorRequest
-  val subscriptionInfo: SubscriptionInfo = SubscriptionInfo(
-    "id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email@example.com", None), None)
 
   ".apply(...)" - {
     "must create AddedPlatformOperatorRequest object" in {
       AddedPlatformOperatorRequest.apply("email@example.com", "first last", "some-business-name", "some-po-id") mustBe AddedPlatformOperatorRequest(
         to = List("email@example.com"),
         templateId = "dprs_added_platform_operator",
-        parameters = Map("userPrimaryContactName" -> "first last",
+        parameters = Map(
+          "userPrimaryContactName" -> "first last",
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-po-id")
       )
@@ -47,15 +46,14 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
 
   ".build(...)" - {
     "must return correct AddedPlatformOperatorRequest" in {
-      val answers = anEmptyUserAnswer
-        .set(PrimaryContactEmailPage, "email@example.com").success.value
+      val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, subscriptionInfo, "some-operator-id") mustBe Right(AddedPlatformOperatorRequest(
-        to = List("email@example.com"),
+      underTest.build(answers, aSubscriptionInfo) mustBe Right(AddedPlatformOperatorRequest(
+        to = List(aSubscriptionInfo.primaryContact.email),
         templateId = "dprs_added_platform_operator",
         parameters = Map(
-          "userPrimaryContactName" -> "first last",
+          "userPrimaryContactName" -> aSubscriptionInfo.primaryContactName,
           "poBusinessName" -> "some-business-name",
           "poId" -> "some-operator-id"
         )
@@ -66,11 +64,8 @@ class AddedPlatformOperatorRequestSpec extends AnyFreeSpec
       val answers = aUserAnswers
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, subscriptionInfo, "some-operator-id")
-      result.left.value.toChain.toList must contain theSameElementsAs Seq(
-        BusinessNamePage
-      )
+      val result = underTest.build(answers, aSubscriptionInfo)
+      result.left.value.toChain.toList must contain theSameElementsAs Seq(BusinessNamePage)
     }
-
   }
 }

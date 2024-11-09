@@ -21,6 +21,7 @@ import builders.SendEmailRequestBuilder.aSendEmailRequest
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import play.api.Application
+import play.api.http.Status.ACCEPTED
 import play.api.inject.guice.GuiceApplicationBuilder
 
 class EmailConnectorSpec extends ConnectorSpecBase {
@@ -32,25 +33,25 @@ class EmailConnectorSpec extends ConnectorSpecBase {
   private lazy val underTest = app.injector.instanceOf[EmailConnector]
 
   ".send" - {
-    "must return true when when the server returns ACCEPTED" in {
+    "must return success when when the server returns ACCEPTED" in {
       wireMockServer.stubFor(post(urlMatching("/hmrc/email"))
-        .willReturn(aResponse.withStatus(202)))
+        .willReturn(aResponse.withStatus(ACCEPTED)))
 
-      underTest.send(aSendEmailRequest).futureValue mustBe true
+      underTest.send(aSendEmailRequest).futureValue
     }
 
-    "must return false when the server returns an error response" in {
+    "must return success when the server returns an error response" in {
       wireMockServer.stubFor(post(urlMatching("/hmrc/email"))
         .willReturn(badRequest()))
 
-      underTest.send(aSendEmailRequest).futureValue mustBe false
+      underTest.send(aSendEmailRequest).futureValue
     }
 
-    "must return false when sending email results in exception" in {
+    "must return success sending email results in exception" in {
       wireMockServer.stubFor(post(urlMatching("/hmrc/email"))
         .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)))
 
-      underTest.send(aSendEmailRequest).futureValue mustBe false
+      underTest.send(aSendEmailRequest).futureValue
     }
   }
 }
