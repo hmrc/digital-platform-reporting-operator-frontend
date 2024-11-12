@@ -18,8 +18,12 @@ package models
 
 import cats.data.{EitherNec, NonEmptyChain}
 import models.operator.NotificationType.Rpo
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
 import queries.{Gettable, NotificationDetailsQuery, Query, Settable}
+import uk.gov.hmrc.crypto.Sensitive.SensitiveString
+import uk.gov.hmrc.crypto.json.JsonEncryption
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -82,6 +86,31 @@ final case class UserAnswers(
 }
 
 object UserAnswers {
+
+  def encryptedFormat(implicit crypto: Encrypter with Decrypter): OFormat[UserAnswers] = {
+    implicit val sensitiveFormat: Format[SensitiveString] =
+      JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
+
+    val encryptedReads: Reads[UserAnswers] =
+      (
+        (__ \ "userId").read[String] and
+          (__ \ "operatorId").readNullable[String] and
+          (__ \ "data").read[SensitiveString] and
+          (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
+        )((userId, operatorId, data, lastUpdated) =>
+        UserAnswers(userId, operatorId, Json.parse(data.decryptedValue).as[JsObject], lastUpdated)
+      )
+
+    val encryptedWrites: OWrites[UserAnswers] =
+      (
+        (__ \ "userId").write[String] and
+          (__ \ "operatorId").writeNullable[String] and
+          (__ \ "data").write[SensitiveString] and
+          (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+        )(ua => (ua.userId, ua.operatorId, SensitiveString(Json.stringify(ua.data)), ua.lastUpdated))
+
+    OFormat(encryptedReads, encryptedWrites)
+  }
 
   val reads: Reads[UserAnswers] = {
 

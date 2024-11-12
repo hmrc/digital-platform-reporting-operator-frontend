@@ -13,6 +13,7 @@ object AppDependencies {
     "com.googlecode.libphonenumber"  % "libphonenumber"                % "8.13.42",
     "com.beachape"                  %% "enumeratum-play"               % "1.8.1",
     "org.typelevel"                 %% "cats-core"                     % "2.12.0",
+    "uk.gov.hmrc"                   %% "crypto-json-play-30"           % "8.1.0",
   )
 
   val test = Seq(
