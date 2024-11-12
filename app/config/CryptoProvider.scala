@@ -16,22 +16,14 @@
 
 package config
 
-import controllers.actions._
-import play.api.inject.Binding
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
+import play.api.Configuration
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
 
-import java.time.Clock
+import javax.inject.{Inject, Provider, Singleton}
 
-class Module extends play.api.inject.Module  {
+@Singleton
+class CryptoProvider @Inject()(configuration: Configuration) extends Provider[Encrypter with Decrypter] {
 
-  override def bindings(environment: Environment, configuration: Configuration): collection.Seq[Binding[_]] = {
-    Seq(
-      bind[DataRequiredAction].to[DataRequiredActionImpl].eagerly(),
-      bind[IdentifierAction].to[AuthenticatedIdentifierAction].eagerly(),
-      bind[Clock].toInstance(Clock.systemUTC()),
-      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
-    )
-  }
+  override def get(): Encrypter with Decrypter =
+    SymmetricCryptoFactory.aesGcmCryptoFromConfig("crypto", configuration.underlying)
 }
-
