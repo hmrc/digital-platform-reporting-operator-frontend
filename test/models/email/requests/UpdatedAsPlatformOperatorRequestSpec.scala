@@ -35,15 +35,17 @@ class UpdatedAsPlatformOperatorRequestSpec extends AnyFreeSpec
       UpdatedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-business-name") mustBe UpdatedAsPlatformOperatorRequest(
         to = List("some.email@example.com"),
         templateId = "dprs_updated_as_platform_operator",
-        parameters = Map("poPrimaryContactName" -> "some-name",
-          "poBusinessName" -> "some-business-name")
+        parameters = Map(
+          "poPrimaryContactName" -> "some-name",
+          "poBusinessName" -> "some-business-name"
+        )
       )
     }
   }
 
   ".build(...)" - {
     "must return correct UpdatedAsPlatformOperatorRequest" in {
-      val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
+      val answers = anEmptyUserAnswer
         .set(PrimaryContactEmailPage, "some@example.com").success.value
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
@@ -71,6 +73,5 @@ class UpdatedAsPlatformOperatorRequestSpec extends AnyFreeSpec
         BusinessNamePage
       )
     }
-
   }
 }

@@ -17,11 +17,10 @@
 package controllers.add
 
 import com.google.inject.Inject
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
-import models.email.requests.{AddedAsPlatformOperatorRequest, AddedPlatformOperatorRequest}
 import models.{NormalMode, UserAnswers}
 import pages.add.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
@@ -30,8 +29,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
-import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
+import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.PlatformOperatorSummaryViewModel
@@ -86,30 +85,23 @@ class CheckYourAnswersController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
     implicit request =>
 
-      super.hc(request)
-
       userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId)
         .fold(
           errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
           createRequest =>
             (for {
-              createResponse       <- connector.createPlatformOperator(createRequest)
-              cleanedAnswers       =  request.userAnswers.copy(data = Json.obj())
-              platformOperatorInfo =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
-              updatedAnswers       <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
-              _                    <- sessionRepository.set(updatedAnswers)
-              subscriptionInfo     <- subscriptionConnector.getSubscriptionInfo
-              _                    <- emailService.sendEmail(AddedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo, createResponse.operatorId))
-              _                    <- emailService.sendEmail(AddedAsPlatformOperatorRequest.build(request.userAnswers, createResponse.operatorId))
-              _                    <- auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-                CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
+              createResponse        <- connector.createPlatformOperator(createRequest)
+              cleanedAnswers        =  request.userAnswers.copy(data = Json.obj())
+              platformOperatorInfo  =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
+              updatedAnswers        <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
+              _                     <- sessionRepository.set(updatedAnswers)
+              subscriptionInfo      <- subscriptionConnector.getSubscriptionInfo
+              answersWithOperatorId =  request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
+              _                     <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId, subscriptionInfo)
+              _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
-              case error: CreatePlatformOperatorFailure =>
-                auditService.sendAudit[CreatePlatformOperatorAuditEventModel](
-                  CreatePlatformOperatorAuditEventModel(createRequest, error.status).toAuditModel
-                )
-                throw error
-              case error =>
+              case error: CreatePlatformOperatorFailure => auditService
+                .sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status).toAuditModel)
                 throw error
             }
         )
@@ -138,7 +130,7 @@ class CheckYourAnswersController @Inject()(
     }
 
   private def secondaryContactList(answers: UserAnswers)(implicit messages: Messages): Option[SummaryList] =
-    if(answers.get(HasSecondaryContactPage).contains(true)) {
+    if (answers.get(HasSecondaryContactPage).contains(true)) {
       Some(SummaryListViewModel(
         rows = Seq(
           HasSecondaryContactSummary.row(answers),

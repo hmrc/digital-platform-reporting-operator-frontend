@@ -16,17 +16,17 @@
 
 package models.audit
 
-import base.SpecBase
-import models.operator.{AddressDetails, ContactDetails, NotificationType}
 import models.operator.requests.{Notification, UpdatePlatformOperatorRequest}
+import models.operator.{AddressDetails, ContactDetails, NotificationType}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
 import java.time.LocalDateTime
 
-class CreateReportingNotificationAuditEventModelSpec extends SpecBase {
+class CreateReportingNotificationAuditEventModelSpec extends AnyFreeSpec with Matchers {
 
   ".writes" - {
-
     val baseContact = ContactDetails(phoneNumber = None, contactName = "contactName", emailAddress = "emailAddress")
     val baseAddress = AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = None)
     val baseUpdatePlatformOperator = UpdatePlatformOperatorRequest(
@@ -43,7 +43,6 @@ class CreateReportingNotificationAuditEventModelSpec extends SpecBase {
     )
 
     "Reporting platform operator (RPO)" - {
-
       "No due diligence" in {
         val expected = Json.parse(
           """

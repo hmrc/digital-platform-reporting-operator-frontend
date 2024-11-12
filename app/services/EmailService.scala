@@ -19,25 +19,60 @@ package services
 import cats.data.EitherNec
 import com.google.inject.Inject
 import connectors.EmailConnector
-import models.email.requests.SendEmailRequest
+import models.UserAnswers
+import models.email.requests.AddedAsPlatformOperatorRequest.AddedAsPlatformOperatorTemplateId
+import models.email.requests.AddedAsReportingNotificationRequest.AddedAsReportingNotificationTemplateId
+import models.email.requests.AddedPlatformOperatorRequest.AddedPlatformOperatorTemplateId
+import models.email.requests.AddedReportingNotificationRequest.AddedReportingNotificationTemplateId
+import models.email.requests.RemovedAsPlatformOperatorRequest.RemovedAsPlatformOperatorTemplateId
+import models.email.requests.RemovedPlatformOperatorRequest.RemovedPlatformOperatorTemplateId
+import models.email.requests.UpdatedAsPlatformOperatorRequest.UpdatedAsPlatformOperatorTemplateId
+import models.email.requests.UpdatedPlatformOperatorRequest.UpdatedPlatformOperatorTemplateId
+import models.email.requests._
+import models.operator.requests.UpdatePlatformOperatorRequest
+import models.subscription.SubscriptionInfo
+import org.apache.pekko.Done
 import play.api.i18n.Lang.logger
 import queries.Query
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class EmailService @Inject()(emailConnector: EmailConnector){
+class EmailService @Inject()(emailConnector: EmailConnector) {
 
-
-  def sendEmail(requestBuild: EitherNec[Query, SendEmailRequest])(implicit hc: HeaderCarrier): Future[Boolean] = {
-    requestBuild.fold(
-      errors => {
-        logger.warn(s"Unable to send email, path(s) missing:" +
-          s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-        Future.successful(false)
-      },
-      request => emailConnector.send(request)
-    )
+  def sendAddPlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
+                                   (implicit hc: HeaderCarrier): Future[Done] = {
+    sendEmail(AddedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), AddedPlatformOperatorTemplateId)
+    sendEmail(AddedAsPlatformOperatorRequest.build(userAnswers), AddedAsPlatformOperatorTemplateId)
   }
 
+  def sendRemovePlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
+                                      (implicit hc: HeaderCarrier): Future[Done] = {
+    sendEmail(RemovedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), RemovedPlatformOperatorTemplateId)
+    sendEmail(RemovedAsPlatformOperatorRequest.build(userAnswers), RemovedAsPlatformOperatorTemplateId)
+  }
+
+  def sendUpdatedPlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
+                                       (implicit hc: HeaderCarrier): Future[Done] = {
+    sendEmail(UpdatedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), UpdatedPlatformOperatorTemplateId)
+    sendEmail(UpdatedAsPlatformOperatorRequest.build(userAnswers), UpdatedAsPlatformOperatorTemplateId)
+  }
+
+  def sendAddReportingNotificationEmails(userAnswers: UserAnswers,
+                                         subscriptionInfo: SubscriptionInfo,
+                                         addNotificationRequest: UpdatePlatformOperatorRequest)
+                                        (implicit hc: HeaderCarrier): Future[Done] = {
+    sendEmail(AddedReportingNotificationRequest.build(userAnswers, subscriptionInfo), AddedReportingNotificationTemplateId)
+    sendEmail(AddedAsReportingNotificationRequest.build(userAnswers, addNotificationRequest), AddedAsReportingNotificationTemplateId)
+  }
+
+  private def sendEmail(requestBuild: EitherNec[Query, SendEmailRequest], templateName: String)
+                       (implicit hc: HeaderCarrier): Future[Done] = requestBuild.fold(
+    errors => {
+      logger.warn(s"Unable to send email ($templateName), path(s) missing:" +
+        s"${errors.toChain.toList.map(_.path).mkString(", ")}")
+      Future.successful(Done)
+    },
+    request => emailConnector.send(request)
+  )
 }

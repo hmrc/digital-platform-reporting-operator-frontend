@@ -17,25 +17,24 @@
 package controllers.update
 
 import base.SpecBase
-import connectors.{EmailConnector, PlatformOperatorConnector, SubscriptionConnector}
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import forms.RemovePlatformOperatorFormProvider
-import models.{Country, UkAddress, UserAnswers}
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
-import models.email.requests.{RemovedAsPlatformOperatorRequest, RemovedPlatformOperatorRequest}
 import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
+import models.{Country, UkAddress, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.update.{BusinessNamePage, CanPhonePrimaryContactPage, HasSecondaryContactPage, HasTaxIdentifierPage, HasTradingNamePage, PrimaryContactEmailPage, PrimaryContactNamePage, RegisteredInUkPage, TaxResidentInUkPage, UkAddressPage}
+import pages.update._
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.PlatformOperatorDeletedQuery
 import repositories.SessionRepository
-import services.AuditService
+import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import views.html.update.RemovePlatformOperatorView
 
@@ -47,7 +46,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val mockSubscriptionConnector = mock[SubscriptionConnector]
   private val mockRepository = mock[SessionRepository]
   private val mockAuditService = mock[AuditService]
-  private val mockEmailConnector = mock[EmailConnector]
+  private val mockEmailService = mock[EmailService]
 
   private val formProvider = new RemovePlatformOperatorFormProvider()
   private val businessName = "businessName"
@@ -56,12 +55,11 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailConnector, mockSubscriptionConnector)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailService, mockSubscriptionConnector)
     super.beforeEach()
   }
 
   "RemovePlatformOperator Controller" - {
-
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
@@ -79,46 +77,38 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
     }
 
     "must remove the platform operator and redirect to Platform Operator Removed for a POST when the answer is yes" in {
-
-      val answers =
-        UserAnswers(userAnswersId, Some(operatorId))
-          .set(BusinessNamePage, "business").success.value
-          .set(HasTradingNamePage, false).success.value
-          .set(TaxResidentInUkPage, true).success.value
-          .set(HasTaxIdentifierPage, false).success.value
-          .set(RegisteredInUkPage, true).success.value
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(PrimaryContactNamePage, "name").success.value
-          .set(PrimaryContactEmailPage, "email").success.value
-          .set(CanPhonePrimaryContactPage, false).success.value
-          .set(HasSecondaryContactPage, false).success.value
+      val answers = UserAnswers(userAnswersId, Some(operatorId))
+        .set(BusinessNamePage, "business").success.value
+        .set(HasTradingNamePage, false).success.value
+        .set(TaxResidentInUkPage, true).success.value
+        .set(HasTaxIdentifierPage, false).success.value
+        .set(RegisteredInUkPage, true).success.value
+        .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+        .set(PrimaryContactNamePage, "name").success.value
+        .set(PrimaryContactEmailPage, "email").success.value
+        .set(CanPhonePrimaryContactPage, false).success.value
+        .set(HasSecondaryContactPage, false).success.value
 
       val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-      val expectedSendEmailRequest = RemovedPlatformOperatorRequest("email", "first last", "business", operatorId)
-      val expectedSendAsEmailRequest = RemovedAsPlatformOperatorRequest("email", "name", "business", operatorId)
       val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
 
       when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
       when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(subscriptionInfo))
       when(mockRepository.set(any())) thenReturn Future.successful(true)
       when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
+      when(mockEmailService.sendRemovePlatformOperatorEmails(any(), any())(any())).thenReturn(Future.successful(Done))
 
-      val application =
-        applicationBuilder(userAnswers = Some(answers))
-          .overrides(
-            bind[PlatformOperatorConnector].toInstance(mockConnector),
-            bind[SessionRepository].toInstance(mockRepository),
-            bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-            bind[EmailConnector].toInstance(mockEmailConnector),
-            bind[AuditService].toInstance(mockAuditService)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(answers)).overrides(
+        bind[PlatformOperatorConnector].toInstance(mockConnector),
+        bind[SessionRepository].toInstance(mockRepository),
+        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+        bind[EmailService].toInstance(mockEmailService),
+        bind[AuditService].toInstance(mockAuditService)
+      ).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
-            .withFormUrlEncodedBody(("value", "true"))
+        val request = FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
+          .withFormUrlEncodedBody(("value", "true"))
         val businessName: String = "business"
         val auditType: String = "RemovePlatformOperator"
         val expectedAuditEvent = RemovePlatformOperatorAuditEventModel(businessName, operatorId)
@@ -130,10 +120,9 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
         verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
-        verify(mockEmailConnector, times(1)).send(eqTo(expectedSendEmailRequest))(any())
-        verify(mockEmailConnector, times(1)).send(eqTo(expectedSendAsEmailRequest))(any())
+        verify(mockEmailService, times(1)).sendRemovePlatformOperatorEmails(eqTo(answers), eqTo(subscriptionInfo))(any())
         verify(mockAuditService, times(1)).sendAudit(
-          eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(),any(),any())
+          eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
 
         val savedAnswers = answersCaptor.getValue
         savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual "business"
@@ -141,23 +130,17 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
     }
 
     "must redirect to Platform Operator for a POST when the answer is no" in {
-
-      val application =
-        applicationBuilder(userAnswers = Some(baseAnswers))
-          .overrides(
-            bind[PlatformOperatorConnector].toInstance(mockConnector),
-            bind[SessionRepository].toInstance(mockRepository),
-            bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-            bind[EmailConnector].toInstance(mockEmailConnector),
-            bind[AuditService].toInstance(mockAuditService)
-          )
-          .build()
+      val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
+        bind[PlatformOperatorConnector].toInstance(mockConnector),
+        bind[SessionRepository].toInstance(mockRepository),
+        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+        bind[EmailService].toInstance(mockEmailService),
+        bind[AuditService].toInstance(mockAuditService)
+      ).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
-            .withFormUrlEncodedBody(("value", "false"))
-
+        val request = FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
+          .withFormUrlEncodedBody(("value", "false"))
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -166,7 +149,34 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         verify(mockConnector, never()).removePlatformOperator(any())(any())
         verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
         verify(mockRepository, never()).clear(any(), any())
-        verify(mockEmailConnector, never()).send(any())(any())
+        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any(), any())(any())
+        verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+      val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
+        bind[PlatformOperatorConnector].toInstance(mockConnector),
+        bind[SessionRepository].toInstance(mockRepository),
+        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+        bind[EmailService].toInstance(mockEmailService),
+        bind[AuditService].toInstance(mockAuditService)
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
+          .withFormUrlEncodedBody(("value", ""))
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[RemovePlatformOperatorView]
+        val boundForm = form.bind(Map("value" -> ""))
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(request, messages(application)).toString
+
+        verify(mockConnector, never()).removePlatformOperator(any())(any())
+        verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
+        verify(mockRepository, never()).clear(any(), any())
+        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any(), any())(any())
         verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
       }
     }

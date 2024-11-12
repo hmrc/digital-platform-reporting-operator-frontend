@@ -16,13 +16,13 @@
 
 package models.audit
 
-import base.SpecBase
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-class RemovePlatformOperatorAuditEventModelSpec extends SpecBase {
+class RemovePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matchers {
 
   "Remove platform operator" in {
-
     val expected = Json.parse(
       """
         |{
@@ -34,10 +34,8 @@ class RemovePlatformOperatorAuditEventModelSpec extends SpecBase {
         |""".stripMargin
     )
 
-    val auditEvent = RemovePlatformOperatorAuditEventModel("some-business-name","some-operator-id")
+    val auditEvent = RemovePlatformOperatorAuditEventModel("some-business-name", "some-operator-id")
 
     Json.toJson(auditEvent) mustEqual expected
-
   }
-
 }

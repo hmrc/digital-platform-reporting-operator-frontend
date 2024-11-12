@@ -35,9 +35,11 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
       AddedAsPlatformOperatorRequest.apply("some.email@example.com", "some-name", "some-po-id", "some-business-name") mustBe AddedAsPlatformOperatorRequest(
         to = List("some.email@example.com"),
         templateId = "dprs_added_as_platform_operator",
-        parameters = Map("poPrimaryContactName" -> "some-name",
+        parameters = Map(
+          "poPrimaryContactName" -> "some-name",
           "poBusinessName" -> "some-business-name",
-          "poId" -> "some-po-id")
+          "poId" -> "some-po-id"
+        )
       )
     }
   }
@@ -49,7 +51,7 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, "some-operator-id") mustBe Right(AddedAsPlatformOperatorRequest(
+      underTest.build(answers) mustBe Right(AddedAsPlatformOperatorRequest(
         to = List("some@example.com"),
         templateId = "dprs_added_as_platform_operator",
         parameters = Map(
@@ -66,13 +68,12 @@ class AddedAsPlatformOperatorRequestSpec extends AnyFreeSpec
         .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, "some-operator-id")
+      val result = underTest.build(answers)
       result.left.value.toChain.toList must contain theSameElementsAs Seq(
         PrimaryContactEmailPage,
         PrimaryContactNamePage,
         BusinessNamePage
       )
     }
-
   }
 }

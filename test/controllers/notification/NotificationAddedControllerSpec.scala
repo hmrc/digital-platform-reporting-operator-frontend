@@ -36,7 +36,6 @@ import repositories.SessionRepository
 import viewmodels.checkAnswers.notification._
 import viewmodels.govuk.all.SummaryListViewModel
 import views.html.notification.NotificationAddedView
-import play.api.inject.bind
 
 import java.time.Instant
 import scala.concurrent.Future

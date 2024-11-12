@@ -22,7 +22,13 @@ final case class SubscriptionInfo(id: String,
                                   gbUser: Boolean,
                                   tradingName: Option[String],
                                   primaryContact: Contact,
-                                  secondaryContact: Option[Contact])
+                                  secondaryContact: Option[Contact]) {
+
+  lazy val primaryContactName: String = primaryContact match {
+    case ic: IndividualContact => ic.individual.firstName + " " + ic.individual.lastName
+    case oc: OrganisationContact => oc.organisation.name
+  }
+}
 
 object SubscriptionInfo {
   implicit lazy val format: OFormat[SubscriptionInfo] = Json.format

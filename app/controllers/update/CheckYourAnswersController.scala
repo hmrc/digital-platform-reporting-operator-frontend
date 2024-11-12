@@ -22,7 +22,6 @@ import controllers.AnswerExtractor
 import controllers.actions._
 import models.UserAnswers
 import models.audit.ChangePlatformOperatorAuditEventModel
-import models.email.requests.{UpdatedAsPlatformOperatorRequest, UpdatedPlatformOperatorRequest}
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -81,23 +80,16 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
     implicit request =>
-
-      super.hc(request)
-
-      userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId)
-        .fold(
-          errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
-          updateRequest =>
-          for {
-            _                 <- connector.updatePlatformOperator(updateRequest)
-            subscriptionInfo  <- subscriptionConnector.getSubscriptionInfo
-            _                 <- emailService.sendEmail(UpdatedPlatformOperatorRequest.build(request.userAnswers, subscriptionInfo))
-            _                 <- emailService.sendEmail(UpdatedAsPlatformOperatorRequest.build(request.userAnswers))
-            originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
-            _                 <- auditService.sendAudit[ChangePlatformOperatorAuditEventModel](
-                                  ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
-          } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))
-        )
+      userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
+        errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
+        updateRequest => for {
+          _                <- connector.updatePlatformOperator(updateRequest)
+          subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
+          _                <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
+          originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
+          _                <- auditService.sendAudit(ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
+        } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))
+      )
   }
 
   private def primaryContactList(operatorId: String, answers: UserAnswers)(implicit messages: Messages): SummaryList =

@@ -16,10 +16,10 @@
 
 package models.email.requests
 
+import builders.NotificationBuilder.aNotification
+import builders.UpdatePlatformOperatorRequestBuilder.aUpdatePlatformOperatorRequest
 import builders.UserAnswersBuilder.{aUserAnswers, anEmptyUserAnswer}
-import models.operator.NotificationType.Rpo
-import models.operator.{AddressDetails, ContactDetails}
-import models.operator.requests.{Notification, UpdatePlatformOperatorRequest}
+import models.operator.NotificationType.Epo
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
@@ -37,7 +37,14 @@ class AddedAsReportingNotificationRequestSpec extends AnyFreeSpec
   ".apply(...)" - {
     "must create AddedAsReportingNotificationRequest object" in {
       AddedAsReportingNotificationRequest.apply(
-        "some.email@example.com", "some-name", isReportingPO = true, 2024, "some-business-name", isExtendedDueDiligence = true, isActiveSellerDueDiligence = true) mustBe AddedAsReportingNotificationRequest(
+        "some.email@example.com",
+        "some-name",
+        isReportingPO = true,
+        2024,
+        "some-business-name",
+        isExtendedDueDiligence = true,
+        isActiveSellerDueDiligence = true
+      ) mustBe AddedAsReportingNotificationRequest(
         to = List("some.email@example.com"),
         templateId = "dprs_added_reporting_notification_for_you",
         parameters = Map(
@@ -53,33 +60,26 @@ class AddedAsReportingNotificationRequestSpec extends AnyFreeSpec
   }
 
   ".build(...)" - {
-
-    val updatedPlatformOperatorRequest = UpdatePlatformOperatorRequest(subscriptionId = "dprs id",
-      operatorId = "operatorId",
-      operatorName = "name",
-      tinDetails = Seq.empty,
-      businessName = None,
-      tradingName = None,
-      primaryContactDetails = ContactDetails(None, "name", "email"),
-      secondaryContactDetails = None,
-      addressDetails = AddressDetails("line 1", None, None, None, None, None),
-      notification = Some(Notification(Rpo, Some(true), Some(true), 2024))
-    )
-
     "must return correct AddedAsReportingNotificationRequest" in {
-      val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
+      val answers = anEmptyUserAnswer
         .set(PrimaryContactEmailPage, "some@example.com").success.value
         .set(PrimaryContactNamePage, "some-name").success.value
         .set(BusinessNamePage, "some-business-name").success.value
         .set(ReportingPeriodPage, 2024).success.value
+      val notification = aNotification.copy(
+        notificationType = Epo,
+        isActiveSeller = Some(true),
+        isDueDiligence = Some(true),
+        firstPeriod = 2024
+      )
+      val updatePORequest = aUpdatePlatformOperatorRequest.copy(notification = Some(notification))
 
-
-      underTest.build(answers, updatedPlatformOperatorRequest) mustBe Right(AddedAsReportingNotificationRequest(
+      underTest.build(answers, updatePORequest) mustBe Right(AddedAsReportingNotificationRequest(
         to = List("some@example.com"),
         templateId = "dprs_added_reporting_notification_for_you",
         parameters = Map(
           "poPrimaryContactName" -> "some-name",
-          "isReportingPO" -> "true",
+          "isReportingPO" -> "false",
           "reportablePeriodYear" -> "2024",
           "poBusinessName" -> "some-business-name",
           "isExtendedDueDiligence" -> "true",
@@ -95,7 +95,7 @@ class AddedAsReportingNotificationRequestSpec extends AnyFreeSpec
         .remove(ReportingPeriodPage).success.value
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, updatedPlatformOperatorRequest)
+      val result = underTest.build(answers, aUpdatePlatformOperatorRequest)
       result.left.value.toChain.toList must contain theSameElementsAs Seq(
         PrimaryContactEmailPage,
         PrimaryContactNamePage,
@@ -103,6 +103,5 @@ class AddedAsReportingNotificationRequestSpec extends AnyFreeSpec
         BusinessNamePage
       )
     }
-
   }
 }

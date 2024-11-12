@@ -73,6 +73,5 @@ class RemovedAsPlatformOperatorRequestSpec extends AnyFreeSpec
         BusinessNamePage
       )
     }
-
   }
 }

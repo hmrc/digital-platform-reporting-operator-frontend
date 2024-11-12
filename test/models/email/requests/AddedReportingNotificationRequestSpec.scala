@@ -16,12 +16,12 @@
 
 package models.email.requests
 
+import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import builders.UserAnswersBuilder.{aUserAnswers, anEmptyUserAnswer}
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
-import pages.add.{BusinessNamePage, PrimaryContactEmailPage, PrimaryContactNamePage}
+import pages.add.BusinessNamePage
 
 class AddedReportingNotificationRequestSpec extends AnyFreeSpec
   with Matchers
@@ -30,32 +30,30 @@ class AddedReportingNotificationRequestSpec extends AnyFreeSpec
   with EitherValues {
 
   private val underTest = AddedReportingNotificationRequest
-  val subscriptionInfo: SubscriptionInfo = SubscriptionInfo(
-    "id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email@example.com", None), None)
 
   ".apply(...)" - {
     "must create AddedReportingNotificationRequest object" in {
       AddedReportingNotificationRequest.apply("email@example.com", "first last", "some-business-name") mustBe AddedReportingNotificationRequest(
         to = List("email@example.com"),
         templateId = "dprs_added_reporting_notification",
-        parameters = Map("userPrimaryContactName" -> "first last",
-          "poBusinessName" -> "some-business-name")
+        parameters = Map(
+          "userPrimaryContactName" -> "first last",
+          "poBusinessName" -> "some-business-name"
+        )
       )
     }
   }
 
   ".build(...)" - {
     "must return correct AddedReportingNotificationRequest" in {
-      val answers = anEmptyUserAnswer.copy(operatorId = Some("some-operator-id"))
-        .set(PrimaryContactEmailPage, "email@example.com").success.value
-        .set(PrimaryContactNamePage, "some-name").success.value
+      val answers = anEmptyUserAnswer
         .set(BusinessNamePage, "some-business-name").success.value
 
-      underTest.build(answers, subscriptionInfo) mustBe Right(AddedReportingNotificationRequest(
-        to = List("email@example.com"),
+      underTest.build(answers, aSubscriptionInfo) mustBe Right(AddedReportingNotificationRequest(
+        to = List(aSubscriptionInfo.primaryContact.email),
         templateId = "dprs_added_reporting_notification",
         parameters = Map(
-          "userPrimaryContactName" -> "first last",
+          "userPrimaryContactName" -> aSubscriptionInfo.primaryContactName,
           "poBusinessName" -> "some-business-name"
         )
       ))
@@ -65,11 +63,8 @@ class AddedReportingNotificationRequestSpec extends AnyFreeSpec
       val answers = aUserAnswers
         .remove(BusinessNamePage).success.value
 
-      val result = underTest.build(answers, subscriptionInfo)
-      result.left.value.toChain.toList must contain theSameElementsAs Seq(
-        BusinessNamePage
-      )
+      val result = underTest.build(answers, aSubscriptionInfo)
+      result.left.value.toChain.toList must contain theSameElementsAs Seq(BusinessNamePage)
     }
-
   }
 }
