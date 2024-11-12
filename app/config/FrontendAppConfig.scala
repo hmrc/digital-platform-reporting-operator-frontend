@@ -29,6 +29,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "digital-platform-reporting-operator-frontend"
 
+  val digitalPlatformReportingUrl: Service = configuration.get[Service]("microservice.services.digital-platform-reporting")
+  val taxEnrolmentsBaseUrl: String = configuration.get[Service]("microservice.services.tax-enrolments").baseUrl
+
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
