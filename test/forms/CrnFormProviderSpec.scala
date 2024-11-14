@@ -28,32 +28,54 @@ class CrnFormProviderSpec extends StringFieldBehaviours {
 
   val businessName = "name"
   val form = new CrnFormProvider()(businessName)
+  val fieldName = "value"
 
-  ".value" - {
-
-    val validReferences = for {
-      firstChars <- Gen.oneOf(Gen.listOfN(2, Gen.alphaChar), Gen.listOfN(2, Gen.alphaChar))
-      digits <- Gen.listOfN(6, Gen.numChar)
-    } yield firstChars.mkString + digits.mkString
-
-    val fieldName = "value"
+  "Eight digits Crn" - {
+    val eightDigitsCrn = for {
+      digits <- Gen.listOfN(8, Gen.numChar)
+    } yield digits.mkString
 
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validReferences
+      eightDigitsCrn
     )
+  }
 
-    "must not bind invalid values" in {
+  "One letter Seven number Crn" - {
+    val oneLetterSevenNumbersCrn = for {
+      first <- Gen.listOfN(1, Gen.alphaUpperChar).map(_.mkString)
+      digits <- Gen.listOfN(7, Gen.numChar)
+    } yield first + digits.mkString
 
-      forAll(arbitrary[String]) { input =>
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      oneLetterSevenNumbersCrn
+    )
+  }
 
-        whenever(input.trim.nonEmpty && !input.trim.matches(Validation.crnPattern.toString)) {
-          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-          result.errors must contain only FormError(fieldName, formatKey, Seq(Validation.crnPattern.toString, businessName))
-        }
+  "Two letter Six number Crn" - {
+    val twoLettersSixNumbersCrn = for {
+      first <- Gen.listOfN(2, Gen.alphaUpperChar).map(_.mkString)
+      digits <- Gen.listOfN(6, Gen.numChar)
+    } yield first + digits.mkString
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      twoLettersSixNumbersCrn
+    )
+  }
+
+  "must not bind invalid values" in {
+    forAll(arbitrary[String]) { input =>
+      whenever(input.trim.nonEmpty && !input.trim.matches(Validation.crnPattern.toString)) {
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors must contain only FormError(fieldName, formatKey, Seq(Validation.crnPattern.toString, businessName))
       }
     }
+  }
 
     behave like mandatoryField(
       form,
@@ -61,4 +83,3 @@ class CrnFormProviderSpec extends StringFieldBehaviours {
       requiredError = FormError(fieldName, requiredKey, Seq(businessName))
     )
   }
-}

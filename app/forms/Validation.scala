@@ -26,7 +26,7 @@ object Validation {
   val phoneNumberPattern: Regex = "[A-Z0-9 )/(\\-*#+]*".r.anchored
   val utrPattern: Regex = "[Kk]?(?:\\d{10}|\\d{13})[kK]?".r.anchored
   val chrnPattern: Regex = "(?:[A-Za-z]{2}|[Xx])?\\d{1,5}".r.anchored
-  val crnPattern: Regex = "(?:[A-Za-z]{2}|[Rr])?\\d{6}".r.anchored
+  val crnPattern: Regex = "(([0-9]{8})|([A-Za-z]\\d{7})|([A-Za-z]{2}\\d{6}))".r.anchored
   val emprefPattern: Regex = "\\d{3}?/?[A-Za-z0-9]{1,10}".r.anchored
   val vrnPattern: Regex = "(?:GB)??\\d{9}".r.anchored
 }
