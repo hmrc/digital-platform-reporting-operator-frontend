@@ -55,10 +55,8 @@ checkYourAnswers.update.secondaryContact = Second contact
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
-journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
-journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
 
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
@@ -364,7 +362,7 @@ removePlatformOperator.legend = Are you sure you want to remove {0}?
 removePlatformOperator.error.required = Select yes if you want to remove {0}
 
 platformOperatorRemoved.title = Platform operator has been successfully removed
-platformOperatorRemoved.heading = {0} (PO {1}) has been successfully removed
+platformOperatorRemoved.heading = {0} (ID {1}) has been successfully removed
 platformOperatorRemoved.button = Back to view platform operators
 
 addGuidance.title = Add a reporting notification
@@ -382,7 +380,7 @@ selectPlatformOperator.p1.link.text = add a new platform operator
 selectPlatformOperator.item.text = {0}
 selectPlatformOperator.item.hint = {0}
 selectPlatformOperator.single.title = You are about to add a reporting notification
-selectPlatformOperator.single.heading = You are about to add a reporting notification for {0} (PO {1})
+selectPlatformOperator.single.heading = You are about to add a reporting notification for {0} (ID {1})
 selectPlatformOperator.single.p1 = If this is not correct, you can
 selectPlatformOperator.single.link.text = add a new platform operator
 
