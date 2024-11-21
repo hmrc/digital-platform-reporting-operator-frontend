@@ -16,6 +16,7 @@
 
 @import config.FrontendAppConfig
 @import controllers.add.routes
+@import controllers.notification.{routes => notificationRoutes}
 @import viewmodels.PlatformOperatorSummaryViewModel
 
 @this(
@@ -44,7 +45,7 @@
 
     <p class="govuk-body">
         @messages("platformOperatorAdded.p3")
-        <a href="@appConfig.manageFrontendUrl" class="govuk-link">@messages("platformOperatorAdded.p3.link.text")</a>.
+        <a href="@notificationRoutes.SelectPlatformOperatorController.onPageLoad" class="govuk-link">@messages("platformOperatorAdded.p3.link.text")</a>.
     </p>
 
     <p class="govuk-body">
