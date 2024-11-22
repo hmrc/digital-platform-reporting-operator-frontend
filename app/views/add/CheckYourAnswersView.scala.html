@@ -52,7 +52,7 @@
 
     @formHelper(action = routes.CheckYourAnswersController.onSubmit()) {
         @govukButton(
-            ButtonViewModel(messages("site.confirmAndAdd"))
+            ButtonViewModel(messages("site.confirmAndAdd")).preventingDoubleClick()
         )
     }
 }
