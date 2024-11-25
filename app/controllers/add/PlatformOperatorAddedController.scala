@@ -19,7 +19,6 @@ package controllers.add
 import connectors.SubscriptionConnector
 import controllers.AnswerExtractor
 import controllers.actions._
-import forms.PlatformOperatorAddedFormProvider
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.PlatformOperatorAddedQuery
@@ -35,7 +34,6 @@ class PlatformOperatorAddedController @Inject()(
                                                  getData: DataRetrievalActionProvider,
                                                  requireData: DataRequiredAction,
                                                  val controllerComponents: MessagesControllerComponents,
-                                                 formProvider: PlatformOperatorAddedFormProvider,
                                                  view: PlatformOperatorAddedView,
                                                  connector: SubscriptionConnector
                                                )(implicit executionContent: ExecutionContext)
@@ -43,8 +41,7 @@ class PlatformOperatorAddedController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
     getAnswerAsync(PlatformOperatorAddedQuery) { viewModel =>
-      val form = formProvider(viewModel.operatorName)
-      connector.getSubscriptionInfo.map{ x => Ok(view(form, viewModel, x.primaryContact.email))}
+      connector.getSubscriptionInfo.map{ x => Ok(view(viewModel, x.primaryContact.email))}
     }
   }
 }

@@ -24,7 +24,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(form: Form[_], viewModel: PlatformOperatorSummaryViewModel, subscriptionEmail: String)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorSummaryViewModel, subscriptionEmail: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("platformOperatorAdded.title")),
@@ -36,7 +36,11 @@
         content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
     ))
 
-    <p class="govuk-body">@messages("platformOperatorAdded.p1", viewModel.operatorName, subscriptionEmail, viewModel.poPrimaryContactEmail)</p>
+    @if(subscriptionEmail.trim.toLowerCase != viewModel.poPrimaryContactEmail.trim.toLowerCase) {
+        <p class="govuk-body">@messages("platformOperatorAdded.p1a", viewModel.operatorName, subscriptionEmail, viewModel.poPrimaryContactEmail)</p>
+    } else {
+        <p class="govuk-body">@messages("platformOperatorAdded.p1b", viewModel.operatorName, subscriptionEmail)</p>
+    }
 
     <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>
 

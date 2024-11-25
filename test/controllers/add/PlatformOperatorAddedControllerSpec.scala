@@ -18,7 +18,6 @@ package controllers.add
 
 import base.SpecBase
 import connectors.SubscriptionConnector
-import forms.PlatformOperatorAddedFormProvider
 import models.subscription.{Individual, Organisation, IndividualContact, OrganisationContact, SubscriptionInfo}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
@@ -57,7 +56,6 @@ class PlatformOperatorAddedControllerSpec extends SpecBase with MockitoSugar wit
 
       val viewModel = PlatformOperatorSummaryViewModel("id", "name", "email")
       val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
-      val form = new PlatformOperatorAddedFormProvider()("name")
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -75,7 +73,7 @@ class PlatformOperatorAddedControllerSpec extends SpecBase with MockitoSugar wit
         val view = application.injector.instanceOf[PlatformOperatorAddedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, viewModel, "individualEmail")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel, "individualEmail")(request, messages(application)).toString
       }
     }
 
@@ -88,7 +86,6 @@ class PlatformOperatorAddedControllerSpec extends SpecBase with MockitoSugar wit
 
       val viewModel = PlatformOperatorSummaryViewModel("id", "name", "email")
       val baseAnswers = emptyUserAnswers.set(PlatformOperatorAddedQuery, viewModel).success.value
-      val form = new PlatformOperatorAddedFormProvider()("name")
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -106,7 +103,7 @@ class PlatformOperatorAddedControllerSpec extends SpecBase with MockitoSugar wit
         val view = application.injector.instanceOf[PlatformOperatorAddedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, viewModel, "organisationEmail")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel, "organisationEmail")(request, messages(application)).toString
       }
     }
   }
