@@ -51,46 +51,110 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
   }
 
   "NotificationAdded Controller" - {
-    "must return OK and the correct view for a GET" in {
+
+    "must return OK and the correct view for a GET" - {
+
       val instant = Instant.parse("2024-12-31T00:00:00Z")
       val notification1 = NotificationDetails(NotificationType.Epo, None, None, 2024, instant)
       val notification2 = NotificationDetails(NotificationType.Rpo, None, Some(true), 2025, instant.plusSeconds(1))
-      val contact = IndividualContact(Individual("first", "last"), "individualEmail", Some("phone"))
-      val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
 
-      when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
-      when(mockRepository.set(any())) thenReturn Future.successful(true)
+      "for different emails" in {
 
-      val answers =
-        emptyUserAnswers
-          .set(BusinessNamePage, "name").success.value
-          .set(PrimaryContactEmailPage, "poEmail").success.value
-          .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
+         val contact = IndividualContact(Individual("first", "last"), "individualEmail", Some("phone"))
+        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
 
-      val application = applicationBuilder(userAnswers = Some(answers))
-        .overrides(
-          bind[SubscriptionConnector].toInstance(mockConnector),
-          bind[SessionRepository].toInstance(mockRepository)
-        ).build()
+        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+        when(mockRepository.set(any())) thenReturn Future.successful(true)
 
-      running(application) {
-        val request = FakeRequest(GET, routes.NotificationAddedController.onPageLoad(operatorId).url)
+        val answers =
+          emptyUserAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(PrimaryContactEmailPage, "poEmail").success.value
+            .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
 
-        val result = route(application, request).value
+        val application = applicationBuilder(userAnswers = Some(answers))
+          .overrides(
+            bind[SubscriptionConnector].toInstance(mockConnector),
+            bind[SessionRepository].toInstance(mockRepository)
+          ).build()
 
-        val view = application.injector.instanceOf[NotificationAddedView]
-        val expectedList = SummaryListViewModel(
-          rows = Seq(
-            OperatorNameSummary.summaryRow(answers)(messages(application)),
-            OperatorIdSummary.summaryRow(answers)(messages(application)),
-            NotificationTypeSummary.summaryRow(answers)(messages(application)),
-            ReportingPeriodSummary.summaryRow(answers)(messages(application)),
-            DueDiligenceSummary.summaryRow(answers)(messages(application)),
-          ).flatten
-        )
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(operatorId, "name", expectedList, "individualEmail", "poEmail")(request, messages(application)).toString
+        running(application) {
+          val request = FakeRequest(GET, routes.NotificationAddedController.onPageLoad(operatorId).url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[NotificationAddedView]
+          val expectedList = SummaryListViewModel(
+            rows = Seq(
+              OperatorNameSummary.summaryRow(answers)(messages(application)),
+              OperatorIdSummary.summaryRow(answers)(messages(application)),
+              NotificationTypeSummary.summaryRow(answers)(messages(application)),
+              ReportingPeriodSummary.summaryRow(answers)(messages(application)),
+              DueDiligenceSummary.summaryRow(answers)(messages(application)),
+            ).flatten
+          )
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(operatorId, "name", expectedList, "individualEmail", "poEmail")(request, messages(application)).toString
+
+          val content = contentAsString(result)
+          content must include(messages(application)(
+            "notificationAdded.p1.two.emails",
+            "name", "individualEmail",
+            "poEmail")
+          )
+
+        }
       }
+
+      "for same emails" in {
+
+        val contact = IndividualContact(Individual("first", "last"), "email", Some("phone"))
+        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
+
+        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+        when(mockRepository.set(any())) thenReturn Future.successful(true)
+
+        val answers =
+          emptyUserAnswers
+            .set(BusinessNamePage, "name").success.value
+            .set(PrimaryContactEmailPage, "email").success.value
+            .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
+
+        val application = applicationBuilder(userAnswers = Some(answers))
+          .overrides(
+            bind[SubscriptionConnector].toInstance(mockConnector),
+            bind[SessionRepository].toInstance(mockRepository)
+          ).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.NotificationAddedController.onPageLoad(operatorId).url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[NotificationAddedView]
+          val expectedList = SummaryListViewModel(
+            rows = Seq(
+              OperatorNameSummary.summaryRow(answers)(messages(application)),
+              OperatorIdSummary.summaryRow(answers)(messages(application)),
+              NotificationTypeSummary.summaryRow(answers)(messages(application)),
+              ReportingPeriodSummary.summaryRow(answers)(messages(application)),
+              DueDiligenceSummary.summaryRow(answers)(messages(application)),
+            ).flatten
+          )
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(operatorId, "name", expectedList, "email", "email")(request, messages(application)).toString
+
+          val content = contentAsString(result)
+          content must include(messages(application)(
+            "notificationAdded.p1.one.email",
+            "name", "email")
+          )
+
+        }
+      }
+
     }
+
+
   }
 }
