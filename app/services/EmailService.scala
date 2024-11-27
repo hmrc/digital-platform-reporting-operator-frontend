@@ -32,6 +32,7 @@ import models.email.requests._
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.subscription.SubscriptionInfo
 import org.apache.pekko.Done
+import pages.add.PrimaryContactEmailPage
 import play.api.i18n.Lang.logger
 import queries.Query
 import uk.gov.hmrc.http.HeaderCarrier
@@ -42,29 +43,41 @@ class EmailService @Inject()(emailConnector: EmailConnector) {
 
   def sendAddPlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
                                    (implicit hc: HeaderCarrier): Future[Done] = {
+    if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+      sendEmail(AddedAsPlatformOperatorRequest.build(userAnswers), AddedAsPlatformOperatorTemplateId)
+    }
     sendEmail(AddedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), AddedPlatformOperatorTemplateId)
-    sendEmail(AddedAsPlatformOperatorRequest.build(userAnswers), AddedAsPlatformOperatorTemplateId)
   }
+
 
   def sendRemovePlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
                                       (implicit hc: HeaderCarrier): Future[Done] = {
+    if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+      sendEmail(RemovedAsPlatformOperatorRequest.build(userAnswers), RemovedAsPlatformOperatorTemplateId)
+    }
     sendEmail(RemovedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), RemovedPlatformOperatorTemplateId)
-    sendEmail(RemovedAsPlatformOperatorRequest.build(userAnswers), RemovedAsPlatformOperatorTemplateId)
   }
 
   def sendUpdatedPlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
                                        (implicit hc: HeaderCarrier): Future[Done] = {
+    if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+      sendEmail(UpdatedAsPlatformOperatorRequest.build(userAnswers), UpdatedAsPlatformOperatorTemplateId)
+    }
     sendEmail(UpdatedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), UpdatedPlatformOperatorTemplateId)
-    sendEmail(UpdatedAsPlatformOperatorRequest.build(userAnswers), UpdatedAsPlatformOperatorTemplateId)
   }
 
   def sendAddReportingNotificationEmails(userAnswers: UserAnswers,
                                          subscriptionInfo: SubscriptionInfo,
                                          addNotificationRequest: UpdatePlatformOperatorRequest)
                                         (implicit hc: HeaderCarrier): Future[Done] = {
+    if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+      sendEmail(AddedAsReportingNotificationRequest.build(userAnswers, addNotificationRequest), AddedAsReportingNotificationTemplateId)
+    }
     sendEmail(AddedReportingNotificationRequest.build(userAnswers, subscriptionInfo), AddedReportingNotificationTemplateId)
-    sendEmail(AddedAsReportingNotificationRequest.build(userAnswers, addNotificationRequest), AddedAsReportingNotificationTemplateId)
   }
+
+  private def matchingEmails(userAnswers: UserAnswers, poEmail: String): Boolean =
+    userAnswers.get(PrimaryContactEmailPage).getOrElse("").trim.toLowerCase() == poEmail.trim.toLowerCase
 
   private def sendEmail(requestBuild: EitherNec[Query, SendEmailRequest], templateName: String)
                        (implicit hc: HeaderCarrier): Future[Done] = requestBuild.fold(
