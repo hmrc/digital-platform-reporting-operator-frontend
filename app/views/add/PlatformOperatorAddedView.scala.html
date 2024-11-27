@@ -37,9 +37,9 @@
     ))
 
     @if(subscriptionEmail.trim.toLowerCase != viewModel.poPrimaryContactEmail.trim.toLowerCase) {
-        <p class="govuk-body">@messages("platformOperatorAdded.p1a", viewModel.operatorName, subscriptionEmail, viewModel.poPrimaryContactEmail)</p>
+        <p class="govuk-body">@messages("platformOperatorAdded.p1.two.emails", viewModel.operatorName, subscriptionEmail, viewModel.poPrimaryContactEmail)</p>
     } else {
-        <p class="govuk-body">@messages("platformOperatorAdded.p1b", viewModel.operatorName, subscriptionEmail)</p>
+        <p class="govuk-body">@messages("platformOperatorAdded.p1.one.email", viewModel.operatorName, subscriptionEmail)</p>
     }
 
     <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>

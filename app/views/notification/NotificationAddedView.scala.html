@@ -38,9 +38,9 @@
     @govukSummaryList(list)
 
     if (subscriptionPrimaryEmail.trim.toLowerCase != poPrimaryEmail.trim.toLowerCase) {
-        <p class="govuk-body">@messages("notificationAdded.p1a", businessName, subscriptionPrimaryEmail, poPrimaryEmail)</p>
+        <p class="govuk-body">@messages("notificationAdded.p1.two.emails", businessName, subscriptionPrimaryEmail, poPrimaryEmail)</p>
     } else {
-        <p class="govuk-body">@messages("notificationAdded.p1b", businessName, subscriptionPrimaryEmail)</p>
+        <p class="govuk-body">@messages("notificationAdded.p1.one.email", businessName, subscriptionPrimaryEmail)</p>
     }
 
     <h2 class="govuk-heading-m">@messages("notificationAdded.h2")</h2>

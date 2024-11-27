@@ -41,9 +41,6 @@ import scala.concurrent.Future
 
 class EmailService @Inject()(emailConnector: EmailConnector) {
 
-  private def matchingEmails(userAnswers: UserAnswers, poEmail: String): Boolean =
-    userAnswers.get(PrimaryContactEmailPage).getOrElse("").trim.toLowerCase() == poEmail.trim.toLowerCase
-
   def sendAddPlatformOperatorEmails(userAnswers: UserAnswers, subscriptionInfo: SubscriptionInfo)
                                    (implicit hc: HeaderCarrier): Future[Done] = {
     if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
@@ -78,6 +75,9 @@ class EmailService @Inject()(emailConnector: EmailConnector) {
     }
     sendEmail(AddedReportingNotificationRequest.build(userAnswers, subscriptionInfo), AddedReportingNotificationTemplateId)
   }
+
+  private def matchingEmails(userAnswers: UserAnswers, poEmail: String): Boolean =
+    userAnswers.get(PrimaryContactEmailPage).getOrElse("").trim.toLowerCase() == poEmail.trim.toLowerCase
 
   private def sendEmail(requestBuild: EitherNec[Query, SendEmailRequest], templateName: String)
                        (implicit hc: HeaderCarrier): Future[Done] = requestBuild.fold(
