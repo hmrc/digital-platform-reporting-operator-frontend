@@ -33,7 +33,7 @@ object BusinessNameSummary  {
 
         SummaryListRowViewModel(
           key     = "businessName.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
+          value   = ValueViewModel(answer),
           actions = Seq(
             ActionItemViewModel("site.change", routes.BusinessNameController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("businessName.change.hidden"))

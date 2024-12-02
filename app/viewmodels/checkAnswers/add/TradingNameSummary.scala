@@ -35,7 +35,7 @@ object TradingNameSummary  {
 
         SummaryListRowViewModel(
           key     = "tradingName.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlFormat.escape(answer).toString),
+          value   = ValueViewModel(answer),
           actions = Seq(
             ActionItemViewModel("site.change", routes.TradingNameController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("tradingName.change.hidden", businessName))
