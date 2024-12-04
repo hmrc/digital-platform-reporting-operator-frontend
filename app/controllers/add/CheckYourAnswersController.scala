@@ -91,6 +91,7 @@ class CheckYourAnswersController @Inject()(
           createRequest =>
             (for {
               createResponse        <- connector.createPlatformOperator(createRequest)
+              _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
               cleanedAnswers        =  request.userAnswers.copy(data = Json.obj())
               platformOperatorInfo  =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
               updatedAnswers        <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
@@ -98,10 +99,11 @@ class CheckYourAnswersController @Inject()(
               subscriptionInfo      <- subscriptionConnector.getSubscriptionInfo
               answersWithOperatorId =  request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
               _                     <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId, subscriptionInfo)
-              _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
-              case error: CreatePlatformOperatorFailure => auditService
-                .sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status).toAuditModel)
+              case error: CreatePlatformOperatorFailure => logger.warn("Failed to create platform operator", error)
+                auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status).toAuditModel)
+                throw error
+              case error => logger.warn("Add platform operator emails not sent", error)
                 throw error
             }
         )
