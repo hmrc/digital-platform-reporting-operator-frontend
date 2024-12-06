@@ -73,18 +73,17 @@ class CheckYourAnswersController @Inject()(
         addNotificationRequest =>
           (for {
             _                       <- connector.updatePlatformOperator(addNotificationRequest)
+            _                       <- auditService.sendAudit(CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
             updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
             newAnswers              <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
             _                       <- sessionRepository.set(newAnswers)
             subscriptionInfo        <- subscriptionConnector.getSubscriptionInfo
             _                       <- emailService.sendAddReportingNotificationEmails(request.userAnswers, subscriptionInfo, addNotificationRequest)
-            _                       <- auditService.sendAudit(CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
           } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, newAnswers))).recover {
-            error =>
-              auditService
-                .sendAudit(CreateReportingNotificationAuditEventModel(
-                  addNotificationRequest,
-                  error.asInstanceOf[UpdatePlatformOperatorFailure].status).toAuditModel)
+            case error: UpdatePlatformOperatorFailure => logger.warn("Failed to add notification for platform", error)
+              auditService.sendAudit(CreateReportingNotificationAuditEventModel(addNotificationRequest, error.status).toAuditModel)
+              throw error
+            case error => logger.warn("Add notification for platform operator emails not sent", error)
               throw error
           }
       )

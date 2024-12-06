@@ -17,14 +17,17 @@
 package controllers.add
 
 import base.SpecBase
+import builders.CreatePlatformOperatorRequestBuilder.aCreatePlatformOperatorRequest
+import builders.PlatformOperatorSummaryViewModelBuilder.aPlatformOperatorSummaryViewModel
+import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
+import connectors.SubscriptionConnector.GetSubscriptionInfoFailure
 import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
-import models.operator.requests.CreatePlatformOperatorRequest
+import models.UkTaxIdentifiers.Utr
 import models.operator.responses.PlatformOperatorCreatedResponse
-import models.operator.{AddressDetails, ContactDetails}
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
-import models.{Country, NormalMode, UkAddress, UserAnswers}
+import models.operator.{AddressDetails, TinDetails, TinType}
+import models.{Country, NormalMode, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
@@ -32,6 +35,7 @@ import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add._
+import pages.update.{HasTaxIdentifierPage, UkTaxIdentifiersPage, UtrPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -39,7 +43,6 @@ import queries.PlatformOperatorAddedQuery
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.add.CheckYourAnswersView
@@ -138,35 +141,44 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
     }
 
     "for a POST" - {
-      "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" - {
-        val answers = UserAnswers(userAnswersId, Some(operatorId))
-          .set(BusinessNamePage, "business").success.value
-          .set(HasTradingNamePage, false).success.value
-          .set(TaxResidentInUkPage, true).success.value
-          .set(HasTaxIdentifierPage, false).success.value
-          .set(RegisteredInUkPage, true).success.value
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(PrimaryContactNamePage, "first last").success.value
-          .set(PrimaryContactEmailPage, "email").success.value
-          .set(CanPhonePrimaryContactPage, false).success.value
-          .set(HasSecondaryContactPage, false).success.value
 
-        val response = PlatformOperatorCreatedResponse(operatorId)
+      val answers = UserAnswers(userAnswersId, Some(operatorId))
+        .set(BusinessNamePage, "default-operator-name").success.value
+        .set(HasTradingNamePage, false).success.value
+        .set(TaxResidentInUkPage, true).success.value
+        .set(HasTaxIdentifierPage, true).success.value
+        .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr)).success.value
+        .set(UtrPage, "default-tin").success.value
+        .set(RegisteredInUkPage, true).success.value
+        .set(UkAddressPage, UkAddress("default-line-1", None, "default-town", None, "default-postcode", Country("GB", "United Kingdom"))).success.value
+        .set(PrimaryContactNamePage, "default-contact-name").success.value
+        .set(PrimaryContactEmailPage, "default.contact@example.com").success.value
+        .set(CanPhonePrimaryContactPage, false).success.value
+        .set(HasSecondaryContactPage, false).success.value
 
-        val expectedRequest = CreatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorName = "business",
-          tinDetails = Seq.empty,
-          businessName = None,
-          tradingName = None,
-          primaryContactDetails = ContactDetails(None, "first last", "email"),
-          secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+      val response = PlatformOperatorCreatedResponse(operatorId)
+
+      val expectedRequest = aCreatePlatformOperatorRequest.copy(
+        tinDetails = Seq(TinDetails(
+          tin = "default-tin",
+          tinType = TinType.Utr,
+          issuedBy = "GB"
+        )),
+        addressDetails = AddressDetails(
+          line1 = "default-line-1",
+          line2 = None,
+          line3 = Some("default-town"),
+          line4 = None,
+          postCode = Some("default-postcode"),
+          countryCode = Some("GB")
         )
+      )
 
-        val expectedOperatorInfo = PlatformOperatorSummaryViewModel(operatorId, "business", "email")
+      "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" - {
+
+        val expectedOperatorInfo = aPlatformOperatorSummaryViewModel
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
+        val subscriptionInfo = aSubscriptionInfo
 
         "when send emails successful" in {
           when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
@@ -236,28 +248,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       }
 
       "must return a failed future when creating the operator fails" in {
-        val answers = emptyUserAnswers
-          .set(BusinessNamePage, "business").success.value
-          .set(HasTradingNamePage, false).success.value
-          .set(TaxResidentInUkPage, true).success.value
-          .set(HasTaxIdentifierPage, false).success.value
-          .set(RegisteredInUkPage, true).success.value
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(PrimaryContactNamePage, "name").success.value
-          .set(PrimaryContactEmailPage, "email").success.value
-          .set(CanPhonePrimaryContactPage, false).success.value
-          .set(HasSecondaryContactPage, false).success.value
-
-        val expectedRequest = CreatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorName = "business",
-          tinDetails = Seq.empty,
-          businessName = None,
-          tradingName = None,
-          primaryContactDetails = ContactDetails(None, "name", "email"),
-          secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
-        )
 
         when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.failed(CreatePlatformOperatorFailure(422))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
@@ -279,6 +269,33 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           verify(mockRepository, never()).set(any())
           verify(mockEmailService, never()).sendAddPlatformOperatorEmails(any(), any())(any())
           verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
+        }
+      }
+
+      "must return a failed future when getSubscriptionInfo fails" in {
+
+        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
+        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockRepository.set(any())) thenReturn Future.successful(true)
+        when(mockSubscriptionConnector.getSubscriptionInfo(any())) thenReturn Future.failed(GetSubscriptionInfoFailure(422))
+
+        val app = applicationBuilder(Some(answers)).overrides(
+          bind[PlatformOperatorConnector].toInstance(mockConnector),
+          bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
+          bind[SessionRepository].toInstance(mockRepository),
+          bind[EmailService].toInstance(mockEmailService),
+          bind[AuditService].toInstance(mockAuditService)
+        ).build()
+
+        running(app) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+          route(app, request).value.failed.futureValue
+          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
+          verify(mockRepository, times(1)).set(any())
+          verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
+          verify(mockEmailService, never()).sendAddPlatformOperatorEmails(any(), any())(any())
         }
       }
 

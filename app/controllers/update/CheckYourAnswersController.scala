@@ -17,6 +17,7 @@
 package controllers.update
 
 import com.google.inject.Inject
+import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
@@ -82,13 +83,18 @@ class CheckYourAnswersController @Inject()(
     implicit request =>
       userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
         errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
-        updateRequest => for {
+        updateRequest => (for {
           _                <- connector.updatePlatformOperator(updateRequest)
-          subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-          _                <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
           originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
           _                <- auditService.sendAudit(ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
-        } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))
+          subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
+          _                <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
+        } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))).recover {
+          case error: UpdatePlatformOperatorFailure => logger.warn("Failed to update platform operator", error)
+            throw error
+          case error => logger.warn("Update platform operator emails not sent", error)
+            throw error
+        }
       )
   }
 
