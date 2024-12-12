@@ -333,6 +333,7 @@ platformOperatorAdded.panel.p1 = The platform operator ID is {0}
 platformOperatorAdded.p1.two.emails = {0} has been successfully added as a platform operator. We have sent a confirmation email to {1} and {2}.
 platformOperatorAdded.p1.one.email = {0} has been successfully added as a platform operator. We have sent a confirmation email to {1}.
 platformOperatorAdded.p2 = Keep a record of this platform operator ID. You need to provide it on every file you send to HMRC for this platform operator.
+platformOperatorAdded.print.link.text = Print this page
 platformOperatorAdded.whatYouNeedToDoNext = What you need to do next
 platformOperatorAdded.p3 = To send submissions for this platform operator, you must
 platformOperatorAdded.p3.link.text = add a reporting notification
