@@ -16,6 +16,7 @@
 
 package models.audit
 
+import models.DefaultCountriesList
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.operator.responses.PlatformOperator
 import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
@@ -24,6 +25,8 @@ import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
 class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matchers {
+
+  private val countriesList = new DefaultCountriesList
 
   ".writes" - {
     val baseContact = ContactDetails(phoneNumber = None, contactName = "contactName", emailAddress = "emailAddress")
@@ -55,7 +58,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when business name has changed" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(operatorName = "newBusinessName")
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "businessName" -> "businessName"
@@ -70,7 +73,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when `hasBusinessTradingName` from false to true" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(tradingName = Some("tradingName"))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasBusinessTradingName" -> false
@@ -86,7 +89,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when `hasBusinessTradingName` from true to false" in {
       val original = baseOriginalInfo.copy(tradingName = Some("tradingName"))
       val updated = baseUpdateInfo
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasBusinessTradingName" -> true,
@@ -102,7 +105,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when `hasTaxIdentifier` from false to true for a UK tax resident" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasTaxIdentificationNumber" -> false,
@@ -122,7 +125,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when `hasTaxIdentifier` from true to false for a existing UK tax resident" in {
       val original = baseOriginalInfo.copy(tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")))
       val updated = baseUpdateInfo
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasTaxIdentificationNumber" -> true,
@@ -141,7 +144,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when `hasTaxIdentifier` from false to true for a non UK tax resident" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(tinDetails = Seq(TinDetails("9999", TinType.Other, "US")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasTaxIdentificationNumber" -> false
@@ -161,7 +164,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when `hasTaxIdentifier` from true to false for a existing non UK tax resident" in {
       val original = baseOriginalInfo.copy(tinDetails = Seq(TinDetails("9999", TinType.Other, "US")))
       val updated = baseUpdateInfo
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasTaxIdentificationNumber" -> true,
@@ -181,7 +184,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when changes applied to a UK tax identification identifier value" in {
       val original = baseOriginalInfo.copy(tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")))
       val updated = baseUpdateInfo.copy(tinDetails = Seq(TinDetails("0987654321", TinType.Utr, "GB")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "taxIdentifiers" -> Json.obj(
@@ -198,7 +201,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when an additional UK tax identification identifier is added" in {
       val original = baseOriginalInfo.copy(tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")))
       val updated = baseUpdateInfo.copy(tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB"), TinDetails("AB123456", TinType.Crn, "GB")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "taxIdentifiers" -> Json.obj(
@@ -218,7 +221,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
         AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("US")))
       val updated = baseUpdateInfo.copy(addressDetails =
         AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("GB")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "registeredBusinessAddressInUk" -> false,
@@ -245,7 +248,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
         AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("GB")))
       val updated = baseUpdateInfo.copy(addressDetails =
         AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("US")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "registeredBusinessAddressInUk" -> true,
@@ -273,7 +276,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
         AddressDetails(line1 = "line1", line2 = Some("22 Street"), line3 = None, line4 = None, postCode = None, countryCode = Some("GB")))
       val updated = baseUpdateInfo.copy(addressDetails =
         AddressDetails(line1 = "line1", line2 = Some("33 Street"), line3 = None, line4 = None, postCode = None, countryCode = Some("GB")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "registeredBusinessAddress" -> Json.obj(
@@ -298,7 +301,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when primary contact name has changed" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(primaryContactDetails = ContactDetails(None, "NewName", "emailAddress"))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "primaryContactName" -> "contactName"
@@ -313,7 +316,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when primary contact email has changed" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(primaryContactDetails = ContactDetails(None, "contactName", "newEmailAddress"))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "primaryContactEmail" -> "emailAddress"
@@ -328,7 +331,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when 'canPhonePrimaryContact' false to true" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(primaryContactDetails = ContactDetails(Some("1234567890"), "contactName", "emailAddress"))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "canPhonePrimaryContact" -> false
@@ -344,7 +347,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when 'canPhonePrimaryContact' true to false" in {
       val original = baseOriginalInfo.copy(primaryContactDetails = ContactDetails(Some("1234567890"), "contactName", "emailAddress"))
       val updated = baseUpdateInfo.copy(primaryContactDetails = ContactDetails(None, "contactName", "emailAddress"))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "canPhonePrimaryContact" -> true,
@@ -360,7 +363,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when 'hasSecondaryContact' false to true" in {
       val original = baseOriginalInfo
       val updated = baseUpdateInfo.copy(secondaryContactDetails = Some(ContactDetails(None, "contactName", "emailAddress")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasSecondaryContact" -> false
@@ -378,7 +381,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when 'hasSecondaryContact' true to false" in {
       val original = baseOriginalInfo.copy(secondaryContactDetails = Some(ContactDetails(None, "contactName", "emailAddress")))
       val updated = baseUpdateInfo
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "hasSecondaryContact" -> true,
@@ -396,7 +399,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when 'canPhoneSecondaryContact' false to true" in {
       val original = baseOriginalInfo.copy(secondaryContactDetails = Some(ContactDetails(None, "contactName", "emailAddress")))
       val updated = baseUpdateInfo.copy(secondaryContactDetails = Some(ContactDetails(Some("1234567890"), "contactName", "emailAddress")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "canPhoneSecondaryContact" -> false,
@@ -412,7 +415,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     "when 'canPhoneSecondaryContact' true to false" in {
       val original = baseOriginalInfo.copy(secondaryContactDetails = Some(ContactDetails(Some("1234567890"), "contactName", "emailAddress")))
       val updated = baseUpdateInfo.copy(secondaryContactDetails = Some(ContactDetails(None, "contactName", "emailAddress")))
-      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
           "canPhoneSecondaryContact" -> true,

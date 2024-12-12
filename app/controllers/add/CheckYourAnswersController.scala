@@ -21,7 +21,7 @@ import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
-import models.{NormalMode, UserAnswers}
+import models.{CountriesList, NormalMode, UserAnswers}
 import pages.add.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -52,7 +52,8 @@ class CheckYourAnswersController @Inject()(
                                             subscriptionConnector: SubscriptionConnector,
                                             sessionRepository: SessionRepository,
                                             auditService: AuditService,
-                                            emailService: EmailService
+                                            emailService: EmailService,
+                                            countriesList: CountriesList
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
@@ -91,7 +92,7 @@ class CheckYourAnswersController @Inject()(
           createRequest =>
             (for {
               createResponse        <- connector.createPlatformOperator(createRequest)
-              _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse).toAuditModel)
+              _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse, countriesList).toAuditModel)
               cleanedAnswers        =  request.userAnswers.copy(data = Json.obj())
               platformOperatorInfo  =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
               updatedAnswers        <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
@@ -101,7 +102,7 @@ class CheckYourAnswersController @Inject()(
               _                     <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId, subscriptionInfo)
             } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
               case error: CreatePlatformOperatorFailure => logger.warn("Failed to create platform operator", error)
-                auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status).toAuditModel)
+                auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status, countriesList).toAuditModel)
                 throw error
               case error => logger.warn("Add platform operator emails not sent", error)
                 throw error

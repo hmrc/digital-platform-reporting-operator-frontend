@@ -18,13 +18,14 @@ package pages.update
 
 import controllers.update.routes
 import models.UkTaxIdentifiers._
-import models.{Country, UkTaxIdentifiers, UserAnswers}
+import models.{Country, DefaultCountriesList, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 
 class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
+  private val countriesList = new DefaultCountriesList
   private val emptyAnswers = UserAnswers("id")
   private val operatorId = "operatorId"
 
@@ -47,7 +48,7 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
         val answers =
           emptyAnswers
             .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
 
         TaxResidentInUkPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
@@ -72,7 +73,7 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
       val answers =
         emptyAnswers
-          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "id").success.value
           .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
@@ -99,7 +100,7 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
       val answers =
         emptyAnswers
-          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "id").success.value
           .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value

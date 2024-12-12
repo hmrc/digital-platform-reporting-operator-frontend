@@ -17,9 +17,10 @@
 package controllers.add
 
 import base.SpecBase
+import builders.CountryBuilder.aCountry
 import controllers.{routes => baseRoutes}
 import forms.TaxResidencyCountryFormProvider
-import models.{Country, NormalMode}
+import models.{DefaultCountriesList, NormalMode}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,9 +35,9 @@ import scala.concurrent.Future
 
 class TaxResidencyCountryControllerSpec extends SpecBase with MockitoSugar {
 
-    private val formProvider = new TaxResidencyCountryFormProvider()
+  private val formProvider = new TaxResidencyCountryFormProvider(new DefaultCountriesList)
   private val businessName = "name"
-  private val country = Country.internationalCountries.head
+  private val country = (new DefaultCountriesList).internationalCountries.head
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   private lazy val taxResidencyCountryRoute = routes.TaxResidencyCountryController.onPageLoad(NormalMode).url

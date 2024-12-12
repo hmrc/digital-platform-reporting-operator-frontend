@@ -17,9 +17,10 @@
 package builders
 
 import builders.SuccessResponseDataBuilder.aSuccessResponseData
+import models.DefaultCountriesList
 import models.audit.CreatePlatformOperatorAuditEventModel
-import models.operator.{AddressDetails, ContactDetails}
 import models.operator.requests.CreatePlatformOperatorRequest
+import models.operator.{AddressDetails, ContactDetails}
 
 object AuditEventModelBuilder {
 
@@ -28,6 +29,7 @@ object AuditEventModelBuilder {
       businessName = None, tradingName = None, primaryContactDetails = ContactDetails(phoneNumber = None, contactName = "", emailAddress = ""),
       secondaryContactDetails = None, addressDetails = AddressDetails(line1 = "", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = None)
     ),
-    responseData = aSuccessResponseData
+    responseData = aSuccessResponseData,
+    countriesList = new DefaultCountriesList
   )
 }

@@ -17,13 +17,14 @@
 package pages.add
 
 import controllers.add.routes
-import models.{CheckMode, Country, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.{CheckMode, DefaultCountriesList, NormalMode, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 
 class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
+  private val countriesList = new DefaultCountriesList
   private val emptyAnswers = UserAnswers("id")
 
   ".nextPage" - {
@@ -85,7 +86,7 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
           .set(VrnPage, "vrn").success.value
           .set(EmprefPage, "empref").success.value
           .set(ChrnPage, "chrn").success.value
-          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "foo").success.value
 
       val result = answers.set(HasTaxIdentifierPage, false).success.value
@@ -112,7 +113,7 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
           .set(VrnPage, "vrn").success.value
           .set(EmprefPage, "empref").success.value
           .set(ChrnPage, "chrn").success.value
-          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "foo").success.value
 
       val result = answers.set(HasTaxIdentifierPage, true).success.value

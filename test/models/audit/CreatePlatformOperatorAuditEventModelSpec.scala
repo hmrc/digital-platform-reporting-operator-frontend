@@ -16,6 +16,7 @@
 
 package models.audit
 
+import models.DefaultCountriesList
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
 import org.scalatest.freespec.AnyFreeSpec
@@ -25,6 +26,8 @@ import play.api.libs.json.{JsObject, Json}
 import java.time.LocalDateTime
 
 class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matchers {
+
+  private val countriesList = new DefaultCountriesList
 
   ".writes" - {
     val baseContact = ContactDetails(phoneNumber = None, contactName = "Homer Simpson", emailAddress = "homer.simpson@example.com")
@@ -70,7 +73,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
 
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(basePlatformOperator, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(basePlatformOperator, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -105,7 +108,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       val requestData = basePlatformOperator.copy(addressDetails = AddressDetails(line1 = "742 Evergreen Terrace", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("JE")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -141,7 +144,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       val requestData = basePlatformOperator.copy(tradingName = Some("Trading Name"))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -179,7 +182,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       val requestData = basePlatformOperator.copy(tinDetails = Seq(TinDetails("12345678900", TinType.Utr, "GB")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -219,7 +222,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       val requestData = basePlatformOperator.copy(tinDetails = Seq(TinDetails("9999", TinType.Other, "AF")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -267,7 +270,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       )
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -303,7 +306,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       val requestData = basePlatformOperator.copy(primaryContactDetails = ContactDetails(phoneNumber = Some("1234567890"), contactName = "Homer Simpson", emailAddress = "homer.simpson@example.com"))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -342,7 +345,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
         secondaryContactDetails = Some(ContactDetails(phoneNumber = None, contactName = "Homer Simpson 2", emailAddress = "homer.simpson2@example.com")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -382,7 +385,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
         secondaryContactDetails = Some(ContactDetails(phoneNumber = Some("1234567890"), contactName = "Homer Simpson 2", emailAddress = "homer.simpson2@example.com")))
       val responseData = SuccessResponseData(
         processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 
@@ -417,7 +420,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
 
       val responseData = FailureResponseData(
         statusCode = 422, processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), category = "Failure", reason = "Internal Server Error")
-      val auditEvent = CreatePlatformOperatorAuditEventModel(basePlatformOperator, responseData)
+      val auditEvent = CreatePlatformOperatorAuditEventModel(basePlatformOperator, responseData, countriesList)
       Json.toJson(auditEvent) mustEqual expected
     }
 

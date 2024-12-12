@@ -17,14 +17,15 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.Country
+import models.DefaultCountriesList
 import org.scalacheck.Gen
 import play.api.data.FormError
 
 class UkAddressFormProviderSpec extends StringFieldBehaviours {
 
   private val businessName = "name"
-  private val form = new UkAddressFormProvider()(businessName)
+  private val countriesList = new DefaultCountriesList
+  private val form = new UkAddressFormProvider(countriesList)(businessName)
 
   ".line1" - {
 
@@ -186,7 +187,7 @@ class UkAddressFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      Gen.oneOf(Country.ukCountries.map(_.code))
+      Gen.oneOf(countriesList.ukCountries.map(_.code))
     )
 
     behave like mandatoryField(

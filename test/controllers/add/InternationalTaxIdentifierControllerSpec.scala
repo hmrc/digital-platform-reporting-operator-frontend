@@ -17,9 +17,10 @@
 package controllers.add
 
 import base.SpecBase
+import builders.CountryBuilder.aCountry
 import controllers.{routes => baseRoutes}
 import forms.InternationalTaxIdentifierFormProvider
-import models.{Country, NormalMode}
+import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,9 +36,8 @@ import scala.concurrent.Future
 class InternationalTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new InternationalTaxIdentifierFormProvider()
-  private val country = Country.internationalCountries.head
-  private val form = formProvider(country)
-  private val baseAnswers = emptyUserAnswers.set(TaxResidencyCountryPage, country).success.value
+  private val form = formProvider(aCountry)
+  private val baseAnswers = emptyUserAnswers.set(TaxResidencyCountryPage, aCountry).success.value
 
   private lazy val internationalTaxIdentifierRoute = routes.InternationalTaxIdentifierController.onPageLoad(NormalMode).url
 
@@ -55,7 +55,7 @@ class InternationalTaxIdentifierControllerSpec extends SpecBase with MockitoSuga
         val view = application.injector.instanceOf[InternationalTaxIdentifierView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, aCountry)(request, messages(application)).toString
       }
     }
 
@@ -73,7 +73,7 @@ class InternationalTaxIdentifierControllerSpec extends SpecBase with MockitoSuga
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, aCountry)(request, messages(application)).toString
       }
     }
 
@@ -116,7 +116,7 @@ class InternationalTaxIdentifierControllerSpec extends SpecBase with MockitoSuga
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, country)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, aCountry)(request, messages(application)).toString
       }
     }
 

@@ -20,7 +20,7 @@ import models.UkTaxIdentifiers._
 import models.operator._
 import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses._
-import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{DefaultCountriesList, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
@@ -32,7 +32,8 @@ import java.time.Instant
 
 class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues with TryValues with EitherValues {
 
-  private val userAnswersService = new UserAnswersService()
+  private val countriesList = new DefaultCountriesList
+  private val userAnswersService = new UserAnswersService(countriesList)
   private val emptyAnswers = UserAnswers("id", None)
   private val now = Instant.now
 
@@ -90,7 +91,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             "line 3",
             Some("line 4"),
             "AA1 1AA",
-            Country.ukCountries.find(_.code == "GB").value
+            countriesList.ukCountries.find(_.code == "GB").value
           )
 
           result.get(PrimaryContactNamePage).value mustEqual "primaryName"
@@ -149,7 +150,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             "line 3",
             None,
             "AA1 1AA",
-            Country.ukCountries.find(_.code == "GB").value
+            countriesList.ukCountries.find(_.code == "GB").value
           )
 
           result.get(PrimaryContactNamePage).value mustEqual "primaryName"
@@ -253,7 +254,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             "line 3",
             Some("line 4"),
             "zip",
-            Country.internationalCountries.find(_.code == "US").value
+            countriesList.internationalCountries.find(_.code == "US").value
           )
 
           result.get(PrimaryContactNamePage).value mustEqual "primaryName"
@@ -305,7 +306,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             "line 3",
             Some("line 4"),
             "zip",
-            Country.internationalCountries.find(_.code == "US").value
+            countriesList.internationalCountries.find(_.code == "US").value
           )
 
           result.get(PrimaryContactNamePage).value mustEqual "primaryName"
@@ -454,7 +455,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(EmprefPage, "empref").success.value
             .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -474,7 +475,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code))
         )
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
@@ -491,10 +492,10 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TradingNamePage, "trading name").success.value
             .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
             .set(InternationalTaxIdentifierPage, "tax id").success.value
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -508,13 +509,13 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           subscriptionId = "dprsId",
           operatorName = "name",
           tinDetails = Seq(
-            TinDetails("tax id", TinType.Other, Country.internationalCountries.head.code)
+            TinDetails("tax id", TinType.Other, countriesList.internationalCountries.head.code)
           ),
           businessName = None,
           tradingName = Some("trading name"),
           primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
           secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(Country.internationalCountries.head.code))
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code))
         )
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
@@ -531,7 +532,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -549,7 +550,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = Some(ContactDetails(Some("07777 888888"), "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code))
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code))
         )
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
@@ -566,9 +567,9 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TradingNamePage, "trading name").success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -586,7 +587,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = Some("trading name"),
           primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
           secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(Country.internationalCountries.head.code))
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code))
         )
 
         val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
@@ -621,7 +622,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTradingNamePage, false).success.value
             .set(HasTaxIdentifierPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -641,7 +642,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -662,7 +663,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -684,7 +685,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -744,7 +745,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -764,7 +765,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -784,7 +785,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -809,7 +810,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -844,7 +845,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(EmprefPage, "empref").success.value
             .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -865,7 +866,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code)),
           notification = None
         )
 
@@ -883,10 +884,10 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TradingNamePage, "trading name").success.value
             .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
             .set(InternationalTaxIdentifierPage, "tax id").success.value
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -901,13 +902,13 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           operatorId = "operatorId",
           operatorName = "name",
           tinDetails = Seq(
-            TinDetails("tax id", TinType.Other, Country.internationalCountries.head.code)
+            TinDetails("tax id", TinType.Other, countriesList.internationalCountries.head.code)
           ),
           businessName = None,
           tradingName = Some("trading name"),
           primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
           secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(Country.internationalCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code)),
           notification = None
         )
 
@@ -925,7 +926,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, false).success.value
             .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -944,7 +945,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = Some(ContactDetails(Some("07777 888888"), "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code)),
           notification = None
         )
 
@@ -962,9 +963,9 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TradingNamePage, "trading name").success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
             .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", Country.internationalCountries.head)).success.value
+            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -983,7 +984,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = Some("trading name"),
           primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
           secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(Country.internationalCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code)),
           notification = None
         )
 
@@ -1019,7 +1020,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTradingNamePage, false).success.value
             .set(HasTaxIdentifierPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1039,7 +1040,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1060,7 +1061,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1082,7 +1083,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTaxIdentifierPage, true).success.value
             .set(TaxResidentInUkPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1142,7 +1143,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1162,7 +1163,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, true).success.value
@@ -1182,7 +1183,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1207,7 +1208,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(TaxResidentInUkPage, true).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1242,7 +1243,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(EmprefPage, "empref").success.value
             .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1266,7 +1267,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code)),
           notification = Some(Notification(NotificationType.Rpo, Some(true), Some(true), 2024))
         )
 
@@ -1290,7 +1291,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(EmprefPage, "empref").success.value
             .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1314,7 +1315,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code)),
           notification = Some(Notification(NotificationType.Rpo, Some(false), Some(false), 2024))
         )
 
@@ -1338,7 +1339,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(EmprefPage, "empref").success.value
             .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
@@ -1361,7 +1362,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           tradingName = None,
           primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
           secondaryContactDetails = None,
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(Country.ukCountries.head.code)),
+          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code)),
           notification = Some(Notification(NotificationType.Epo, None, None, 2024))
         )
 
@@ -1398,7 +1399,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
             .set(HasTradingNamePage, false).success.value
             .set(HasTaxIdentifierPage, false).success.value
             .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
             .set(CanPhonePrimaryContactPage, false).success.value
