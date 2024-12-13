@@ -17,7 +17,7 @@
 package pages.update
 
 import controllers.update.routes
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.UserAnswers
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
@@ -54,7 +54,7 @@ class CanPhoneSecondaryContactPageSpec extends AnyFreeSpec with Matchers with Tr
       CanPhoneSecondaryContactPage.nextPage(operatorId, answers) mustEqual routes.SecondaryContactPhoneNumberController.onPageLoad(operatorId)
     }
   }
-  
+
   ".cleanup" - {
 
     "must remove Secondary Contact Phone Number when the answer is no" in {

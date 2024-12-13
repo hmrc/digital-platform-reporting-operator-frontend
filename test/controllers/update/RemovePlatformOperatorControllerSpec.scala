@@ -17,11 +17,12 @@
 package controllers.update
 
 import base.SpecBase
+import builders.CountryBuilder.aCountry
 import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
 import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
-import models.{Country, UkAddress, UserAnswers}
+import models.{UkAddress, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
@@ -83,7 +84,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         .set(TaxResidentInUkPage, true).success.value
         .set(HasTaxIdentifierPage, false).success.value
         .set(RegisteredInUkPage, true).success.value
-        .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+        .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", aCountry)).success.value
         .set(PrimaryContactNamePage, "name").success.value
         .set(PrimaryContactEmailPage, "email").success.value
         .set(CanPhonePrimaryContactPage, false).success.value

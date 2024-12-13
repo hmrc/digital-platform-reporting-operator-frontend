@@ -17,13 +17,14 @@
 package pages.add
 
 import controllers.add.routes
-import models.{CheckMode, Country, InternationalAddress, NormalMode, UkAddress, UserAnswers}
+import models.{CheckMode, DefaultCountriesList, InternationalAddress, NormalMode, UkAddress, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 
 class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
+  private val countriesList = new DefaultCountriesList
   private val emptyAnswers = UserAnswers("id")
 
   ".nextPage" - {
@@ -52,7 +53,7 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
           val answers =
             emptyAnswers
               .set(RegisteredInUkPage, true).success.value
-              .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
+              .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
 
           RegisteredInUkPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
         }
@@ -62,7 +63,7 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
           val answers =
             emptyAnswers
               .set(RegisteredInUkPage, false).success.value
-              .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", Country.internationalCountries.head)).success.value
+              .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
 
           RegisteredInUkPage.nextPage(CheckMode, answers) mustEqual routes.CheckYourAnswersController.onPageLoad()
         }
@@ -88,8 +89,8 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
 
       val answers =
         emptyAnswers
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", Country.internationalCountries.head)).success.value
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
 
       val result = answers.set(RegisteredInUkPage, false).success.value
 
@@ -102,8 +103,8 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
 
       val answers =
         emptyAnswers
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country.ukCountries.head)).success.value
-          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", Country.internationalCountries.head)).success.value
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
 
       val result = answers.set(RegisteredInUkPage, true).success.value
 

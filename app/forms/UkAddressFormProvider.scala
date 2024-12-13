@@ -17,13 +17,13 @@
 package forms
 
 import forms.mappings.Mappings
-import models.{Country, UkAddress}
+import models.{CountriesList, Country, UkAddress}
 import play.api.data.Form
 import play.api.data.Forms._
 
 import javax.inject.Inject
 
-class UkAddressFormProvider @Inject() extends Mappings {
+class UkAddressFormProvider @Inject()(countriesList: CountriesList) extends Mappings {
 
   def apply(businessName: String): Form[UkAddress] = Form(
     mapping(
@@ -50,8 +50,8 @@ class UkAddressFormProvider @Inject() extends Mappings {
       "postCode" -> text("ukAddress.error.postCode.required")
         .verifying(regexp(Validation.ukPostcodePattern.toString, "ukAddress.error.postCode.format")),
       "country" -> text("ukAddress.error.country.required")
-        .verifying("ukAddress.error.country.required", value => Country.ukCountries.exists(_.code == value))
-        .transform[Country](value => Country.ukCountries.find(_.code == value).get, _.code)
+        .verifying("ukAddress.error.country.required", value => countriesList.ukCountries.exists(_.code == value))
+        .transform[Country](value => countriesList.ukCountries.find(_.code == value).get, _.code)
     )(UkAddress.apply)(x => Some((x.line1, x.line2, x.town, x.county, x.postCode, x.country)))
   )
 }

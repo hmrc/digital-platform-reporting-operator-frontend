@@ -16,14 +16,17 @@
 
 package models.audit
 
-import models.Country
+import models.CountriesList
 import models.operator.TinType
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.operator.responses.PlatformOperator
 import play.api.libs.json.{JsObject, Json, OWrites}
 
-case class ChangePlatformOperatorAuditEventModel(original: PlatformOperator, updated: UpdatePlatformOperatorRequest){
+case class ChangePlatformOperatorAuditEventModel(original: PlatformOperator,
+                                                 updated: UpdatePlatformOperatorRequest,
+                                                 countriesList: CountriesList) {
   private def name = "ChangePlatformOperatorDetails"
+
   def toAuditModel: AuditModel[ChangePlatformOperatorAuditEventModel] = {
     AuditModel(name, this)
   }
@@ -34,8 +37,8 @@ object ChangePlatformOperatorAuditEventModel {
   implicit lazy val writes: OWrites[ChangePlatformOperatorAuditEventModel] = new OWrites[ChangePlatformOperatorAuditEventModel] {
     override def writes(o: ChangePlatformOperatorAuditEventModel): JsObject = {
 
-      val originalJson = toJsonPO(o.original)
-      val updatedJson = toJsonUPO(o.updated)
+      val originalJson = toJsonPO(o.original, o.countriesList)
+      val updatedJson = toJsonUPO(o.updated, o.countriesList)
 
       val changedFieldsInOriginal = JsObject(originalJson.fieldSet.diff(updatedJson.fieldSet).toSeq)
       val changedFieldsInUpdated = JsObject(updatedJson.fieldSet.diff(originalJson.fieldSet).toSeq)
@@ -47,18 +50,18 @@ object ChangePlatformOperatorAuditEventModel {
     }
   }
 
-  private def toJsonPO(info: PlatformOperator): JsObject = {
+  private def toJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
     val businessNameJson = Json.obj("businessName" -> info.operatorName)
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
-    val taxJson = getTaxJsonPO(info)
-    val addressJson = getAddressJsonPO(info)
+    val taxJson = getTaxJsonPO(info, countriesList)
+    val addressJson = getAddressJsonPO(info, countriesList)
     val contactJson = getContactJsonPO(info)
     businessNameJson ++ tradingNameJson ++ taxJson ++ addressJson ++ contactJson
   }
 
-  private def getTaxJsonPO(info: PlatformOperator): JsObject = {
+  private def getTaxJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
     val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
     val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
@@ -73,24 +76,24 @@ object ChangePlatformOperatorAuditEventModel {
     {other} else {Json.obj()}
     val internationalTaxResidentCountry = if (info.tinDetails.exists(_.issuedBy != "GB")) {
       val internationalCountryCode = info.tinDetails.head.issuedBy
-      val internationalCountryName = Country.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
+      val internationalCountryName = countriesList.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
       Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
     } else {Json.obj()}
     hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
-  private def getAddressJsonPO(info: PlatformOperator): JsObject = {
+  private def getAddressJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
     val registeredBusinessAddressInUk = info.addressDetails.countryCode.map{ countryCode =>
-      if (Country.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
+      if (countriesList.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
         Json.obj("registeredBusinessAddressInUk" -> false)}
     }.getOrElse(Json.obj())
-    val addressLine2 = info.addressDetails.line2.map {line2 => Json.obj("addressLine2" -> line2)}.getOrElse(Json.obj())
-    val city = info.addressDetails.line3.map {line3 => Json.obj("city" -> line3)}.getOrElse(Json.obj())
-    val region = info.addressDetails.line4.map {line4 => Json.obj("region" -> line4)}.getOrElse(Json.obj())
-    val postCode = info.addressDetails.postCode.map {postCode => Json.obj("postCode" -> postCode)}.getOrElse(Json.obj())
-    val countryCode = info.addressDetails.countryCode.map {countryCode => Json.obj("countryCode" -> countryCode)}.getOrElse(Json.obj())
-    val country = info.addressDetails.countryCode.flatMap { countryCode => Country.allCountries.find(_.code == countryCode).map(c => c.name)}
-    val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
+    val addressLine2 = info.addressDetails.line2.map { line2 => Json.obj("addressLine2" -> line2) }.getOrElse(Json.obj())
+    val city = info.addressDetails.line3.map { line3 => Json.obj("city" -> line3) }.getOrElse(Json.obj())
+    val region = info.addressDetails.line4.map { line4 => Json.obj("region" -> line4) }.getOrElse(Json.obj())
+    val postCode = info.addressDetails.postCode.map { postCode => Json.obj("postCode" -> postCode) }.getOrElse(Json.obj())
+    val countryCode = info.addressDetails.countryCode.map { countryCode => Json.obj("countryCode" -> countryCode) }.getOrElse(Json.obj())
+    val country = info.addressDetails.countryCode.flatMap { countryCode => countriesList.allCountries.find(_.code == countryCode).map(c => c.name) }
+    val countryName = info.addressDetails.countryCode.map { _ => Json.obj("country" -> country) }.getOrElse(Json.obj())
     val registeredBusinessAddress =
       Json.obj(
         "registeredBusinessAddress" -> Json.obj(
@@ -126,18 +129,18 @@ object ChangePlatformOperatorAuditEventModel {
   }
 
 
-  private def toJsonUPO(info: UpdatePlatformOperatorRequest): JsObject = {
+  private def toJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
     val businessNameJson = Json.obj("businessName" -> info.operatorName)
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
-    val taxJson = getTaxJsonUPO(info)
-    val addressJson = getAddressJsonUPO(info)
+    val taxJson = getTaxJsonUPO(info, countriesList)
+    val addressJson = getAddressJsonUPO(info, countriesList)
     val contactJson = getContactJsonUPO(info)
     businessNameJson ++ tradingNameJson ++ taxJson ++ addressJson ++ contactJson
   }
 
-  private def getTaxJsonUPO(info: UpdatePlatformOperatorRequest): JsObject = {
+  private def getTaxJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
     val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
     val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
@@ -152,24 +155,24 @@ object ChangePlatformOperatorAuditEventModel {
     {other} else {Json.obj()}
     val internationalTaxResidentCountry = if (info.tinDetails.exists(_.issuedBy != "GB")) {
       val internationalCountryCode = info.tinDetails.head.issuedBy
-      val internationalCountryName = Country.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
+      val internationalCountryName = countriesList.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
       Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
     } else {Json.obj()}
     hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
-  private def getAddressJsonUPO(info: UpdatePlatformOperatorRequest): JsObject = {
+  private def getAddressJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
     val registeredBusinessAddressInUk = info.addressDetails.countryCode.map{ countryCode =>
-      if (Country.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
+      if (countriesList.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
         Json.obj("registeredBusinessAddressInUk" -> false)}
     }.getOrElse(Json.obj())
-    val addressLine2 = info.addressDetails.line2.map {line2 => Json.obj("addressLine2" -> line2)}.getOrElse(Json.obj())
-    val city = info.addressDetails.line3.map {line3 => Json.obj("city" -> line3)}.getOrElse(Json.obj())
-    val region = info.addressDetails.line4.map {line4 => Json.obj("region" -> line4)}.getOrElse(Json.obj())
-    val postCode = info.addressDetails.postCode.map {postCode => Json.obj("postCode" -> postCode)}.getOrElse(Json.obj())
-    val countryCode = info.addressDetails.countryCode.map {countryCode => Json.obj("countryCode" -> countryCode)}.getOrElse(Json.obj())
-    val country = info.addressDetails.countryCode.flatMap { countryCode => Country.allCountries.find(_.code == countryCode).map(c => c.name)}
-    val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
+    val addressLine2 = info.addressDetails.line2.map { line2 => Json.obj("addressLine2" -> line2) }.getOrElse(Json.obj())
+    val city = info.addressDetails.line3.map { line3 => Json.obj("city" -> line3) }.getOrElse(Json.obj())
+    val region = info.addressDetails.line4.map { line4 => Json.obj("region" -> line4) }.getOrElse(Json.obj())
+    val postCode = info.addressDetails.postCode.map { postCode => Json.obj("postCode" -> postCode) }.getOrElse(Json.obj())
+    val countryCode = info.addressDetails.countryCode.map { countryCode => Json.obj("countryCode" -> countryCode) }.getOrElse(Json.obj())
+    val country = info.addressDetails.countryCode.flatMap { countryCode => countriesList.allCountries.find(_.code == countryCode).map(c => c.name) }
+    val countryName = info.addressDetails.countryCode.map { _ => Json.obj("country" -> country) }.getOrElse(Json.obj())
     val registeredBusinessAddress =
       Json.obj(
         "registeredBusinessAddress" -> Json.obj(

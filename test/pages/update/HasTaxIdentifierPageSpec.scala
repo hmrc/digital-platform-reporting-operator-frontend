@@ -17,13 +17,14 @@
 package pages.update
 
 import controllers.update.routes
-import models.{Country, UkTaxIdentifiers, UserAnswers}
+import models.{DefaultCountriesList, UkTaxIdentifiers, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 
 class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
+  private val countriesList = new DefaultCountriesList
   private val emptyAnswers = UserAnswers("id")
   private val operatorId = "operatorId"
 
@@ -68,19 +69,19 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
           .set(VrnPage, "vrn").success.value
           .set(EmprefPage, "empref").success.value
           .set(ChrnPage, "chrn").success.value
-          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "foo").success.value
 
       val result = answers.set(HasTaxIdentifierPage, false).success.value
 
-      result.get(TaxResidentInUkPage)            must not be defined
-      result.get(UkTaxIdentifiersPage)           must not be defined
-      result.get(UtrPage)                        must not be defined
-      result.get(CrnPage)                        must not be defined
-      result.get(VrnPage)                        must not be defined
-      result.get(EmprefPage)                     must not be defined
-      result.get(ChrnPage)                       must not be defined
-      result.get(TaxResidencyCountryPage)        must not be defined
+      result.get(TaxResidentInUkPage) must not be defined
+      result.get(UkTaxIdentifiersPage) must not be defined
+      result.get(UtrPage) must not be defined
+      result.get(CrnPage) must not be defined
+      result.get(VrnPage) must not be defined
+      result.get(EmprefPage) must not be defined
+      result.get(ChrnPage) must not be defined
+      result.get(TaxResidencyCountryPage) must not be defined
       result.get(InternationalTaxIdentifierPage) must not be defined
     }
 
@@ -95,19 +96,19 @@ class HasTaxIdentifierPageSpec extends AnyFreeSpec with Matchers with TryValues 
           .set(VrnPage, "vrn").success.value
           .set(EmprefPage, "empref").success.value
           .set(ChrnPage, "chrn").success.value
-          .set(TaxResidencyCountryPage, Country.internationalCountries.head).success.value
+          .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "foo").success.value
 
       val result = answers.set(HasTaxIdentifierPage, true).success.value
 
-      result.get(TaxResidentInUkPage)            mustBe defined
-      result.get(UkTaxIdentifiersPage)           mustBe defined
-      result.get(UtrPage)                        mustBe defined
-      result.get(CrnPage)                        mustBe defined
-      result.get(VrnPage)                        mustBe defined
-      result.get(EmprefPage)                     mustBe defined
-      result.get(ChrnPage)                       mustBe defined
-      result.get(TaxResidencyCountryPage)        mustBe defined
+      result.get(TaxResidentInUkPage) mustBe defined
+      result.get(UkTaxIdentifiersPage) mustBe defined
+      result.get(UtrPage) mustBe defined
+      result.get(CrnPage) mustBe defined
+      result.get(VrnPage) mustBe defined
+      result.get(EmprefPage) mustBe defined
+      result.get(ChrnPage) mustBe defined
+      result.get(TaxResidencyCountryPage) mustBe defined
       result.get(InternationalTaxIdentifierPage) mustBe defined
     }
   }

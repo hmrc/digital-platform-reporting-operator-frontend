@@ -16,7 +16,7 @@
 
 package models.audit
 
-import models.Country
+import models.CountriesList
 import models.operator.TinType
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.responses.PlatformOperatorCreatedResponse
@@ -24,8 +24,11 @@ import play.api.libs.json.{JsObject, Json, OWrites}
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 
-case class CreatePlatformOperatorAuditEventModel(requestData: CreatePlatformOperatorRequest, responseData: ResponseData) {
+case class CreatePlatformOperatorAuditEventModel(requestData: CreatePlatformOperatorRequest,
+                                                 responseData: ResponseData,
+                                                 countriesList: CountriesList) {
   private def name = "AddPlatformOperator"
+
   def toAuditModel: AuditModel[CreatePlatformOperatorAuditEventModel] = {
     AuditModel(name, this)
   }
@@ -34,21 +37,21 @@ case class CreatePlatformOperatorAuditEventModel(requestData: CreatePlatformOper
 object CreatePlatformOperatorAuditEventModel {
 
   implicit lazy val writes: OWrites[CreatePlatformOperatorAuditEventModel] = (o: CreatePlatformOperatorAuditEventModel) =>
-    toJson(o.requestData) + ("outcome" -> Json.toJson(o.responseData))
+    toJson(o.requestData, o.countriesList) + ("outcome" -> Json.toJson(o.responseData))
 
-  private def toJson(info: CreatePlatformOperatorRequest): JsObject = {
+  private def toJson(info: CreatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
     val subscriptionIdJson = Json.obj("subscriptionId" -> info.subscriptionId)
     val businessNameJson = Json.obj("businessName" -> info.operatorName)
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
-    val taxJson = getTaxJson(info)
-    val addressJson = getAddressJson(info)
+    val taxJson = getTaxJson(info, countriesList)
+    val addressJson = getAddressJson(info, countriesList)
     val contactJson = getContactJson(info)
     subscriptionIdJson ++ businessNameJson ++ tradingNameJson ++ taxJson ++ addressJson ++ contactJson
   }
 
-  private def getTaxJson(info: CreatePlatformOperatorRequest): JsObject = {
+  private def getTaxJson(info: CreatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
     val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
     val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
@@ -63,15 +66,15 @@ object CreatePlatformOperatorAuditEventModel {
     {other} else {Json.obj()}
     val internationalTaxResidentCountry = if (info.tinDetails.exists(_.issuedBy != "GB")) {
       val internationalCountryCode = info.tinDetails.head.issuedBy
-      val internationalCountryName = Country.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
+      val internationalCountryName = countriesList.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
       Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
     } else {Json.obj()}
     hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
-  private def getAddressJson(info: CreatePlatformOperatorRequest): JsObject = {
+  private def getAddressJson(info: CreatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
     val registeredBusinessAddressInUk = info.addressDetails.countryCode.map{ countryCode =>
-      if (Country.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
+      if (countriesList.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
         Json.obj("registeredBusinessAddressInUk" -> false)}
     }.getOrElse(Json.obj())
     val addressLine2 = info.addressDetails.line2.map {line2 => Json.obj("addressLine2" -> line2)}.getOrElse(Json.obj())
@@ -79,7 +82,7 @@ object CreatePlatformOperatorAuditEventModel {
     val region = info.addressDetails.line4.map {line4 => Json.obj("region" -> line4)}.getOrElse(Json.obj())
     val postCode = info.addressDetails.postCode.map {postCode => Json.obj("postCode" -> postCode)}.getOrElse(Json.obj())
     val countryCode = info.addressDetails.countryCode.map {countryCode => Json.obj("countryCode" -> countryCode)}.getOrElse(Json.obj())
-    val country = info.addressDetails.countryCode.flatMap { countryCode => Country.allCountries.find(_.code == countryCode).map(c => c.name)}
+    val country = info.addressDetails.countryCode.flatMap { countryCode => countriesList.allCountries.find(_.code == countryCode).map(c => c.name)}
     val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
     val registeredBusinessAddress =
       Json.obj(
@@ -115,17 +118,20 @@ object CreatePlatformOperatorAuditEventModel {
     primaryContactDetails ++ hasSecondaryContactJson ++ secondaryContactDetails
   }
 
-    def apply(requestData: CreatePlatformOperatorRequest,
-            platformOperatorCreatedResponse: PlatformOperatorCreatedResponse): CreatePlatformOperatorAuditEventModel = {
+  def apply(requestData: CreatePlatformOperatorRequest,
+            platformOperatorCreatedResponse: PlatformOperatorCreatedResponse,
+            countriesList: CountriesList): CreatePlatformOperatorAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = SuccessResponseData(localDateTime, platformOperatorCreatedResponse.operatorId)
-    CreatePlatformOperatorAuditEventModel(requestData, responseData)
+    CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
   }
 
-  def apply(requestData: CreatePlatformOperatorRequest, status: Int): CreatePlatformOperatorAuditEventModel = {
+  def apply(requestData: CreatePlatformOperatorRequest,
+            status: Int,
+            countriesList: CountriesList): CreatePlatformOperatorAuditEventModel = {
     val localDateTime = LocalDateTime.ofInstant(Instant.now, ZoneId.of("UTC"))
     val responseData = FailureResponseData(status, localDateTime, "Failure", "Internal Server Error")
-    CreatePlatformOperatorAuditEventModel(requestData, responseData)
+    CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
   }
 
 }

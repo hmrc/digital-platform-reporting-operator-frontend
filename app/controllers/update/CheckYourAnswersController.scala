@@ -21,15 +21,15 @@ import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
-import models.UserAnswers
 import models.audit.ChangePlatformOperatorAuditEventModel
+import models.{CountriesList, UserAnswers}
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.OriginalPlatformOperatorQuery
-import services.{AuditService, EmailService, UserAnswersService}
 import services.UserAnswersService._
+import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.update._
@@ -49,7 +49,8 @@ class CheckYourAnswersController @Inject()(
                                             connector: PlatformOperatorConnector,
                                             subscriptionConnector: SubscriptionConnector,
                                             auditService: AuditService,
-                                            emailService: EmailService
+                                            emailService: EmailService,
+                                            countriesList: CountriesList
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport with Logging {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
@@ -86,7 +87,8 @@ class CheckYourAnswersController @Inject()(
         updateRequest => (for {
           _                <- connector.updatePlatformOperator(updateRequest)
           originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
-          _                <- auditService.sendAudit(ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest).toAuditModel)
+          auditModel = ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest, countriesList).toAuditModel
+          _                <- auditService.sendAudit(auditModel)
           subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
           _                <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
         } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))).recover {
@@ -121,7 +123,7 @@ class CheckYourAnswersController @Inject()(
     }
 
   private def secondaryContactList(operatorId: String, answers: UserAnswers)(implicit messages: Messages): Option[SummaryList] =
-    if(answers.get(HasSecondaryContactPage).contains(true)) {
+    if (answers.get(HasSecondaryContactPage).contains(true)) {
       Some(SummaryListViewModel(
         rows = Seq(
           HasSecondaryContactSummary.row(operatorId, answers),

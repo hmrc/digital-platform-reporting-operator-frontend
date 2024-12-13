@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.Country
+import models.DefaultCountriesList
 import org.scalacheck.Gen
 import play.api.data.FormError
 import play.api.i18n.Messages
@@ -26,9 +26,10 @@ import play.api.test.Helpers.stubMessages
 class TaxResidencyCountryFormProviderSpec extends StringFieldBehaviours {
 
   private val requiredKey = "taxResidencyCountry.error.required"
+  private val countriesList = new DefaultCountriesList
 
   private implicit val msgs: Messages = stubMessages()
-  private val form = new TaxResidencyCountryFormProvider()()
+  private val form = new TaxResidencyCountryFormProvider(countriesList)()
 
   ".value" - {
 
@@ -37,7 +38,7 @@ class TaxResidencyCountryFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      Gen.oneOf(Country.internationalCountries.map(_.code))
+      Gen.oneOf(countriesList.internationalCountries.map(_.code))
     )
 
     behave like mandatoryField(

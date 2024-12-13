@@ -17,6 +17,7 @@
 package config
 
 import controllers.actions._
+import models.CountriesList
 import play.api.inject.Binding
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
@@ -30,7 +31,8 @@ class Module extends play.api.inject.Module  {
       bind[DataRequiredAction].to[DataRequiredActionImpl].eagerly(),
       bind[IdentifierAction].to[AuthenticatedIdentifierAction].eagerly(),
       bind[Clock].toInstance(Clock.systemUTC()),
-      bind[Encrypter with Decrypter].toProvider[CryptoProvider]
+      bind[Encrypter with Decrypter].toProvider[CryptoProvider],
+      bind[CountriesList].toProvider[CountriesListProvider]
     )
   }
 }

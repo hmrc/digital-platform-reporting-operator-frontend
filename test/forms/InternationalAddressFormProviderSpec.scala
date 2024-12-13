@@ -17,15 +17,17 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.Country
+import models.DefaultCountriesList
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import play.api.data.FormError
 
 class InternationalAddressFormProviderSpec extends StringFieldBehaviours {
 
+  private val countriesList = new DefaultCountriesList
+
   val businessName = "name"
-  val form = new InternationalAddressFormProvider()(businessName)
+  val form = new InternationalAddressFormProvider(countriesList)(businessName)
 
   ".line1" - {
 
@@ -196,13 +198,13 @@ class InternationalAddressFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      Gen.oneOf(Country.internationalCountries.map(_.code))
+      Gen.oneOf(countriesList.internationalCountries.map(_.code))
     )
 
     behave like fieldThatDoesNotBindInvalidData(
       form,
       fieldName,
-      arbitrary[String].suchThat(_.nonEmpty).suchThat(!Country.allCountries.map(_.code).contains(_)),
+      arbitrary[String].suchThat(_.nonEmpty).suchThat(!countriesList.allCountries.map(_.code).contains(_)),
       FormError(fieldName, requiredKey)
     )
 

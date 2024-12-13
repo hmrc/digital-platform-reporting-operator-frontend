@@ -19,7 +19,7 @@ package builders
 import builders.AddressDetailsBuilder.anAddressDetails
 import builders.ContactDetailsBuilder.aContactDetails
 import builders.TinDetailsBuilder.aTinDetails
-import models.operator.requests.{CreatePlatformOperatorRequest, UpdatePlatformOperatorRequest}
+import models.operator.requests.CreatePlatformOperatorRequest
 
 object CreatePlatformOperatorRequestBuilder {
 

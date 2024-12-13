@@ -19,7 +19,7 @@ package controllers.update
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.InternationalTaxIdentifierFormProvider
-import models.Country
+import models.DefaultCountriesList
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class InternationalTaxIdentifierControllerSpec extends SpecBase with MockitoSugar {
 
   private val formProvider = new InternationalTaxIdentifierFormProvider()
-  private val country = Country.internationalCountries.head
+  private val country = (new DefaultCountriesList).internationalCountries.head
   private val form = formProvider(country)
   private val baseAnswers = emptyUserAnswers.set(TaxResidencyCountryPage, country).success.value
 

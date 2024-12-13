@@ -26,7 +26,7 @@ import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
 import models.operator.AddressDetails
-import models.{Country, UkAddress}
+import models.{CountriesList, Country, DefaultCountriesList, UkAddress}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
@@ -171,7 +171,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
       val subscriptionInfo = aSubscriptionInfo
       val auditType: String = "ChangePlatformOperatorDetails"
-      val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest)
+      val countriesList = new DefaultCountriesList
+      val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest, countriesList)
 
       "must submit an Update Operator request and redirect to the next page" in {
 
@@ -185,7 +186,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
           bind[SessionRepository].toInstance(mockRepository),
           bind[EmailService].toInstance(mockEmailService),
-          bind[AuditService].toInstance(mockAuditService)
+          bind[AuditService].toInstance(mockAuditService),
+          bind[CountriesList].toInstance(countriesList)
         ).build()
 
         running(app) {
@@ -243,7 +245,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
           bind[SessionRepository].toInstance(mockRepository),
           bind[EmailService].toInstance(mockEmailService),
-          bind[AuditService].toInstance(mockAuditService)
+          bind[AuditService].toInstance(mockAuditService),
+          bind[CountriesList].toInstance(countriesList)
         ).build()
 
         running(app) {

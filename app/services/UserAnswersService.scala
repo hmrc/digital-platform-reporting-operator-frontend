@@ -22,7 +22,7 @@ import models.UkTaxIdentifiers._
 import models.operator._
 import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperator
-import models.{Country, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{CountriesList, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
 import play.api.libs.json.Writes
@@ -32,7 +32,7 @@ import javax.inject.{Inject, Singleton}
 import scala.util.Try
 
 @Singleton
-class UserAnswersService @Inject() {
+class UserAnswersService @Inject()(countriesList: CountriesList) {
 
   def fromPlatformOperator(userId: String, platformOperator: PlatformOperator): Try[UserAnswers] = {
 
@@ -99,7 +99,7 @@ class UserAnswersService @Inject() {
       .getOrElse(StateT.pure(()))
 
   private def setInternationalTaxIdentifierDetails(tinDetails: NonEmptyList[TinDetails]): StateT[Try, UserAnswers, Unit] =
-    Country.internationalCountries.find(_.code == tinDetails.head.issuedBy).map { country =>
+    countriesList.internationalCountries.find(_.code == tinDetails.head.issuedBy).map { country =>
       for {
         _ <- set(HasTaxIdentifierPage, true)
         _ <- set(TaxResidentInUkPage, false)
@@ -110,13 +110,13 @@ class UserAnswersService @Inject() {
 
   private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address.countryCode.map { countryCode =>
-      if (Country.ukCountries.map(_.code).contains(countryCode)) setUkAddress(address) else setInternationalAddress(address)
+      if (countriesList.ukCountries.map(_.code).contains(countryCode)) setUkAddress(address) else setInternationalAddress(address)
     }.getOrElse(StateT.pure(()))
 
   private def setUkAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address match {
       case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
-        Country.ukCountries.find(_.code == countryCode).map { country =>
+        countriesList.ukCountries.find(_.code == countryCode).map { country =>
           for {
             _ <- set(RegisteredInUkPage, true)
             _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, country))
@@ -130,7 +130,7 @@ class UserAnswersService @Inject() {
   private def setInternationalAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address match {
       case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
-        Country.internationalCountries.find(_.code == countryCode).map { country =>
+        countriesList.internationalCountries.find(_.code == countryCode).map { country =>
           for {
             _ <- set(RegisteredInUkPage, false)
             _ <- set(InternationalAddressPage, InternationalAddress(line1, line2, line3, line4, postCode, country))
@@ -151,13 +151,13 @@ class UserAnswersService @Inject() {
 
   private def setSecondaryContact(optionalContact: Option[ContactDetails]): StateT[Try, UserAnswers, Unit] = {
     optionalContact.map { contact =>
-        for {
-          _ <- set(HasSecondaryContactPage, true)
-          _ <- set(SecondaryContactNamePage, contact.contactName)
-          _ <- set(SecondaryContactEmailPage, contact.emailAddress)
-          _ <- set(CanPhoneSecondaryContactPage, contact.phoneNumber.isDefined)
-          _ <- setOptional(SecondaryContactPhoneNumberPage, contact.phoneNumber)
-        } yield ()
+      for {
+        _ <- set(HasSecondaryContactPage, true)
+        _ <- set(SecondaryContactNamePage, contact.contactName)
+        _ <- set(SecondaryContactEmailPage, contact.emailAddress)
+        _ <- set(CanPhoneSecondaryContactPage, contact.phoneNumber.isDefined)
+        _ <- setOptional(SecondaryContactPhoneNumberPage, contact.phoneNumber)
+      } yield ()
     }.getOrElse(set(HasSecondaryContactPage, false))
   }
 
@@ -260,7 +260,7 @@ class UserAnswersService @Inject() {
         ).parMapN { (name, email, phone) =>
           Some(ContactDetails(phone, name, email))
         }
-        
+
       case false =>
         Right(None)
     }

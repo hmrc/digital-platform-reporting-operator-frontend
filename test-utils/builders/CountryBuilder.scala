@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package builders
 
-import play.api.libs.json.{Json, OFormat}
+import models.Country
 
-final case class Country(code: String, name: String)
+object CountryBuilder {
 
-object Country {
-  implicit val format: OFormat[Country] = Json.format[Country]
+  val aCountry: Country = Country(
+    code = "default-country-code",
+    name = "default-country-name"
+  )
 }
