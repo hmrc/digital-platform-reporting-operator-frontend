@@ -106,7 +106,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       val answers = emptyUserAnswers.copy(operatorId = Some(operatorId))
         .set(BusinessNamePage, "default-operator-name").success.value
         .set(HasTradingNamePage, false).success.value
-        .set(TaxResidentInUkPage, true).success.value
         .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr)).success.value
         .set(UtrPage, "default-tin").success.value
         .set(RegisteredInUkPage, true).success.value

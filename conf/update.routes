@@ -57,9 +57,6 @@ POST       /:operatorId/change-second-telephone-number      controllers.update.S
 GET        /:operatorId/change-tax-resident-country         controllers.update.TaxResidencyCountryController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-tax-resident-country         controllers.update.TaxResidencyCountryController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-tax-resident-in-uk           controllers.update.TaxResidentInUkController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-tax-resident-in-uk           controllers.update.TaxResidentInUkController.onSubmit(operatorId: String)
-
 GET        /:operatorId/change-trading-name                 controllers.update.TradingNameController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-trading-name                 controllers.update.TradingNameController.onSubmit(operatorId: String)
 
