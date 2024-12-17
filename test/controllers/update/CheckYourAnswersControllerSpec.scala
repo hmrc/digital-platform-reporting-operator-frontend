@@ -25,14 +25,15 @@ import connectors.SubscriptionConnector.GetSubscriptionInfoFailure
 import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
-import models.operator.AddressDetails
-import models.{CountriesList, Country, DefaultCountriesList, UkAddress}
+import models.{CountriesList, Country, DefaultCountriesList, UkAddress, UkTaxIdentifiers}
+import models.operator.{AddressDetails, TinDetails, TinType}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import pages.add.{ChrnPage, CrnPage, EmprefPage, UkTaxIdentifiersPage, UtrPage, VrnPage}
 import pages.update._
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -147,8 +148,12 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       val answers = emptyUserAnswers.copy(operatorId = Some("operatorId"))
         .set(BusinessNamePage, "default-operator-name").success.value
         .set(HasTradingNamePage, false).success.value
-        .set(TaxResidentInUkPage, true).success.value
-        .set(HasTaxIdentifierPage, false).success.value
+        .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+        .set(UtrPage, "utr").success.value
+        .set(CrnPage, "crn").success.value
+        .set(VrnPage, "vrn").success.value
+        .set(EmprefPage, "empref").success.value
+        .set(ChrnPage, "chrn").success.value
         .set(RegisteredInUkPage, true).success.value
         .set(UkAddressPage, UkAddress("default-line-1", None, "default-town", None, "default-postcode", Country("GB", "United Kingdom"))).success.value
         .set(PrimaryContactNamePage, "default-contact-name").success.value
@@ -157,7 +162,14 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         .set(HasSecondaryContactPage, false).success.value
         .set(OriginalPlatformOperatorQuery, platformOperator).success.value
 
-      val expectedRequest = aUpdatePlatformOperatorRequest.copy(subscriptionId = "dprsId", tinDetails = Seq.empty,
+      val expectedRequest = aUpdatePlatformOperatorRequest.copy(subscriptionId = "dprsId",
+        tinDetails = Seq(
+          TinDetails("crn", TinType.Crn, "GB"),
+          TinDetails("empref", TinType.Empref, "GB"),
+          TinDetails("vrn", TinType.Vrn, "GB"),
+          TinDetails("chrn", TinType.Chrn, "GB"),
+          TinDetails("utr", TinType.Utr, "GB")
+        ),
         addressDetails = AddressDetails(
           line1 = "default-line-1",
           line2 = None,
