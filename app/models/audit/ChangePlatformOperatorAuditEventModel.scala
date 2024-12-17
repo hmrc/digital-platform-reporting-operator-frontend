@@ -62,7 +62,6 @@ object ChangePlatformOperatorAuditEventModel {
   }
 
   private def getTaxJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
-    val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
     val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
     val crn = info.tinDetails.find(obj => obj.tinType == TinType.Crn).map(obj => Json.obj("companyRegistrationNumber" -> obj.tin)).getOrElse(Json.obj())
@@ -79,7 +78,7 @@ object ChangePlatformOperatorAuditEventModel {
       val internationalCountryName = countriesList.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
       Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
     } else {Json.obj()}
-    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
+    taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
   private def getAddressJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
@@ -141,7 +140,6 @@ object ChangePlatformOperatorAuditEventModel {
   }
 
   private def getTaxJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
-    val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
     val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
     val crn = info.tinDetails.find(obj => obj.tinType == TinType.Crn).map(obj => Json.obj("companyRegistrationNumber" -> obj.tin)).getOrElse(Json.obj())
@@ -158,7 +156,7 @@ object ChangePlatformOperatorAuditEventModel {
       val internationalCountryName = countriesList.allCountries.find(_.code == internationalCountryCode).map(c => c.name)
       Json.obj("internationalTaxResidentCountry" -> Json.obj("countryCode" -> internationalCountryCode, "countryName" -> internationalCountryName))
     } else {Json.obj()}
-    hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
+    taxResidentInUk ++ taxIdentifiers ++ internationalTaxIdentifier ++ internationalTaxResidentCountry
   }
 
   private def getAddressJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
