@@ -46,11 +46,6 @@ POST       /international-address                       controllers.add.Internat
 GET        /change-international-address                controllers.add.InternationalAddressController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-international-address                controllers.add.InternationalAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET        /enter-international-tin                     controllers.add.InternationalTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
-POST       /enter-international-tin                     controllers.add.InternationalTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
-GET        /change-international-tin                    controllers.add.InternationalTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-international-tin                    controllers.add.InternationalTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
-
 GET        /email-address                               controllers.add.PrimaryContactEmailController.onPageLoad(mode: Mode = NormalMode)
 POST       /email-address                               controllers.add.PrimaryContactEmailController.onSubmit(mode: Mode = NormalMode)
 GET        /change-email-address                        controllers.add.PrimaryContactEmailController.onPageLoad(mode: Mode = CheckMode)
@@ -88,11 +83,6 @@ POST       /change-second-telephone-number              controllers.add.Secondar
 
 GET        /start                                       controllers.add.StartController.onPageLoad()
 POST       /start                                       controllers.add.StartController.onSubmit()
-
-GET        /tax-resident-country                        controllers.add.TaxResidencyCountryController.onPageLoad(mode: Mode = NormalMode)
-POST       /tax-resident-country                        controllers.add.TaxResidencyCountryController.onSubmit(mode: Mode = NormalMode)
-GET        /change-tax-resident-country                 controllers.add.TaxResidencyCountryController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-tax-resident-country                 controllers.add.TaxResidencyCountryController.onSubmit(mode: Mode = CheckMode)
 
 GET        /po-trading-name                             controllers.add.TradingNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /po-trading-name                             controllers.add.TradingNameController.onSubmit(mode: Mode = NormalMode)

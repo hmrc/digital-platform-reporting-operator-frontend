@@ -30,9 +30,6 @@ POST       /:operatorId/change-have-trading-name            controllers.update.H
 GET        /:operatorId/change-international-address        controllers.update.InternationalAddressController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-international-address        controllers.update.InternationalAddressController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-international-tin            controllers.update.InternationalTaxIdentifierController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-international-tin            controllers.update.InternationalTaxIdentifierController.onSubmit(operatorId: String)
-
 GET        /:operatorId/change-email-address                controllers.update.PrimaryContactEmailController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-email-address                controllers.update.PrimaryContactEmailController.onSubmit(operatorId: String)
 
@@ -53,9 +50,6 @@ POST       /:operatorId/change-second-contact-name          controllers.update.S
 
 GET        /:operatorId/change-second-telephone-number      controllers.update.SecondaryContactPhoneNumberController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-second-telephone-number      controllers.update.SecondaryContactPhoneNumberController.onSubmit(operatorId: String)
-
-GET        /:operatorId/change-tax-resident-country         controllers.update.TaxResidencyCountryController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-tax-resident-country         controllers.update.TaxResidencyCountryController.onSubmit(operatorId: String)
 
 GET        /:operatorId/change-trading-name                 controllers.update.TradingNameController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-trading-name                 controllers.update.TradingNameController.onSubmit(operatorId: String)

@@ -35,7 +35,7 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     val basePlatformOperator = CreatePlatformOperatorRequest(
       subscriptionId = "12345678900",
       operatorName = "C Company",
-      tinDetails = Seq.empty,
+      tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")),
       businessName = None,
       tradingName = None,
       primaryContactDetails = baseContact,
@@ -50,7 +50,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : false,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -83,7 +85,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : true,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -117,8 +121,10 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "businessTradingName" : "Trading Name",
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
           |    "registeredBusinessAddressInUk" : false,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -145,6 +151,44 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       Json.toJson(auditEvent) mustEqual expected
     }
 
+    "minimum data - `hasTaxIdentifier` is true and `ukTaxResident` is true" in {
+      val expected = Json.parse(
+        """
+          |{
+          |    "subscriptionId" : "12345678900",
+          |    "businessName" : "C Company",
+          |    "hasBusinessTradingName" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers": {
+          |       "ctUtr":"12345678900"
+          |    },
+          |    "registeredBusinessAddressInUk" : false,
+          |    "registeredBusinessAddress" : {
+          |      "addressLine1" : "742 Evergreen Terrace",
+          |      "countryCode" : "AF",
+          |      "country" : "Afghanistan"
+          |     },
+          |    "primaryContactName" : "Homer Simpson",
+          |    "primaryContactEmail" : "homer.simpson@example.com",
+          |    "canPhonePrimaryContact" : false,
+          |    "hasSecondaryContact" : false,
+          |    "outcome": {
+          |     "isSuccessful": true,
+          |     "statusCode": 200,
+          |     "platformOperatorId": "some-operator-id",
+          |     "processedAt": "2001-01-01T02:30:23"
+          |    }
+          |  }
+          |""".stripMargin).as[JsObject]
+
+      val requestData = basePlatformOperator.copy(tinDetails = Seq(TinDetails("12345678900", TinType.Utr, "GB")))
+      val responseData = SuccessResponseData(
+        processedAt = LocalDateTime.of(2001, 1, 1, 2, 30, 23), platformOperatorId = "some-operator-id")
+      val auditEvent = CreatePlatformOperatorAuditEventModel(requestData, responseData, countriesList)
+      Json.toJson(auditEvent) mustEqual expected
+    }
+
     "minimum data - `registeredBusinessAddressInUk` is true" in {
       val expected = Json.parse(
         """
@@ -152,7 +196,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : true,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -199,7 +245,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : false,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -234,7 +282,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : false,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -272,7 +322,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : false,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",
@@ -311,7 +363,9 @@ class CreatePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           |    "subscriptionId" : "12345678900",
           |    "businessName" : "C Company",
           |    "hasBusinessTradingName" : false,
-          |    "ukTaxResident" : false,
+          |    "hasTaxIdentificationNumber" : true,
+          |    "ukTaxResident" : true,
+          |    "taxIdentifiers":{"ctUtr":"1234567890"},
           |    "registeredBusinessAddressInUk" : false,
           |    "registeredBusinessAddress" : {
           |      "addressLine1" : "742 Evergreen Terrace",

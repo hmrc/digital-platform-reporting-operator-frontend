@@ -150,15 +150,6 @@ internationalAddress.error.postal.length = Postal or zip code must be {0} charac
 internationalAddress.error.postal.format = Postal or zip code must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
 internationalAddress.error.country.required = Start typing in country and choose from the list
 
-internationalTaxIdentifier.title = What is the the tax identification number issued by the country the platform operator is tax resident in?
-internationalTaxIdentifier.heading = What is the tax identification number issued by {0}?
-internationalTaxIdentifier.hint = Enter the combination of numbers and letters of the tax identification number from {0}.
-internationalTaxIdentifier.checkYourAnswersLabel = Tax identification number
-internationalTaxIdentifier.error.required = Enter the tax identification number issued by {0}
-internationalTaxIdentifier.error.length = Tax identification number must be {0} characters or less
-internationalTaxIdentifier.error.format = Tax identification number must only include letters, numbers, hyphens, spaces, commas, full stops, ampersands, underscores and apostrophes
-internationalTaxIdentifier.change.hidden = the tax identification number issued by {0}
-
 primaryContactEmail.title = What is the email address for the person or team we can contact?
 primaryContactEmail.heading = What is the email address for {0}?
 primaryContactEmail.p1 = We will use this email address to send confirmation of the reports made for {0}.
@@ -235,13 +226,6 @@ start.beforeYouContinue.bullet3 = contact details
 start.beforeYouContinue.p2 = You can add one or more platform operators now. You can still add more later.
 start.beforeYouContinue.p3 = Adding a new platform operator takes around 10 minutes.
 start.addNow = Add now
-
-taxResidencyCountry.title = What country is the platform operator tax resident in?
-taxResidencyCountry.heading = What country is {0} tax resident in?
-taxResidencyCountry.checkYourAnswersLabel = What country is {0} tax resident in?
-taxResidencyCountry.error.required = Start typing in country and choose from the list
-taxResidencyCountry.error.length = Country must be 100 characters or less
-taxResidencyCountry.change.hidden = the country {0} is tax resident in
 
 tradingName.title = What is the platform operator’s trading name?
 tradingName.heading = What is {0}’s trading name?
