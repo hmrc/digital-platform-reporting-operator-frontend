@@ -138,7 +138,6 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
         answers.operatorId.value mustEqual "operatorId1"
         answers.get(BusinessNamePage).value mustEqual "operatorName1"
         answers.get(HasTradingNamePage).value mustEqual false
-        answers.get(HasTaxIdentifierPage).value mustEqual false
         answers.get(PrimaryContactNamePage).value mustEqual "name"
         answers.get(PrimaryContactEmailPage).value mustEqual "email"
         answers.get(CanPhonePrimaryContactPage).value mustEqual false

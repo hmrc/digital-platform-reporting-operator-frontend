@@ -194,7 +194,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           savedAnswers.get(BusinessNamePage) mustBe defined
           savedAnswers.get(HasTradingNamePage) mustBe defined
-          savedAnswers.get(HasTaxIdentifierPage) mustBe defined
           savedAnswers.get(RegisteredInUkPage) mustBe defined
           savedAnswers.get(UkAddressPage) mustBe defined
           savedAnswers.get(PrimaryContactNamePage) mustBe defined

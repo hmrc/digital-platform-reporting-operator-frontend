@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.PlatformOperatorConnector
 import forms.SelectPlatformOperatorFormProvider
 import models.operator.responses.{PlatformOperator, ViewPlatformOperatorsResponse}
-import models.operator.{AddressDetails, ContactDetails}
+import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
 import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -52,7 +52,9 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val operator1 = PlatformOperator(
     operatorId = "operatorId1",
     operatorName = "operatorName1",
-    tinDetails = Nil,
+    tinDetails = Seq(
+      TinDetails("utr", TinType.Utr, "GB"),
+    ),
     businessName = None,
     tradingName = None,
     primaryContactDetails = ContactDetails(None, "name", "email"),
@@ -64,7 +66,9 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val operator2 = PlatformOperator(
     operatorId = "operatorId2",
     operatorName = "operatorName2",
-    tinDetails = Nil,
+    tinDetails = Seq(
+      TinDetails("utr", TinType.Utr, "GB"),
+    ),
     businessName = None,
     tradingName = None,
     primaryContactDetails = ContactDetails(None, "name", "email"),
@@ -166,7 +170,6 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         answers.operatorId.value mustEqual "operatorId1"
         answers.get(BusinessNamePage).value mustEqual "operatorName1"
         answers.get(HasTradingNamePage).value mustEqual false
-        answers.get(HasTaxIdentifierPage).value mustEqual false
         answers.get(PrimaryContactNamePage).value mustEqual "name"
         answers.get(PrimaryContactEmailPage).value mustEqual "email"
         answers.get(CanPhonePrimaryContactPage).value mustEqual false
