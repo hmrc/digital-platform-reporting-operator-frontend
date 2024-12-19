@@ -29,9 +29,9 @@ class TradingNamePageSpec extends AnyFreeSpec with Matchers {
 
     "in Normal Mode" - {
 
-      "must go to Has Tax Identifier" in {
+      "must go to Uk Tax Identifier" in {
 
-        TradingNamePage.nextPage(NormalMode, emptyAnswers) mustEqual routes.HasTaxIdentifierController.onPageLoad(NormalMode)
+        TradingNamePage.nextPage(NormalMode, emptyAnswers) mustEqual routes.UkTaxIdentifiersController.onPageLoad(NormalMode)
       }
     }
 

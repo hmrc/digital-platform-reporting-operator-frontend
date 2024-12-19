@@ -75,8 +75,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual true
           result.get(TradingNamePage).value mustEqual "tradingName"
 
-          result.get(HasTaxIdentifierPage).value mustEqual true
-          result.get(TaxResidentInUkPage).value mustEqual true
           result.get(UkTaxIdentifiersPage).value mustEqual Set(Utr, Crn, Vrn, Empref, Chrn)
           result.get(UtrPage).value mustEqual "utr"
           result.get(CrnPage).value mustEqual "crn"
@@ -134,8 +132,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual false
           result.get(TradingNamePage) must not be defined
 
-          result.get(HasTaxIdentifierPage).value mustEqual true
-          result.get(TaxResidentInUkPage).value mustEqual true
           result.get(UkTaxIdentifiersPage).value mustEqual Set(Utr)
           result.get(UtrPage).value mustEqual "utr"
           result.get(CrnPage) must not be defined
@@ -179,8 +175,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
           val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
-          result.get(TaxResidentInUkPage).value mustEqual true
-          result.get(HasTaxIdentifierPage).value mustEqual true
           result.get(UkTaxIdentifiersPage).value mustEqual Set(Utr)
           result.get(UtrPage).value mustEqual "utr"
           result.get(CrnPage) must not be defined
@@ -207,8 +201,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
           val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
-          result.get(HasTaxIdentifierPage).value mustEqual true
-          result.get(TaxResidentInUkPage).value mustEqual true
           result.get(UkTaxIdentifiersPage) must not be defined
           result.get(UtrPage) must not be defined
           result.get(CrnPage) must not be defined
@@ -242,10 +234,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(BusinessNamePage).value mustEqual "operatorName"
           result.get(HasTradingNamePage).value mustEqual true
           result.get(TradingNamePage).value mustEqual "tradingName"
-
-          result.get(HasTaxIdentifierPage).value mustEqual true
-          result.get(TaxResidentInUkPage).value mustEqual false
-          result.get(InternationalTaxIdentifierPage).value mustEqual "other"
 
           result.get(RegisteredInUkPage).value mustEqual false
           result.get(InternationalAddressPage).value mustEqual InternationalAddress(
@@ -295,10 +283,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           result.get(HasTradingNamePage).value mustEqual true
           result.get(TradingNamePage).value mustEqual "tradingName"
 
-          result.get(HasTaxIdentifierPage).value mustEqual true
-          result.get(TaxResidentInUkPage).value mustEqual false
-          result.get(InternationalTaxIdentifierPage).value mustEqual "other"
-
           result.get(RegisteredInUkPage).value mustEqual false
           result.get(InternationalAddressPage).value mustEqual InternationalAddress(
             "line 1",
@@ -338,16 +322,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
-        result.get(HasTaxIdentifierPage).value mustEqual false
-        result.get(TaxResidentInUkPage) must not be defined
         result.get(UkTaxIdentifiersPage) must not be defined
         result.get(UtrPage) must not be defined
         result.get(CrnPage) must not be defined
         result.get(VrnPage) must not be defined
         result.get(EmprefPage) must not be defined
         result.get(ChrnPage) must not be defined
-        result.get(TaxResidencyCountryPage) must not be defined
-        result.get(InternationalTaxIdentifierPage) must not be defined
       }
 
       "when TIN details contain a country code that is not recognised" in {
@@ -366,11 +346,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         val result = userAnswersService.fromPlatformOperator("id", operator).success.value
 
-        result.get(HasTaxIdentifierPage).value mustEqual false
-        result.get(TaxResidentInUkPage) must not be defined
-        result.get(TaxResidencyCountryPage) must not be defined
         result.get(UkTaxIdentifiersPage) must not be defined
-        result.get(InternationalTaxIdentifierPage) must not be defined
       }
 
       "when the registered address contains a country code that is not recognised, so we cannot infer the registered address" in {
@@ -446,8 +422,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
@@ -482,118 +456,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         result.value.copy(tinDetails = result.value.tinDetails.sortBy(_.tin)) mustEqual expectedResult
       }
-
-      "with international TIN details" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, true).success.value
-            .set(TradingNamePage, "trading name").success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
-            .set(InternationalTaxIdentifierPage, "tax id").success.value
-            .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, true).success.value
-            .set(PrimaryContactPhoneNumberPage, "07777 777777").success.value
-            .set(HasSecondaryContactPage, true).success.value
-            .set(SecondaryContactNamePage, "contact 2").success.value
-            .set(SecondaryContactEmailPage, "contact2@example.com").success.value
-            .set(CanPhoneSecondaryContactPage, false).success.value
-
-        val expectedResult = CreatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorName = "name",
-          tinDetails = Seq(
-            TinDetails("tax id", TinType.Other, countriesList.internationalCountries.head.code)
-          ),
-          businessName = None,
-          tradingName = Some("trading name"),
-          primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
-          secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code))
-        )
-
-        val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
-
-        result.value mustEqual expectedResult
-      }
-
-      "with no UK TIN details" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, false).success.value
-            .set(HasSecondaryContactPage, true).success.value
-            .set(SecondaryContactNamePage, "contact 2").success.value
-            .set(SecondaryContactEmailPage, "contact2@example.com").success.value
-            .set(CanPhoneSecondaryContactPage, true).success.value
-            .set(SecondaryContactPhoneNumberPage, "07777 888888").success.value
-
-        val expectedResult = CreatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorName = "name",
-          tinDetails = Seq.empty,
-          businessName = None,
-          tradingName = None,
-          primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
-          secondaryContactDetails = Some(ContactDetails(Some("07777 888888"), "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code))
-        )
-
-        val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
-
-        result.value mustEqual expectedResult
-      }
-
-      "with no international TIN details" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, true).success.value
-            .set(TradingNamePage, "trading name").success.value
-            .set(HasTaxIdentifierPage, false).success.value
-            .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
-            .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, true).success.value
-            .set(PrimaryContactPhoneNumberPage, "07777 777777").success.value
-            .set(HasSecondaryContactPage, true).success.value
-            .set(SecondaryContactNamePage, "contact 2").success.value
-            .set(SecondaryContactEmailPage, "contact2@example.com").success.value
-            .set(CanPhoneSecondaryContactPage, false).success.value
-
-        val expectedResult = CreatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorName = "name",
-          tinDetails = Seq.empty,
-          businessName = None,
-          tradingName = Some("trading name"),
-          primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
-          secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code))
-        )
-
-        val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
-
-        result.value mustEqual expectedResult
-      }
     }
 
     "must fail to create a request" - {
@@ -605,7 +467,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         result.left.value.toChain.toList must contain theSameElementsAs Seq(
           BusinessNamePage,
           HasTradingNamePage,
-          HasTaxIdentifierPage,
+          UkTaxIdentifiersPage,
           PrimaryContactNamePage,
           PrimaryContactEmailPage,
           CanPhonePrimaryContactPage,
@@ -614,33 +476,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         )
       }
 
-      "when the operator has tax identifiers but whether they are tax resident in the UK is missing" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, false).success.value
-            .set(HasSecondaryContactPage, false).success.value
-
-        val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
-
-        result.left.value.toChain.toList must contain only TaxResidentInUkPage
-      }
-
       "when the operator is UK tax resident but tax identifier information is missing" in {
 
         val answers =
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -659,8 +500,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
@@ -676,36 +515,18 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         )
       }
 
-      "when the operator is not UK tax resident but country of residency is missing" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, false).success.value
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, false).success.value
-            .set(HasSecondaryContactPage, false).success.value
-
-        val result = userAnswersService.toCreatePlatformOperatorRequest(answers, "dprsId")
-
-        result.left.value.toChain.toList must contain theSameElementsAs Seq(
-          TaxResidencyCountryPage, InternationalTaxIdentifierPage
-        )
-      }
-
       "when the registered address is in the UK but the address itself is missing" in {
 
         val answers =
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
@@ -723,8 +544,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, false).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
@@ -742,8 +567,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -762,8 +591,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -782,8 +615,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -807,8 +644,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -836,8 +677,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
@@ -874,124 +713,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
         result.value.copy(tinDetails = result.value.tinDetails.sortBy(_.tin)) mustEqual expectedResult
       }
-
-      "with international TIN details" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, true).success.value
-            .set(TradingNamePage, "trading name").success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
-            .set(InternationalTaxIdentifierPage, "tax id").success.value
-            .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, true).success.value
-            .set(PrimaryContactPhoneNumberPage, "07777 777777").success.value
-            .set(HasSecondaryContactPage, true).success.value
-            .set(SecondaryContactNamePage, "contact 2").success.value
-            .set(SecondaryContactEmailPage, "contact2@example.com").success.value
-            .set(CanPhoneSecondaryContactPage, false).success.value
-
-        val expectedResult = UpdatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorId = "operatorId",
-          operatorName = "name",
-          tinDetails = Seq(
-            TinDetails("tax id", TinType.Other, countriesList.internationalCountries.head.code)
-          ),
-          businessName = None,
-          tradingName = Some("trading name"),
-          primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
-          secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code)),
-          notification = None
-        )
-
-        val result = userAnswersService.toUpdatePlatformOperatorRequest(answers, "dprsId", "operatorId")
-
-        result.value mustEqual expectedResult
-      }
-
-      "with no UK TIN details" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, false).success.value
-            .set(HasSecondaryContactPage, true).success.value
-            .set(SecondaryContactNamePage, "contact 2").success.value
-            .set(SecondaryContactEmailPage, "contact2@example.com").success.value
-            .set(CanPhoneSecondaryContactPage, true).success.value
-            .set(SecondaryContactPhoneNumberPage, "07777 888888").success.value
-
-        val expectedResult = UpdatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorId = "operatorId",
-          operatorName = "name",
-          tinDetails = Seq.empty,
-          businessName = None,
-          tradingName = None,
-          primaryContactDetails = ContactDetails(None, "contact 1", "contact1@example.com"),
-          secondaryContactDetails = Some(ContactDetails(Some("07777 888888"), "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("AA1 1AA"), Some(countriesList.ukCountries.head.code)),
-          notification = None
-        )
-
-        val result = userAnswersService.toUpdatePlatformOperatorRequest(answers, "dprsId", "operatorId")
-
-        result.value mustEqual expectedResult
-      }
-
-      "with no international TIN details" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, true).success.value
-            .set(TradingNamePage, "trading name").success.value
-            .set(HasTaxIdentifierPage, false).success.value
-            .set(TaxResidentInUkPage, false).success.value
-            .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
-            .set(RegisteredInUkPage, false).success.value
-            .set(InternationalAddressPage, InternationalAddress("line 1", None, "town", None, "postcode", countriesList.internationalCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, true).success.value
-            .set(PrimaryContactPhoneNumberPage, "07777 777777").success.value
-            .set(HasSecondaryContactPage, true).success.value
-            .set(SecondaryContactNamePage, "contact 2").success.value
-            .set(SecondaryContactEmailPage, "contact2@example.com").success.value
-            .set(CanPhoneSecondaryContactPage, false).success.value
-
-        val expectedResult = UpdatePlatformOperatorRequest(
-          subscriptionId = "dprsId",
-          operatorId = "operatorId",
-          operatorName = "name",
-          tinDetails = Seq.empty,
-          businessName = None,
-          tradingName = Some("trading name"),
-          primaryContactDetails = ContactDetails(Some("07777 777777"), "contact 1", "contact1@example.com"),
-          secondaryContactDetails = Some(ContactDetails(None, "contact 2", "contact2@example.com")),
-          addressDetails = AddressDetails("line 1", None, Some("town"), None, Some("postcode"), Some(countriesList.internationalCountries.head.code)),
-          notification = None
-        )
-
-        val result = userAnswersService.toUpdatePlatformOperatorRequest(answers, "dprsId", "operatorId")
-
-        result.value mustEqual expectedResult
-      }
     }
 
     "must fail to create a request" - {
@@ -1003,7 +724,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         result.left.value.toChain.toList must contain theSameElementsAs Seq(
           BusinessNamePage,
           HasTradingNamePage,
-          HasTaxIdentifierPage,
+          UkTaxIdentifiersPage,
           PrimaryContactNamePage,
           PrimaryContactEmailPage,
           CanPhonePrimaryContactPage,
@@ -1012,33 +733,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         )
       }
 
-      "when the operator has tax identifiers but whether they are tax resident in the UK is missing" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, false).success.value
-            .set(HasSecondaryContactPage, false).success.value
-
-        val result = userAnswersService.toUpdatePlatformOperatorRequest(answers, "dprsId", "operatorId")
-
-        result.left.value.toChain.toList must contain only TaxResidentInUkPage
-      }
-
       "when the operator is UK tax resident but tax identifier information is missing" in {
 
         val answers =
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -1057,8 +757,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
@@ -1074,36 +772,18 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         )
       }
 
-      "when the operator is not UK tax resident but country of residency is missing" in {
-
-        val answers =
-          emptyAnswers
-            .set(BusinessNamePage, "name").success.value
-            .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, false).success.value
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
-            .set(PrimaryContactNamePage, "contact 1").success.value
-            .set(PrimaryContactEmailPage, "contact1@example.com").success.value
-            .set(CanPhonePrimaryContactPage, false).success.value
-            .set(HasSecondaryContactPage, false).success.value
-
-        val result = userAnswersService.toUpdatePlatformOperatorRequest(answers, "dprsId", "operatorId")
-
-        result.left.value.toChain.toList must contain theSameElementsAs Seq(
-          TaxResidencyCountryPage, InternationalTaxIdentifierPage
-        )
-      }
-
       "when the registered address is in the UK but the address itself is missing" in {
 
         val answers =
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
@@ -1121,8 +801,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, false).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
             .set(PrimaryContactEmailPage, "contact1@example.com").success.value
@@ -1140,8 +824,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -1160,8 +848,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -1180,8 +872,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -1205,8 +901,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(TaxResidentInUkPage, true).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
@@ -1234,8 +934,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
@@ -1282,8 +980,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
@@ -1330,8 +1026,6 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, true).success.value
-            .set(TaxResidentInUkPage, true).success.value
             .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
             .set(UtrPage, "utr").success.value
             .set(CrnPage, "crn").success.value
@@ -1381,7 +1075,7 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
         result.left.value.toChain.toList must contain theSameElementsAs Seq(
           BusinessNamePage,
           HasTradingNamePage,
-          HasTaxIdentifierPage,
+          UkTaxIdentifiersPage,
           PrimaryContactNamePage,
           PrimaryContactEmailPage,
           CanPhonePrimaryContactPage,
@@ -1397,7 +1091,12 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
           emptyAnswers
             .set(BusinessNamePage, "name").success.value
             .set(HasTradingNamePage, false).success.value
-            .set(HasTaxIdentifierPage, false).success.value
+            .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
             .set(RegisteredInUkPage, true).success.value
             .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
             .set(PrimaryContactNamePage, "contact 1").success.value
