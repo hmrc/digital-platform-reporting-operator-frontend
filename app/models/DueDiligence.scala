@@ -39,16 +39,16 @@ object DueDiligence extends Enumerable.Implicits {
   def checkboxItems(implicit messages: Messages): Seq[CheckboxItem] =
     Seq(
       CheckboxItemViewModel(
-        content = Text(messages(s"dueDiligence.${Extended.toString}")),
-        fieldId = "value",
-        index = 0,
-        value = Extended.toString
-      ),
-      CheckboxItemViewModel(
         content = Text(messages(s"dueDiligence.${ActiveSeller.toString}")),
         fieldId = "value",
-        index = 1,
+        index = 0,
         value = ActiveSeller.toString
+      ),
+      CheckboxItemViewModel(
+        content = Text(messages(s"dueDiligence.${Extended.toString}")),
+        fieldId = "value",
+        index = 1,
+        value = Extended.toString
       ),
       CheckboxItem(divider = Some(messages("site.or"))),
       CheckboxItemViewModel(
