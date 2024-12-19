@@ -15,14 +15,20 @@
  *@
 
 @import controllers.notification.routes
+@import uk.gov.hmrc.govukfrontend.views.Aliases.InsetText
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.details.Details
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
         govukCheckboxes: GovukCheckboxes,
+        govukInsetText: GovukInsetText,
+        govukDetails: GovukDetails,
         govukButton: GovukButton
 )
+
 
 @(form: Form[_], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
 
@@ -38,13 +44,24 @@
 
         <p class="govuk-body">@messages("dueDiligence.p1", businessName)</p>
 
-        <h2 class="govuk-heading-m">@messages("dueDiligence.extended.heading")</h2>
+        <h2 class="govuk-heading-s">@messages("dueDiligence.active.heading")</h2>
+
+        <p class="govuk-body">@messages("dueDiligence.active.p1", businessName)</p>
+
+        @govukInsetText(InsetText(id = Some("dueDiligenceInset"), content = messages("dueDiligence.active.inset.text")))
+
+        <h2 class="govuk-heading-s">@messages("dueDiligence.extended.heading")</h2>
 
         <p class="govuk-body">@messages("dueDiligence.extended.p1", businessName)</p>
 
-        <h2 class="govuk-heading-m">@messages("dueDiligence.active.heading")</h2>
+        @govukInsetText(InsetText(id = Some("dueDiligenceExtendedInset"), content = messages("dueDiligence.extended.inset.text")))
 
-        <p class="govuk-body">@messages("dueDiligence.active.p1", businessName)</p>
+        <p class="govuk-body">@messages("dueDiligence.extended.p2", businessName)</p>
+
+        @govukDetails(Details(
+            summary = Text(messages("dueDiligence.detail.heading")),
+            content = HtmlContent(s"""<p class="govuk-body"> ${messages("dueDiligence.detail.heading.p1")} </p> <p class="govuk-body"> ${messages("dueDiligence.detail.heading.p2")} </p>""")
+        ))
 
         @govukCheckboxes(
             CheckboxesViewModel(
