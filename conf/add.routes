@@ -94,11 +94,6 @@ POST       /tax-resident-country                        controllers.add.TaxResid
 GET        /change-tax-resident-country                 controllers.add.TaxResidencyCountryController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-tax-resident-country                 controllers.add.TaxResidencyCountryController.onSubmit(mode: Mode = CheckMode)
 
-GET        /tax-resident-in-uk                          controllers.add.TaxResidentInUkController.onPageLoad(mode: Mode = NormalMode)
-POST       /tax-resident-in-uk                          controllers.add.TaxResidentInUkController.onSubmit(mode: Mode = NormalMode)
-GET        /change-tax-resident-in-uk                   controllers.add.TaxResidentInUkController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-tax-resident-in-uk                   controllers.add.TaxResidentInUkController.onSubmit(mode: Mode = CheckMode)
-
 GET        /po-trading-name                             controllers.add.TradingNameController.onPageLoad(mode: Mode = NormalMode)
 POST       /po-trading-name                             controllers.add.TradingNameController.onSubmit(mode: Mode = NormalMode)
 GET        /po-change-trading-name                      controllers.add.TradingNameController.onPageLoad(mode: Mode = CheckMode)

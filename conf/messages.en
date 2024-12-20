@@ -243,13 +243,6 @@ taxResidencyCountry.error.required = Start typing in country and choose from the
 taxResidencyCountry.error.length = Country must be 100 characters or less
 taxResidencyCountry.change.hidden = the country {0} is tax resident in
 
-taxResidentInUk.title = Is the platform operator tax resident in the UK?
-taxResidentInUk.heading = Is {0} tax resident in the UK?
-taxResidentInUk.p1 = The UK consists of England, Wales, Scotland and Northern Ireland.
-taxResidentInUk.checkYourAnswersLabel = Is {0} tax resident in the UK?
-taxResidentInUk.error.required = Select yes if {0} is tax resident in the UK
-taxResidentInUk.change.hidden = if {0} is tax resident in the UK
-
 tradingName.title = What is the platform operator’s trading name?
 tradingName.heading = What is {0}’s trading name?
 tradingName.checkYourAnswersLabel = Trading name

@@ -81,7 +81,6 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       val answers = UserAnswers(userAnswersId, Some(operatorId))
         .set(BusinessNamePage, "business").success.value
         .set(HasTradingNamePage, false).success.value
-        .set(TaxResidentInUkPage, true).success.value
         .set(RegisteredInUkPage, true).success.value
         .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", aCountry)).success.value
         .set(PrimaryContactNamePage, "name").success.value
