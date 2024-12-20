@@ -34,7 +34,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
     val baseOriginalInfo = PlatformOperator(
       operatorId = "operatorId",
       operatorName = "businessName",
-      tinDetails = Seq.empty,
+      tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")),
       businessName = None,
       tradingName = None,
       primaryContactDetails = baseContact,
@@ -46,7 +46,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       subscriptionId = "subscriptionId",
       operatorId = "operatorId",
       operatorName = "businessName",
-      tinDetails = Seq.empty,
+      tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")),
       businessName = None,
       tradingName = None,
       primaryContactDetails = baseContact,
@@ -97,6 +97,45 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
         ),
         "to" -> Json.obj(
           "hasBusinessTradingName" -> false
+        )
+      )
+      Json.toJson(auditEvent) mustEqual expectedJson
+    }
+
+    "when `hasTaxIdentifier` from false to true for a UK tax resident" in {
+      val original = baseOriginalInfo.copy(tinDetails = Seq.empty)
+      val updated = baseUpdateInfo.copy(tinDetails = Seq(TinDetails("1234567890", TinType.Utr, "GB")))
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
+      val expectedJson = Json.obj(
+        "from" -> Json.obj(
+          "hasTaxIdentificationNumber" -> false,
+          "ukTaxResident" -> false
+        ),
+        "to" -> Json.obj(
+          "hasTaxIdentificationNumber" -> true,
+          "ukTaxResident" -> true,
+          "taxIdentifiers" -> Json.obj(
+            "ctUtr" -> "1234567890"
+          ),
+        )
+      )
+      Json.toJson(auditEvent) mustEqual expectedJson
+    }
+
+    "when `hasTaxIdentifier` from true to false for a existing UK tax resident" in {
+      val original = baseOriginalInfo
+      val updated = baseUpdateInfo.copy(tinDetails = Seq.empty)
+      val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
+      val expectedJson = Json.obj(
+        "from" -> Json.obj(
+          "hasTaxIdentificationNumber" -> true,
+          "ukTaxResident" -> true,
+          "taxIdentifiers" -> Json.obj(
+            "ctUtr" -> "1234567890"
+          )),
+        "to" -> Json.obj(
+          "hasTaxIdentificationNumber" -> false,
+          "ukTaxResident" -> false
         )
       )
       Json.toJson(auditEvent) mustEqual expectedJson
