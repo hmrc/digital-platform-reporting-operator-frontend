@@ -35,7 +35,7 @@ import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add._
-import pages.update.{HasTaxIdentifierPage, UkTaxIdentifiersPage, UtrPage}
+import pages.update.{UkTaxIdentifiersPage, UtrPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

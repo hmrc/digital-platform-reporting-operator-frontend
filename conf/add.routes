@@ -41,11 +41,6 @@ POST       /po-have-trading-name                           controllers.add.HasTr
 GET        /po-change-have-trading-name                    controllers.add.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
 POST       /po-change-have-trading-name                    controllers.add.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
 
-GET        /have-tin                                    controllers.add.HasTaxIdentifierController.onPageLoad(mode: Mode = NormalMode)
-POST       /have-tin                                    controllers.add.HasTaxIdentifierController.onSubmit(mode: Mode = NormalMode)
-GET        /change-have-tin                             controllers.add.HasTaxIdentifierController.onPageLoad(mode: Mode = CheckMode)
-POST       /change-have-tin                             controllers.add.HasTaxIdentifierController.onSubmit(mode: Mode = CheckMode)
-
 GET        /international-address                       controllers.add.InternationalAddressController.onPageLoad(mode: Mode = NormalMode)
 POST       /international-address                       controllers.add.InternationalAddressController.onSubmit(mode: Mode = NormalMode)
 GET        /change-international-address                controllers.add.InternationalAddressController.onPageLoad(mode: Mode = CheckMode)

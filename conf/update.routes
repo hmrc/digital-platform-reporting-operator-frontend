@@ -27,9 +27,6 @@ POST       /:operatorId/change-second-contact               controllers.update.H
 GET        /:operatorId/change-have-trading-name            controllers.update.HasTradingNameController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-have-trading-name            controllers.update.HasTradingNameController.onSubmit(operatorId: String)
 
-GET        /:operatorId/change-have-tin                     controllers.update.HasTaxIdentifierController.onPageLoad(operatorId: String)
-POST       /:operatorId/change-have-tin                     controllers.update.HasTaxIdentifierController.onSubmit(operatorId: String)
-
 GET        /:operatorId/change-international-address        controllers.update.InternationalAddressController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-international-address        controllers.update.InternationalAddressController.onSubmit(operatorId: String)
 

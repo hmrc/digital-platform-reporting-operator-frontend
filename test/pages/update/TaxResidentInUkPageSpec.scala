@@ -75,7 +75,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
         emptyAnswers
           .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "id").success.value
-          .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
           .set(UtrPage, "utr").success.value
           .set(CrnPage, "crn").success.value
@@ -87,7 +86,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
       result.get(TaxResidencyCountryPage)        must not be defined
       result.get(InternationalTaxIdentifierPage) must not be defined
-      result.get(HasTaxIdentifierPage)           mustBe defined
       result.get(UkTaxIdentifiersPage)           mustBe defined
       result.get(UtrPage)                        mustBe defined
       result.get(CrnPage)                        mustBe defined
@@ -102,7 +100,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
         emptyAnswers
           .set(TaxResidencyCountryPage, countriesList.internationalCountries.head).success.value
           .set(InternationalTaxIdentifierPage, "id").success.value
-          .set(HasTaxIdentifierPage, true).success.value
           .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
           .set(UtrPage, "utr").success.value
           .set(CrnPage, "crn").success.value
@@ -112,7 +109,6 @@ class TaxResidentInUkPageSpec extends AnyFreeSpec with Matchers with TryValues w
 
       val result = answers.set(TaxResidentInUkPage, false).success.value
 
-      result.get(HasTaxIdentifierPage)           mustBe defined
       result.get(TaxResidencyCountryPage)        mustBe defined
       result.get(InternationalTaxIdentifierPage) mustBe defined
       result.get(UkTaxIdentifiersPage)           must not be defined
