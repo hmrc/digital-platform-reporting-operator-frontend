@@ -87,7 +87,11 @@
         @govukSelect(
             SelectViewModel(
                 field = form("country"),
-                items = countrySelectItems(countriesList.ukCountries),
+                items = Seq(
+                    SelectItem(
+                        value = Some(countriesList.gbCountry.code),
+                        text = countriesList.gbCountry.name
+                    )),
                 label = LabelViewModel(messages("ukAddress.country"))
             )
             .withCssClass("govuk-input")

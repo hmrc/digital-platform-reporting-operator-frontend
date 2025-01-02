@@ -94,6 +94,11 @@ POST       /uk-address                                  controllers.add.UkAddres
 GET        /change-uk-address                           controllers.add.UkAddressController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-uk-address                           controllers.add.UkAddressController.onSubmit(mode: Mode = CheckMode)
 
+GET        /crown-dependencies-address                  controllers.add.JerseyGuernseyIoMAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /crown-dependencies-address                  controllers.add.JerseyGuernseyIoMAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /change-crown-dependencies-address           controllers.add.JerseyGuernseyIoMAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-crown-dependencies-address           controllers.add.JerseyGuernseyIoMAddressController.onSubmit(mode: Mode = CheckMode)
+
 GET        /uk-tin-type                                 controllers.add.UkTaxIdentifiersController.onPageLoad(mode: Mode = NormalMode)
 POST       /uk-tin-type                                 controllers.add.UkTaxIdentifiersController.onSubmit(mode: Mode = NormalMode)
 GET        /change-uk-tin-type                          controllers.add.UkTaxIdentifiersController.onPageLoad(mode: Mode = CheckMode)

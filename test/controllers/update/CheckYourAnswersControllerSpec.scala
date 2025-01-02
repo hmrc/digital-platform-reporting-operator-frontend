@@ -26,8 +26,8 @@ import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
+import models.{CountriesList, DefaultCountriesList, RegisteredAddressCountry, UkTaxIdentifiers}
 import models.operator.{AddressDetails, TinDetails, TinType}
-import models.{CountriesList, DefaultCountriesList, UkTaxIdentifiers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
@@ -154,7 +154,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         .set(VrnPage, "vrn").success.value
         .set(EmprefPage, "empref").success.value
         .set(ChrnPage, "chrn").success.value
-        .set(RegisteredInUkPage, true).success.value
+        .set(RegisteredInUkPage, RegisteredAddressCountry.values.head).success.value
         .set(UkAddressPage, aUkAddress).success.value
         .set(PrimaryContactNamePage, "default-contact-name").success.value
         .set(PrimaryContactEmailPage, "default.contact@example.com").success.value
@@ -265,7 +265,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           .set(HasTradingNamePage, false).success.value
           .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](UkTaxIdentifiers.Utr)).success.value
           .set(UtrPage, "utr").success.value
-          .set(RegisteredInUkPage, true).success.value
+          .set(RegisteredInUkPage, RegisteredAddressCountry.Uk).success.value
           .set(UkAddressPage, aUkAddress).success.value
           .set(PrimaryContactNamePage, "some-contact-name").success.value
           .set(PrimaryContactEmailPage, "some.contact@example.com").success.value

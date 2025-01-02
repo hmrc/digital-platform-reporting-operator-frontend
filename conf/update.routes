@@ -58,6 +58,9 @@ POST       /:operatorId/change-trading-name                 controllers.update.T
 GET        /:operatorId/change-uk-address                   controllers.update.UkAddressController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-uk-address                   controllers.update.UkAddressController.onSubmit(operatorId: String)
 
+GET        /:operatorId/change-crown-dependencies-address   controllers.update.JerseyGuernseyIoMAddressController.onPageLoad(operatorId: String)
+POST       /:operatorId/change-crown-dependencies-address   controllers.update.JerseyGuernseyIoMAddressController.onSubmit(operatorId: String)
+
 GET        /:operatorId/change-uk-tin-type                  controllers.update.UkTaxIdentifiersController.onPageLoad(operatorId: String)
 POST       /:operatorId/change-uk-tin-type                  controllers.update.UkTaxIdentifiersController.onSubmit(operatorId: String)
 

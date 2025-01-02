@@ -21,11 +21,14 @@ import builders.CreatePlatformOperatorRequestBuilder.aCreatePlatformOperatorRequ
 import builders.PlatformOperatorSummaryViewModelBuilder.aPlatformOperatorSummaryViewModel
 import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
+import connectors.SubscriptionConnector.GetSubscriptionInfoFailure
+import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
 import models.UkTaxIdentifiers.Utr
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, TinDetails, TinType}
-import models.{Country, NormalMode, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{Country, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
+import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -143,7 +146,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         .set(HasTradingNamePage, false).success.value
         .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr)).success.value
         .set(UtrPage, "default-tin").success.value
-        .set(RegisteredInUkPage, true).success.value
+        .set(RegisteredInUkPage, RegisteredAddressCountry.values.head).success.value
         .set(UkAddressPage, UkAddress("default-line-1", None, "default-town", None, "default-postcode", Country("GB", "United Kingdom"))).success.value
         .set(PrimaryContactNamePage, "default-contact-name").success.value
         .set(PrimaryContactEmailPage, "default.contact@example.com").success.value

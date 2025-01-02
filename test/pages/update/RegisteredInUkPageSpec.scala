@@ -17,10 +17,11 @@
 package pages.update
 
 import controllers.update.routes
-import models.{DefaultCountriesList, InternationalAddress, UkAddress, UserAnswers}
+import models.{Country, DefaultCountriesList, InternationalAddress, JerseyGuernseyIoMAddress, RegisteredAddressCountry, UkAddress, UserAnswers}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
+import pages.add.UkAddressPage
 
 class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
 
@@ -32,66 +33,100 @@ class RegisteredInUkPageSpec extends AnyFreeSpec with Matchers with TryValues wi
 
     "must go to Check Answers" - {
 
-      "when the answer is yes and UK Address has been answered" in {
+      "when the answer is Uk and UK Address has been answered" in {
 
         val answers =
           emptyAnswers
-            .set(RegisteredInUkPage, true).success.value
-            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
+            .set(RegisteredInUkPage, RegisteredAddressCountry.Uk).success.value
+            .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country("GB", "United Kingdom"))).success.value
 
         RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
 
-      "when the answer is no and International Address has been answered" in {
+      "when the answer is International and International Address has been answered" in {
 
         val answers =
           emptyAnswers
-            .set(RegisteredInUkPage, false).success.value
+            .set(RegisteredInUkPage, RegisteredAddressCountry.International).success.value
             .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
 
         RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
+
+      "when the answer is JerseyGeurnseyIoM and JerseyGeurnseyIoM Address has been answered" in {
+
+        val answers =
+          emptyAnswers
+            .set(RegisteredInUkPage, RegisteredAddressCountry.JerseyGuernseyIsleOfMan).success.value
+            .set(JerseyGuernseyIoMAddressPage, JerseyGuernseyIoMAddress("line 1", None, "city", None, "zip", Country("JE", "Jersey"))).success.value
+
+        RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.CheckYourAnswersController.onPageLoad(operatorId)
+      }
     }
 
-    "must go to UK Address when the answer is yes and UK Address has not been answered" in {
+    "must go to UK Address when the answer is Uk and UK Address has not been answered" in {
 
-      val answers = emptyAnswers.set(RegisteredInUkPage, true).success.value
+      val answers = emptyAnswers.set(RegisteredInUkPage, RegisteredAddressCountry.Uk).success.value
       RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.UkAddressController.onPageLoad(operatorId)
     }
 
-    "must go to International Address when the answer is no and International Address has not been answered" in {
+    "must go to International Address when the answer is International and International Address has not been answered" in {
 
-      val answers = emptyAnswers.set(RegisteredInUkPage, false).success.value
+      val answers = emptyAnswers.set(RegisteredInUkPage, RegisteredAddressCountry.International).success.value
       RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.InternationalAddressController.onPageLoad(operatorId)
+    }
+
+    "must go to JerseyGeurnseyIoM Address when the answer is JerseyGeurnseyIoM and JerseyGeurnseyIoM Address has not been answered" in {
+
+      val answers = emptyAnswers.set(RegisteredInUkPage, RegisteredAddressCountry.JerseyGuernseyIsleOfMan).success.value
+      RegisteredInUkPage.nextPage(operatorId, answers) mustEqual routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId)
     }
   }
 
   ".cleanup" - {
 
-    "must remove UK address when the answer is no" in {
+    "must remove UK & JerseyGeurnseyIoM address when the answer is International" in {
 
       val answers =
         emptyAnswers
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country("GB", "United Kingdom"))).success.value
+          .set(JerseyGuernseyIoMAddressPage, JerseyGuernseyIoMAddress("line 1", None, "town", None, "AA1 1AA", Country("IM", "The Isle of Man"))).success.value
           .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
 
-      val result = answers.set(RegisteredInUkPage, false).success.value
+      val result = answers.set(RegisteredInUkPage, RegisteredAddressCountry.International).success.value
 
       result.get(UkAddressPage) must not be defined
+      result.get(JerseyGuernseyIoMAddressPage) must not be defined
       result.get(InternationalAddressPage) mustBe defined
     }
 
-
-    "must remove International address when the answer is yes" in {
+    "must remove International & JerseyGuernseyIoM address when the answer is Uk" in {
 
       val answers =
         emptyAnswers
-          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", countriesList.ukCountries.head)).success.value
+          .set(JerseyGuernseyIoMAddressPage, JerseyGuernseyIoMAddress("line 1", None, "town", None, "AA1 1AA", Country("GG", "Guernsey"))).success.value
           .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
 
-      val result = answers.set(RegisteredInUkPage, true).success.value
+      val result = answers.set(RegisteredInUkPage, RegisteredAddressCountry.Uk).success.value
+        .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country("GB", "United Kingdom"))).success.value
 
       result.get(UkAddressPage) mustBe defined
+      result.get(JerseyGuernseyIoMAddressPage) must not be defined
+      result.get(InternationalAddressPage) must not be defined
+    }
+
+    "must remove Uk and International address when the answer is JerseyGuernseyIoM" in {
+
+      val answers =
+        emptyAnswers
+          .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", Country("GB", "United Kingdom"))).success.value
+          .set(JerseyGuernseyIoMAddressPage, JerseyGuernseyIoMAddress("line 1", None, "town", None, "AA1 1AA", Country("JE", "Jersey"))).success.value
+          .set(InternationalAddressPage, InternationalAddress("line 1", None, "city", None, "zip", countriesList.internationalCountries.head)).success.value
+
+      val result = answers.set(RegisteredInUkPage, RegisteredAddressCountry.JerseyGuernseyIsleOfMan).success.value
+
+      result.get(UkAddressPage) must not be defined
+      result.get(JerseyGuernseyIoMAddressPage) mustBe defined
       result.get(InternationalAddressPage) must not be defined
     }
   }

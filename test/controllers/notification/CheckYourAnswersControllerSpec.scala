@@ -26,7 +26,7 @@ import models.UkTaxIdentifiers.Utr
 import models.operator.NotificationType.Rpo
 import models.operator.requests.Notification
 import models.operator.{AddressDetails, TinDetails, TinType}
-import models.{Country, DueDiligence, NormalMode, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{Country, DueDiligence, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
@@ -104,7 +104,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         .set(HasTradingNamePage, false).success.value
         .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr)).success.value
         .set(UtrPage, "default-tin").success.value
-        .set(RegisteredInUkPage, true).success.value
+        .set(RegisteredInUkPage, RegisteredAddressCountry.values.head).success.value
         .set(UkAddressPage, UkAddress("default-line-1", None, "default-town", None, "default-postcode", Country("GB", "United Kingdom"))).success.value
         .set(PrimaryContactNamePage, "default-contact-name").success.value
         .set(PrimaryContactEmailPage, "default.contact@example.com").success.value

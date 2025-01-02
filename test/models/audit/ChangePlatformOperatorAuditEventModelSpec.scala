@@ -176,54 +176,54 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
       Json.toJson(auditEvent) mustEqual expectedJson
     }
 
-    "when 'registeredBusinessAddressInUk' from false to true " in {
+    "when 'registeredBusinessAddressCountry' from Uk to International " in {
       val original = baseOriginalInfo.copy(addressDetails =
-        AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("US")))
-      val updated = baseUpdateInfo.copy(addressDetails =
         AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("GB")))
+      val updated = baseUpdateInfo.copy(addressDetails =
+        AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("US")))
       val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
-          "registeredBusinessAddressInUk" -> false,
-          "registeredBusinessAddress" -> Json.obj(
-            "addressLine1" -> "line1",
-            "countryCode" -> "US",
-            "country" -> "United States"
-          )
-        ),
-        "to" -> Json.obj(
-          "registeredBusinessAddressInUk" -> true,
+          "registeredBusinessAddressCountry" -> "GB",
           "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "GB",
             "country" -> "United Kingdom"
+          )
+        ),
+        "to" -> Json.obj(
+          "registeredBusinessAddressCountry" -> "US",
+          "registeredBusinessAddress" -> Json.obj(
+            "addressLine1" -> "line1",
+            "countryCode" -> "US",
+            "country" -> "United States"
           )
         )
       )
       Json.toJson(auditEvent) mustEqual expectedJson
     }
 
-    "when 'registeredBusinessAddressInUk' from true to false " in {
+    "when 'registeredBusinessAddressCountry' from International to Isle of Man " in {
       val original = baseOriginalInfo.copy(addressDetails =
-        AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("GB")))
-      val updated = baseUpdateInfo.copy(addressDetails =
         AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("US")))
+      val updated = baseUpdateInfo.copy(addressDetails =
+        AddressDetails(line1 = "line1", line2 = None, line3 = None, line4 = None, postCode = None, countryCode = Some("IM")))
       val auditEvent = ChangePlatformOperatorAuditEventModel(original, updated, countriesList)
       val expectedJson = Json.obj(
         "from" -> Json.obj(
-          "registeredBusinessAddressInUk" -> true,
-          "registeredBusinessAddress" -> Json.obj(
-            "addressLine1" -> "line1",
-            "countryCode" -> "GB",
-            "country" -> "United Kingdom"
-          )
-        ),
-        "to" -> Json.obj(
-          "registeredBusinessAddressInUk" -> false,
+          "registeredBusinessAddressCountry" -> "US",
           "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "US",
             "country" -> "United States"
+          )
+        ),
+        "to" -> Json.obj(
+          "registeredBusinessAddressCountry" -> "IM",
+          "registeredBusinessAddress" -> Json.obj(
+            "addressLine1" -> "line1",
+            "countryCode" -> "IM",
+            "country" -> "The Isle of Man"
           )
         )
       )
