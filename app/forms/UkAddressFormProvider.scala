@@ -50,8 +50,7 @@ class UkAddressFormProvider @Inject()(countriesList: CountriesList) extends Mapp
       "postCode" -> text("ukAddress.error.postCode.required")
         .verifying(regexp(Validation.ukPostcodePattern.toString, "ukAddress.error.postCode.format")),
       "country" -> text("ukAddress.error.country.required")
-        .verifying("ukAddress.error.country.required", value => countriesList.ukCountries.exists(_.code == value))
-        .transform[Country](value => countriesList.ukCountries.find(_.code == value).get, _.code)
+        .transform[Country](value => countriesList.gbCountry, _.code)
     )(UkAddress.apply)(x => Some((x.line1, x.line2, x.town, x.county, x.postCode, x.country)))
   )
 }

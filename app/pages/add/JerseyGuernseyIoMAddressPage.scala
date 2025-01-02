@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package forms
+package pages.add
 
-import forms.behaviours.BooleanFieldBehaviours
-import play.api.data.FormError
+import controllers.add.routes
+import models.{JerseyGuernseyIoMAddress, NormalMode, UserAnswers}
+import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
-class RegisteredInUkFormProviderSpec extends BooleanFieldBehaviours {
+case object JerseyGuernseyIoMAddressPage extends AddQuestionPage[JerseyGuernseyIoMAddress] {
 
-  val requiredKey = "registeredInUk.error.required"
+  override def path: JsPath = JsPath \ toString
 
-  val businessName = "name"
-  val form = new RegisteredInUkFormProvider()(businessName)
+  override def toString: String = "jerseyGuernseyIoMAddress"
 
-  ".value" - {
-
-    val fieldName = "value"
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
-    )
-  }
+  override protected def nextPageNormalMode(answers: UserAnswers): Call =
+    routes.PrimaryContactNameController.onPageLoad(NormalMode)
 }
