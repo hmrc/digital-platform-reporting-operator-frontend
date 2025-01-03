@@ -29,3 +29,4 @@ GET         /:operatorId/added-successfully                 controllers.notifica
 
 GET         /:operatorId/view                               controllers.notification.ViewNotificationsController.onPageLoad(operatorId: String)
 POST        /:operatorId/view                               controllers.notification.ViewNotificationsController.onSubmit(operatorId: String)
+GET         /:operatorId/initialise-view                    controllers.notification.ViewNotificationsController.initialise(operatorId: String)

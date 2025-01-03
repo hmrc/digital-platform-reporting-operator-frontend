@@ -28,6 +28,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.OriginalPlatformOperatorQuery
+import repositories.SessionRepository
 import services.UserAnswersService._
 import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -38,20 +39,20 @@ import views.html.update.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckYourAnswersController @Inject()(
-                                            override val messagesApi: MessagesApi,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalActionProvider,
-                                            requireData: DataRequiredAction,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourAnswersView,
-                                            userAnswersService: UserAnswersService,
-                                            connector: PlatformOperatorConnector,
-                                            subscriptionConnector: SubscriptionConnector,
-                                            auditService: AuditService,
-                                            emailService: EmailService,
-                                            countriesList: CountriesList
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport with Logging {
+class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
+                                           identify: IdentifierAction,
+                                           getData: DataRetrievalActionProvider,
+                                           requireData: DataRequiredAction,
+                                           val controllerComponents: MessagesControllerComponents,
+                                           view: CheckYourAnswersView,
+                                           userAnswersService: UserAnswersService,
+                                           platformOperatorConnector: PlatformOperatorConnector,
+                                           subscriptionConnector: SubscriptionConnector,
+                                           sessionRepository: SessionRepository,
+                                           auditService: AuditService,
+                                           emailService: EmailService,
+                                           countriesList: CountriesList)
+                                          (implicit ec: ExecutionContext) extends FrontendBaseController with AnswerExtractor with I18nSupport with Logging {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) {
     implicit request =>
@@ -81,12 +82,12 @@ class CheckYourAnswersController @Inject()(
       userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
         errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
         updateRequest => (for {
-          _                <- connector.updatePlatformOperator(updateRequest)
+          _ <- platformOperatorConnector.updatePlatformOperator(updateRequest)
           originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
           auditModel = ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest, countriesList).toAuditModel
-          _                <- auditService.sendAudit(auditModel)
+          _ <- auditService.sendAudit(auditModel)
           subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-          _                <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
+          _ <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
         } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))).recover {
           case error: UpdatePlatformOperatorFailure => logger.warn("Failed to update platform operator", error)
             throw error
@@ -94,6 +95,15 @@ class CheckYourAnswersController @Inject()(
             throw error
         }
       )
+  }
+
+  def initialise(operatorId: String): Action[AnyContent] = identify.async { implicit request =>
+    for {
+      platformOperator <- platformOperatorConnector.viewPlatformOperator(operatorId)
+      userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
+      updatedAnswers <- Future.fromTry(userAnswers.set(OriginalPlatformOperatorQuery, platformOperator))
+      _ <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(routes.CheckYourAnswersController.onPageLoad(operatorId))
   }
 
   private def primaryContactList(operatorId: String, answers: UserAnswers)(implicit messages: Messages): SummaryList =

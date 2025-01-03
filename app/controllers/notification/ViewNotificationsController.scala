@@ -16,53 +16,62 @@
 
 package controllers.notification
 
-import controllers.{routes => baseRoutes}
-import controllers.AnswerExtractor
+import connectors.PlatformOperatorConnector
 import controllers.actions.{DataRequiredAction, DataRetrievalActionProvider, IdentifierAction}
+import controllers.notification.routes.ViewNotificationsController
+import controllers.{AnswerExtractor, routes => baseRoutes}
 import forms.ViewNotificationsFormProvider
 import models.NormalMode
 import pages.notification.ViewNotificationsPage
 import pages.update.BusinessNamePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.NotificationDetailsQuery
+import queries.{NotificationDetailsQuery, OriginalPlatformOperatorQuery}
+import repositories.SessionRepository
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.notification.ViewNotificationsView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class ViewNotificationsController @Inject()(
-                                             override val messagesApi: MessagesApi,
-                                             identify: IdentifierAction,
-                                             getData: DataRetrievalActionProvider,
-                                             requireData: DataRequiredAction,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             formProvider: ViewNotificationsFormProvider,
-                                             view: ViewNotificationsView,
-                                             page: ViewNotificationsPage
-                                           ) extends FrontendBaseController with I18nSupport with AnswerExtractor {
+class ViewNotificationsController @Inject()(override val messagesApi: MessagesApi,
+                                            identify: IdentifierAction,
+                                            getData: DataRetrievalActionProvider,
+                                            requireData: DataRequiredAction,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            formProvider: ViewNotificationsFormProvider,
+                                            view: ViewNotificationsView,
+                                            page: ViewNotificationsPage,
+                                            platformOperatorConnector: PlatformOperatorConnector,
+                                            userAnswersService: UserAnswersService,
+                                            sessionRepository: SessionRepository)
+                                           (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswers(NotificationDetailsQuery, BusinessNamePage) { case (notifications, businessName) =>
-
-      val form = formProvider(notifications.nonEmpty)
-
-      Ok(view(form, notifications, operatorId, businessName))
+      Ok(view(formProvider(notifications.nonEmpty), notifications, operatorId, businessName))
     }
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswers(NotificationDetailsQuery, BusinessNamePage) { case (notifications, businessName) =>
-
-      val form = formProvider(notifications.nonEmpty)
-
-      form.bindFromRequest().fold(
+      formProvider(notifications.nonEmpty).bindFromRequest().fold(
         formWithErrors => BadRequest(view(formWithErrors, notifications, operatorId, businessName)),
         value => request.userAnswers.set(page, value).fold(
-          _       => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()),
+          _ => Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()),
           answers => Redirect(page.nextPage(NormalMode, operatorId, answers))
         )
       )
     }
+  }
+
+  def initialise(operatorId: String): Action[AnyContent] = identify.async { implicit request =>
+    for {
+      platformOperator <- platformOperatorConnector.viewPlatformOperator(operatorId)
+      userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
+      updatedAnswers <- Future.fromTry(userAnswers.set(OriginalPlatformOperatorQuery, platformOperator))
+      _ <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(ViewNotificationsController.onPageLoad(operatorId))
   }
 }
