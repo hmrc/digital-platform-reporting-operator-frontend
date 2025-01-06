@@ -17,25 +17,44 @@
 package controllers.notification
 
 import base.SpecBase
+import builders.PlatformOperatorBuilder.aPlatformOperator
+import builders.UserAnswersBuilder.aUserAnswers
+import connectors.PlatformOperatorConnector
+import controllers.notification.routes.ViewNotificationsController
 import forms.ViewNotificationsFormProvider
 import models.NormalMode
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.notification.ViewNotificationsPage
-import pages.update.BusinessNamePage
+import pages.update._
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.NotificationDetailsQuery
+import repositories.SessionRepository
 import views.html.notification.ViewNotificationsView
 
-class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar {
+import scala.concurrent.Future
 
-  private lazy val viewNotificationsRoute = routes.ViewNotificationsController.onPageLoad(operatorId).url
+class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+
+  private val mockPlatformOperatorConnector = mock[PlatformOperatorConnector]
+  private val mockSessionRepository = mock[SessionRepository]
+
+  private lazy val viewNotificationsRoute = ViewNotificationsController.onPageLoad(operatorId).url
   private val formProvider = new ViewNotificationsFormProvider()
   private val businessName = "name"
-  private val baseAnswers =
-    emptyUserAnswers
-      .set(BusinessNamePage, businessName).success.value
-      .set(NotificationDetailsQuery, Nil).success.value
+  private val baseAnswers = emptyUserAnswers
+    .set(BusinessNamePage, businessName).success.value
+    .set(NotificationDetailsQuery, Nil).success.value
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(mockPlatformOperatorConnector, mockSessionRepository)
+    super.beforeEach()
+  }
 
   "ViewNotifications Controller" - {
 
@@ -88,6 +107,27 @@ class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(form, Nil, operatorId, businessName)(request, messages(application)).toString
+      }
+    }
+
+    ".initialise(...)" - {
+      "must redirect to View Notifications page" in {
+        when(mockPlatformOperatorConnector.viewPlatformOperator(any())(any())).thenReturn(Future.successful(aPlatformOperator))
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+        val app = applicationBuilder(userAnswers = Some(aUserAnswers)).overrides(
+          bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        ).build()
+
+        running(app) {
+          val result = route(app, FakeRequest(GET, ViewNotificationsController.initialise(aUserAnswers.operatorId.get).url)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual ViewNotificationsController.onPageLoad(aUserAnswers.operatorId.get).url
+        }
+
+        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aUserAnswers.operatorId.get))(any())
       }
     }
   }
