@@ -29,7 +29,7 @@
 
 @layout(
     pageTitle = titleNoForm(messages("reportingPeriod.first.title")),
-    showBackLink = false
+    showBackLink = true
 ) {
 
     @formHelper(action = routes.ReportingPeriodController.onSubmit(mode, operatorId)) {

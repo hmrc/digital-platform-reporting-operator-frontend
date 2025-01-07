@@ -27,7 +27,7 @@
 
 @layout(
     pageTitle = titleNoForm(messages(s"reportingPeriod.2024.$notificationType.title")),
-    showBackLink = false
+    showBackLink = true
 ) {
 
     @formHelper(action = routes.ReportingPeriodController.onSubmit(mode, operatorId)) {

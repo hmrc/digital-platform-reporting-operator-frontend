@@ -22,7 +22,7 @@
 
 @(operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("platformOperatorRemoved.title"))) {
+@layout(pageTitle = titleNoForm(messages("platformOperatorRemoved.title")), showBackLink = false) {
 
     <h1 class="govuk-heading-xl">@messages("platformOperatorRemoved.heading", businessName, operatorId)</h1>
 
