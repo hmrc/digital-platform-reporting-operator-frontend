@@ -28,8 +28,7 @@
 @(form: Form[_], mode: Mode, operatorId: String, businessName: String, notificationType: NotificationType)(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("reportingPeriod.first.title")),
-    showBackLink = false
+    pageTitle = titleNoForm(messages("reportingPeriod.first.title"))
 ) {
 
     @formHelper(action = routes.ReportingPeriodController.onSubmit(mode, operatorId)) {

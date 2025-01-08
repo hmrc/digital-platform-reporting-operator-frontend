@@ -51,8 +51,7 @@
 }
 
 @layout(
-    pageTitle = title(form, titleText),
-    showBackLink = false
+    pageTitle = title(form, titleText)
 ) {
 
     @formHelper(action = routes.ViewNotificationsController.onSubmit(operatorId)) {
