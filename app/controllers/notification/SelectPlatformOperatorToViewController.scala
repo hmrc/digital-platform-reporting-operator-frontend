@@ -21,6 +21,7 @@ import controllers.actions._
 import controllers.{routes => baseRoutes}
 import forms.SelectPlatformOperatorToViewFormProvider
 import models.NormalMode
+import models.operator.PlatformOperatorData
 import pages.notification.SelectPlatformOperatorToViewPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -46,7 +47,7 @@ class SelectPlatformOperatorToViewController @Inject()(
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.map { operatorInfo =>
-      val operators = operatorInfo.platformOperators.map(PlatformOperatorViewModel(_))
+      val operators = operatorInfo.platformOperators.map(PlatformOperatorData(_))
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       Ok(view(form, operators))
@@ -55,7 +56,7 @@ class SelectPlatformOperatorToViewController @Inject()(
 
   def onSubmit: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.flatMap { operatorInfo =>
-      val operators = operatorInfo.platformOperators.map(PlatformOperatorViewModel(_))
+      val operators = operatorInfo.platformOperators.map(PlatformOperatorData(_))
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       form.bindFromRequest().fold(

@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package builders
+package models.submissions
 
-import models.operator.NotificationType.Rpo
-import models.operator.responses.NotificationDetails
+import play.api.libs.json.{Json, OFormat}
 
-import java.time.{Instant, Year}
+final case class SubmissionsSummary(deliveredSubmissions: Seq[SubmissionSummary],
+                                    deliveredSubmissionRecordCount: Int,
+                                    deliveredSubmissionsExist: Boolean,
+                                    undeliveredSubmissionCount: Long) {
 
-object NotificationDetailsBuilder {
+  // TODO: (Hristo) Test me
+  lazy val submissionsExist: Boolean = deliveredSubmissions.nonEmpty || undeliveredSubmissionCount > 0
+}
 
-  val aNotificationDetails: NotificationDetails = NotificationDetails(
-    notificationType = Rpo,
-    isActiveSeller = None,
-    isDueDiligence = None,
-    firstPeriod = Year.now.getValue,
-    receivedDateTime = Instant.now()
-  )
+object SubmissionsSummary {
+  implicit lazy val defaultFormat: OFormat[SubmissionsSummary] = Json.format
 }

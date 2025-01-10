@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package builders
+package models.submissions
 
-import models.operator.NotificationType.Rpo
-import models.operator.responses.NotificationDetails
+import play.api.libs.json.{Json, OWrites}
 
-import java.time.{Instant, Year}
+final case class ViewSubmissionsRequest(assumedReporting: Boolean, operatorId: Option[String] = None)
 
-object NotificationDetailsBuilder {
-
-  val aNotificationDetails: NotificationDetails = NotificationDetails(
-    notificationType = Rpo,
-    isActiveSeller = None,
-    isDueDiligence = None,
-    firstPeriod = Year.now.getValue,
-    receivedDateTime = Instant.now()
-  )
+object ViewSubmissionsRequest {
+  implicit lazy val writes: OWrites[ViewSubmissionsRequest] = Json.writes
 }

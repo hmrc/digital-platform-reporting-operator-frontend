@@ -21,9 +21,9 @@ import play.api.Configuration
 import play.api.mvc.RequestHeader
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject()(configuration: Configuration) {
 
-  val host: String    = configuration.get[String]("host")
+  val host: String = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
@@ -35,16 +35,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  val loginUrl: String         = configuration.get[String]("urls.login")
+  val loginUrl: String = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String       = configuration.get[String]("urls.signOut")
+  val signOutUrl: String = configuration.get[String]("urls.signOut")
 
   private val exitSurveyBaseUrl: String = configuration.get[String]("feedback-frontend.host")
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/digital-platform-reporting-operator-frontend"
+  val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/digital-platform-reporting-operator-frontend"
 
   val emailServiceUrl: String = configuration.get[Service]("microservice.services.email").baseUrl
 
-  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
+  val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
@@ -53,4 +53,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val extendedCountriesListEnabled: Boolean = configuration.get[Boolean]("features.extended-countries-list")
 
   val manageFrontendUrl: String = configuration.get[String]("microservice.services.digital-platform-reporting-manage-frontend.baseUrl")
+
+  private val submissionFrontendUrl: String = configuration.get[String]("microservice.services.digital-platform-reporting-submission-frontend.baseUrl")
+
+  def viewXMLSubmissions(operatorId: String) = s"$submissionFrontendUrl/submission/view?operatorId=$operatorId&reportingPeriod=0"
+
+  def addXMLSubmissions(operatorId: String) = s"$submissionFrontendUrl/submission/$operatorId/start-page"
+
+  // TODO: This will become a method where we pass operatorId after filtering is implemented for the page
+  val viewAssumedReporting = s"$submissionFrontendUrl/assumed-reporting/view"
+
+  def addAssumedReporting(operatorId: String) = s"$submissionFrontendUrl/assumed-reporting/$operatorId/start"
 }
