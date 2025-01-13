@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package builders
+package models.operator
 
-import models.operator.NotificationType.Rpo
-import models.operator.responses.NotificationDetails
+import models.operator.responses.PlatformOperator
 
-import java.time.{Instant, Year}
+case class PlatformOperatorData(operatorId: String, operatorName: String)
 
-object NotificationDetailsBuilder {
+object PlatformOperatorData {
 
-  val aNotificationDetails: NotificationDetails = NotificationDetails(
-    notificationType = Rpo,
-    isActiveSeller = None,
-    isDueDiligence = None,
-    firstPeriod = Year.now.getValue,
-    receivedDateTime = Instant.now()
+  def apply(operator: PlatformOperator): PlatformOperatorData = PlatformOperatorData(
+    operatorId = operator.operatorId,
+    operatorName = operator.operatorName
   )
 }

@@ -21,13 +21,13 @@ import controllers.actions._
 import controllers.{routes => baseRoutes}
 import forms.SelectPlatformOperatorFormProvider
 import models.NormalMode
+import models.operator.PlatformOperatorData
 import pages.notification.SelectPlatformOperatorPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.PlatformOperatorViewModel
 import views.html.notification.{SelectPlatformOperatorSingleChoiceView, SelectPlatformOperatorView}
 
 import javax.inject.Inject
@@ -47,7 +47,7 @@ class SelectPlatformOperatorController @Inject()(
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.map { operatorInfo =>
-      val operators = operatorInfo.platformOperators.map(PlatformOperatorViewModel(_))
+      val operators = operatorInfo.platformOperators.map(PlatformOperatorData(_))
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       operators.size match {
@@ -60,7 +60,7 @@ class SelectPlatformOperatorController @Inject()(
 
   def onSubmit: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.flatMap { operatorInfo =>
-      val operators = operatorInfo.platformOperators.map(PlatformOperatorViewModel(_))
+      val operators = operatorInfo.platformOperators.map(PlatformOperatorData(_))
       val form = formProvider(operators.map(_.operatorId).toSet)
 
       form.bindFromRequest().fold(
@@ -75,7 +75,7 @@ class SelectPlatformOperatorController @Inject()(
           operatorInfo.platformOperators.find(_.operatorId == operatorId).map { operator =>
             for {
               userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, operator))
-              _           <- sessionRepository.set(userAnswers)
+              _ <- sessionRepository.set(userAnswers)
             } yield Redirect(SelectPlatformOperatorPage.nextPage(NormalMode, operatorId, userAnswers))
           }.getOrElse {
             Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad()))

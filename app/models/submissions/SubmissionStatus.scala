@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package builders
+package models.submissions
 
-import models.operator.NotificationType.Rpo
-import models.operator.responses.NotificationDetails
+import enumeratum.{EnumEntry, PlayEnum}
 
-import java.time.{Instant, Year}
+sealed abstract class SubmissionStatus(override val entryName: String) extends EnumEntry
 
-object NotificationDetailsBuilder {
+object SubmissionStatus extends PlayEnum[SubmissionStatus] {
 
-  val aNotificationDetails: NotificationDetails = NotificationDetails(
-    notificationType = Rpo,
-    isActiveSeller = None,
-    isDueDiligence = None,
-    firstPeriod = Year.now.getValue,
-    receivedDateTime = Instant.now()
-  )
+  override val values: IndexedSeq[SubmissionStatus] = findValues
+
+  case object Pending extends SubmissionStatus("PENDING")
+  case object Success extends SubmissionStatus("SUCCESS")
+  case object Rejected extends SubmissionStatus("REJECTED")
 }

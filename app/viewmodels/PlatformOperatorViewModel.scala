@@ -18,18 +18,21 @@ package viewmodels
 
 import models.operator.responses.PlatformOperator
 
-final case class PlatformOperatorViewModel(
-                                            operatorId: String,
-                                            operatorName: String,
-                                            hasReportingNotifications: Boolean
-                                          )
+final case class PlatformOperatorViewModel(operatorId: String,
+                                           operatorName: String,
+                                           hasReportingNotifications: Boolean,
+                                           hasSubmissions: Boolean,
+                                           hasAssumedReports: Boolean)
 
 object PlatformOperatorViewModel {
 
-  def apply(operator: PlatformOperator): PlatformOperatorViewModel =
-    PlatformOperatorViewModel(
-      operator.operatorId,
-      operator.operatorName,
-      operator.notifications.nonEmpty
-    )
+  def apply(operator: PlatformOperator,
+            hasSubmissions: Boolean,
+            hasAssumedReports: Boolean): PlatformOperatorViewModel = PlatformOperatorViewModel(
+    operatorId = operator.operatorId,
+    operatorName = operator.operatorName,
+    hasReportingNotifications = operator.notifications.nonEmpty,
+    hasSubmissions = hasSubmissions,
+    hasAssumedReports = hasAssumedReports
+  )
 }

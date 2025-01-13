@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
 
 package builders
 
-import models.operator.NotificationType.Rpo
-import models.operator.responses.NotificationDetails
+import viewmodels.PlatformOperatorViewModel
 
-import java.time.{Instant, Year}
+object PlatformOperatorViewModelBuilder {
 
-object NotificationDetailsBuilder {
-
-  val aNotificationDetails: NotificationDetails = NotificationDetails(
-    notificationType = Rpo,
-    isActiveSeller = None,
-    isDueDiligence = None,
-    firstPeriod = Year.now.getValue,
-    receivedDateTime = Instant.now()
+  val aPlatformOperatorViewModel: PlatformOperatorViewModel = PlatformOperatorViewModel(
+    operatorId = "default-operator-id",
+    operatorName = "default-operator-name",
+    hasReportingNotifications = true,
+    hasSubmissions = true,
+    hasAssumedReports = true,
   )
 }

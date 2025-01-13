@@ -16,7 +16,7 @@
 
 package controllers.update
 
-import connectors.PlatformOperatorConnector
+import connectors.{PlatformOperatorConnector, SubmissionsConnector}
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,23 +30,25 @@ import views.html.update.PlatformOperatorView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PlatformOperatorController @Inject()(
-                                            override val messagesApi: MessagesApi,
-                                            identify: IdentifierAction,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            view: PlatformOperatorView,
-                                            connector: PlatformOperatorConnector,
-                                            sessionRepository: SessionRepository,
-                                            userAnswersService: UserAnswersService
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class PlatformOperatorController @Inject()(override val messagesApi: MessagesApi,
+                                           identify: IdentifierAction,
+                                           val controllerComponents: MessagesControllerComponents,
+                                           view: PlatformOperatorView,
+                                           platformOperatorConnector: PlatformOperatorConnector,
+                                           submissionsConnector: SubmissionsConnector,
+                                           sessionRepository: SessionRepository,
+                                           userAnswersService: UserAnswersService)
+                                          (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = identify.async { implicit request =>
     for {
-      platformOperator <- connector.viewPlatformOperator(operatorId)
-      userAnswers      <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
-      updatedAnswers   <- Future.fromTry(userAnswers.set(OriginalPlatformOperatorQuery, platformOperator))
-      _                <- sessionRepository.set(updatedAnswers)
-      viewModel        = PlatformOperatorViewModel(platformOperator)
+      platformOperator <- platformOperatorConnector.viewPlatformOperator(operatorId)
+      hasSubmissions <- submissionsConnector.submissionsExist(operatorId)
+      hasAssumedReports <- submissionsConnector.assumedReportsExist(operatorId)
+      userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
+      updatedAnswers <- Future.fromTry(userAnswers.set(OriginalPlatformOperatorQuery, platformOperator))
+      _ <- sessionRepository.set(updatedAnswers)
+      viewModel = PlatformOperatorViewModel(platformOperator, hasSubmissions, hasAssumedReports)
     } yield Ok(view(viewModel))
   }
 }

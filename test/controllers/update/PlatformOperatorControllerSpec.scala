@@ -17,13 +17,12 @@
 package controllers.update
 
 import base.SpecBase
-import connectors.PlatformOperatorConnector
+import builders.PlatformOperatorBuilder.aPlatformOperator
+import connectors.{PlatformOperatorConnector, SubmissionsConnector}
 import models.UserAnswers
-import models.operator.{AddressDetails, ContactDetails}
-import models.operator.responses.PlatformOperator
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{times, verify, when}
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add.BusinessNamePage
@@ -38,58 +37,44 @@ import scala.concurrent.Future
 
 class PlatformOperatorControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  private val mockConnector = mock[PlatformOperatorConnector]
+  private val mockPlatformOperatorConnector = mock[PlatformOperatorConnector]
+  private val mockSubmissionsConnector = mock[SubmissionsConnector]
   private val mockRepository = mock[SessionRepository]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    Mockito.reset(mockPlatformOperatorConnector, mockSubmissionsConnector, mockRepository)
     super.beforeEach()
   }
 
   "Platform Operator controller" - {
-
     "must get platform operator details, save them, and show the correct view" in {
-
-      val operator = PlatformOperator(
-        operatorId = "operatorId",
-        operatorName = "operatorName",
-        tinDetails = Seq.empty,
-        businessName = None,
-        tradingName = None,
-        primaryContactDetails = ContactDetails(None, "primaryContactName", "primaryEmail"),
-        secondaryContactDetails = None,
-        addressDetails = AddressDetails("line1", None, None, None, Some("postCode"), None),
-        notifications = Seq.empty
-      )
-
-      when(mockConnector.viewPlatformOperator(any())(any())) thenReturn Future.successful(operator)
+      when(mockPlatformOperatorConnector.viewPlatformOperator(any())(any())) thenReturn Future.successful(aPlatformOperator)
+      when(mockSubmissionsConnector.submissionsExist(any)(any)) thenReturn Future.successful(true)
+      when(mockSubmissionsConnector.assumedReportsExist(any)(any)) thenReturn Future.successful(true)
       when(mockRepository.set(any())) thenReturn Future.successful(true)
 
-      val app =
-        applicationBuilder(userAnswers = None)
-          .overrides(
-            bind[PlatformOperatorConnector].toInstance(mockConnector),
-            bind[SessionRepository].toInstance(mockRepository)
-          )
-          .build()
+      val app = applicationBuilder(userAnswers = None).overrides(
+        bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
+        bind[SubmissionsConnector].toInstance(mockSubmissionsConnector),
+        bind[SessionRepository].toInstance(mockRepository)
+      ).build()
 
       running(app) {
-        val request = FakeRequest(GET, routes.PlatformOperatorController.onPageLoad("operatorId").url)
-
+        val request = FakeRequest(GET, routes.PlatformOperatorController.onPageLoad(aPlatformOperator.operatorId).url)
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
         val view = app.injector.instanceOf[PlatformOperatorView]
-        val viewModel = PlatformOperatorViewModel("operatorId", "operatorName", false)
-
         val result = route(app, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel)(request, messages(app)).toString
-        verify(mockConnector, times(1)).viewPlatformOperator(eqTo("operatorId"))(any())
+        contentAsString(result) mustEqual
+          view(PlatformOperatorViewModel(aPlatformOperator, hasSubmissions = true, hasAssumedReports = true))(request, messages(app)).toString
+
+        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
 
         val answers = answersCaptor.getValue
-        answers.operatorId.value mustEqual "operatorId"
-        answers.get(BusinessNamePage).value mustEqual "operatorName"
+        answers.operatorId.value mustEqual aPlatformOperator.operatorId
+        answers.get(BusinessNamePage).value mustEqual aPlatformOperator.operatorName
       }
     }
   }

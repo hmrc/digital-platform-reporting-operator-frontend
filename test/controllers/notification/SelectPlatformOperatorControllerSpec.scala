@@ -19,8 +19,8 @@ package controllers.notification
 import base.SpecBase
 import connectors.PlatformOperatorConnector
 import forms.SelectPlatformOperatorFormProvider
+import models.operator._
 import models.operator.responses.{PlatformOperator, ViewPlatformOperatorsResponse}
-import models.operator.{AddressDetails, ContactDetails, TinDetails, TinType}
 import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -33,7 +33,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import viewmodels.PlatformOperatorViewModel
 import views.html.notification.{SelectPlatformOperatorSingleChoiceView, SelectPlatformOperatorView}
 
 import scala.concurrent.Future
@@ -126,8 +125,8 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
           val view = application.injector.instanceOf[SelectPlatformOperatorView]
           val expectedViewModels = Seq(
-            PlatformOperatorViewModel("operatorId1", "operatorName1", false),
-            PlatformOperatorViewModel("operatorId2", "operatorName2", false)
+            PlatformOperatorData("operatorId1", "operatorName1"),
+            PlatformOperatorData("operatorId2", "operatorName2")
           )
 
           status(result) mustEqual OK
@@ -197,8 +196,8 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
         val view = application.injector.instanceOf[SelectPlatformOperatorView]
         val viewModels = Seq(
-          PlatformOperatorViewModel("operatorId1", "operatorName1", false),
-          PlatformOperatorViewModel("operatorId2", "operatorName2", false)
+          PlatformOperatorData("operatorId1", "operatorName1"),
+          PlatformOperatorData("operatorId2", "operatorName2")
         )
 
         val result = route(application, request).value

@@ -14,13 +14,15 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
 @import controllers.notification.{routes => notificationRoutes}
 @import controllers.update.routes
 @import viewmodels.PlatformOperatorViewModel
 
 @this(
-        layout: templates.Layout,
-        govukButton: GovukButton
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    appConfig: FrontendAppConfig
 )
 
 @(viewModel: PlatformOperatorViewModel)(implicit request: Request[_], messages: Messages)
@@ -41,7 +43,7 @@
                 <h2 class="govuk-heading-s card-heading">
                 @messages("platformOperator.details.heading")
                 </h2>
-                <p class="govuk-body-s">@messages("platformOperator.details.p")</p>
+                <p class="govuk-body-s">@messages("platformOperator.details.p", viewModel.operatorName)</p>
             </div>
             <div class="card-action">
                 <p class="govuk-body">
@@ -55,7 +57,7 @@
                 <h2 class="govuk-heading-s card-heading">
                 @messages("platformOperator.notification.details.heading")
                 </h2>
-                <p class="govuk-body-s">@messages("platformOperator.notification.details.p")</p>
+                <p class="govuk-body-s">@messages("platformOperator.notification.details.p", viewModel.operatorName)</p>
             </div>
             <div class="card-action">
                 @if(viewModel.hasReportingNotifications) {
@@ -67,6 +69,40 @@
                         <a href="@notificationRoutes.AddGuidanceController.onPageLoad(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.notification.details.actions.add")</a>
                     </p>
                 }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="govuk-heading-s card-heading">@messages("platformOperator.submissions.details.heading")</h2>
+                <p class="govuk-body-s">@messages("platformOperator.submissions.details.p", viewModel.operatorName)</p>
+            </div>
+            <div class="card-action">
+            @if(viewModel.hasSubmissions) {
+                <p class="govuk-body">
+                    <a href="@appConfig.viewXMLSubmissions(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.submissions.details.actions.view")</a>
+                </p>
+            }
+                <p class="govuk-body">
+                    <a href="@appConfig.addXMLSubmissions(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.submissions.details.actions.add")</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="govuk-heading-s card-heading">@messages("platformOperator.assumedReporting.details.heading")</h2>
+                <p class="govuk-body-s">@messages("platformOperator.assumedReporting.details.p", viewModel.operatorName)</p>
+            </div>
+            <div class="card-action">
+            @if(viewModel.hasAssumedReports) {
+                <p class="govuk-body">
+                    <a href="@appConfig.viewAssumedReporting" class="govuk-link">@messages("platformOperator.assumedReporting.details.actions.view")</a>
+                </p>
+            }
+                <p class="govuk-body">
+                    <a href="@appConfig.addAssumedReporting(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.assumedReporting.details.actions.make", viewModel.operatorName)</a>
+                </p>
             </div>
         </div>
     </div>

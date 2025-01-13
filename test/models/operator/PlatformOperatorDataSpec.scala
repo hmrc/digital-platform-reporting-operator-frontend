@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package builders
+package models.operator
 
-import models.operator.NotificationType.Rpo
-import models.operator.responses.NotificationDetails
+import builders.PlatformOperatorBuilder.aPlatformOperator
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-import java.time.{Instant, Year}
+class PlatformOperatorDataSpec extends AnyFreeSpec with Matchers {
 
-object NotificationDetailsBuilder {
-
-  val aNotificationDetails: NotificationDetails = NotificationDetails(
-    notificationType = Rpo,
-    isActiveSeller = None,
-    isDueDiligence = None,
-    firstPeriod = Year.now.getValue,
-    receivedDateTime = Instant.now()
-  )
+  ".apply(...)" - {
+    "must initialise PlatformOperatorData instance correctly" in {
+      PlatformOperatorData.apply(aPlatformOperator) mustBe PlatformOperatorData(
+        operatorId = aPlatformOperator.operatorId,
+        operatorName = aPlatformOperator.operatorName
+      )
+    }
+  }
 }
