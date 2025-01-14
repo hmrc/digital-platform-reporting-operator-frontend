@@ -18,10 +18,9 @@ package controllers.update
 
 import base.SpecBase
 import builders.CountryBuilder.aCountry
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
+import connectors.PlatformOperatorConnector
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import models.{UkAddress, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
@@ -44,7 +43,6 @@ import scala.concurrent.Future
 class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private val mockConnector = mock[PlatformOperatorConnector]
-  private val mockSubscriptionConnector = mock[SubscriptionConnector]
   private val mockRepository = mock[SessionRepository]
   private val mockAuditService = mock[AuditService]
   private val mockEmailService = mock[EmailService]
@@ -56,7 +54,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailService, mockSubscriptionConnector)
+    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
     super.beforeEach()
   }
 
@@ -89,18 +87,15 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         .set(HasSecondaryContactPage, false).success.value
 
       val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
-      val subscriptionInfo = SubscriptionInfo("id", gbUser = true, Some("tradingName"), IndividualContact(Individual("first", "last"), "email", None), None)
 
       when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
-      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(subscriptionInfo))
       when(mockRepository.set(any())) thenReturn Future.successful(true)
       when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      when(mockEmailService.sendRemovePlatformOperatorEmails(any(), any())(any())).thenReturn(Future.successful(Done))
+      when(mockEmailService.sendRemovePlatformOperatorEmails(any())(any())).thenReturn(Future.successful(true))
 
       val application = applicationBuilder(userAnswers = Some(answers)).overrides(
         bind[PlatformOperatorConnector].toInstance(mockConnector),
         bind[SessionRepository].toInstance(mockRepository),
-        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
         bind[EmailService].toInstance(mockEmailService),
         bind[AuditService].toInstance(mockAuditService)
       ).build()
@@ -118,8 +113,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
         verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
-        verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
-        verify(mockEmailService, times(1)).sendRemovePlatformOperatorEmails(eqTo(answers), eqTo(subscriptionInfo))(any())
+        verify(mockEmailService, times(1)).sendRemovePlatformOperatorEmails(eqTo(answers))(any())
         verify(mockAuditService, times(1)).sendAudit(
           eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
 
@@ -132,7 +126,6 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
         bind[PlatformOperatorConnector].toInstance(mockConnector),
         bind[SessionRepository].toInstance(mockRepository),
-        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
         bind[EmailService].toInstance(mockEmailService),
         bind[AuditService].toInstance(mockAuditService)
       ).build()
@@ -146,9 +139,8 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         redirectLocation(result).value mustEqual routes.PlatformOperatorController.onPageLoad(operatorId).url
 
         verify(mockConnector, never()).removePlatformOperator(any())(any())
-        verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
         verify(mockRepository, never()).clear(any(), any())
-        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any(), any())(any())
+        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any())(any())
         verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
       }
     }
@@ -157,7 +149,6 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
         bind[PlatformOperatorConnector].toInstance(mockConnector),
         bind[SessionRepository].toInstance(mockRepository),
-        bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
         bind[EmailService].toInstance(mockEmailService),
         bind[AuditService].toInstance(mockAuditService)
       ).build()
@@ -173,9 +164,8 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(request, messages(application)).toString
 
         verify(mockConnector, never()).removePlatformOperator(any())(any())
-        verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
         verify(mockRepository, never()).clear(any(), any())
-        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any(), any())(any())
+        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any())(any())
         verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
       }
     }

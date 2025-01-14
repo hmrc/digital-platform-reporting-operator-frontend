@@ -19,9 +19,9 @@ package services
 import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import builders.UpdatePlatformOperatorRequestBuilder.aUpdatePlatformOperatorRequest
 import builders.UserAnswersBuilder.aUserAnswers
-import connectors.EmailConnector
+import connectors.SubscriptionConnector.GetSubscriptionInfoFailure
+import connectors.{EmailConnector, SubscriptionConnector}
 import models.email.requests._
-import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
 import org.mockito.Mockito.{never, times, verify, when}
@@ -35,6 +35,7 @@ import pages.notification.ReportingPeriodPage
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EmailServiceSpec extends AnyFreeSpec
@@ -46,17 +47,25 @@ class EmailServiceSpec extends AnyFreeSpec
   with BeforeAndAfterEach {
 
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+  private val anyBoolean = true
 
   private val mockEmailConnector = mock[EmailConnector]
+  private val mockSubscriptionConnector = mock[SubscriptionConnector]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockEmailConnector)
+    Mockito.reset(mockEmailConnector, mockSubscriptionConnector)
     super.beforeEach()
   }
 
-  private val underTest = new EmailService(mockEmailConnector)
+  private val underTest = new EmailService(mockEmailConnector, mockSubscriptionConnector)
 
   ".sendAddPlatformOperatorEmails(...)" - {
+    "return false when getSubscriptionInfo fails" in {
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.failed(GetSubscriptionInfoFailure(500)))
+
+      underTest.sendAddPlatformOperatorEmails(aUserAnswers).futureValue mustBe false
+    }
+
     "non-matching emails must send both AddedPlatformOperatorRequest AddedAsPlatformOperatorRequest when relevant data available" in {
       val userAnswers = aUserAnswers
         .set(PrimaryContactEmailPage, "some-email").success.value
@@ -65,9 +74,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedAddedPORequest = AddedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedAddedAsPORequest = AddedAsPlatformOperatorRequest.build(userAnswers).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
 
-      underTest.sendAddPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendAddPlatformOperatorEmails(userAnswers).futureValue mustBe true
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedPORequest))(any())
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedAsPORequest))(any())
@@ -81,9 +91,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedAddedPORequest = AddedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedAddedAsPORequest = AddedAsPlatformOperatorRequest.build(userAnswers).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(true))
 
-      underTest.sendAddPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendAddPlatformOperatorEmails(userAnswers).futureValue mustBe true
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedPORequest))(any())
       verify(mockEmailConnector, never()).send(eqTo(expectedAddedAsPORequest))(any())
@@ -95,15 +106,21 @@ class EmailServiceSpec extends AnyFreeSpec
         .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
 
-      underTest.sendAddPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendAddPlatformOperatorEmails(userAnswers).futureValue mustBe false
 
       verify(mockEmailConnector, never()).send(any())(any())
     }
   }
 
   ".sendRemovePlatformOperatorEmails(...)" - {
+    "return false when getSubscriptionInfo fails" in {
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.failed(GetSubscriptionInfoFailure(500)))
+
+      underTest.sendRemovePlatformOperatorEmails(aUserAnswers).futureValue mustBe false
+    }
+
     "non-matching emails must send both RemovedPlatformOperatorRequest RemovedAsPlatformOperatorRequest when relevant data available" in {
       val userAnswers = aUserAnswers
         .set(PrimaryContactEmailPage, "some-email@example.com").success.value
@@ -112,9 +129,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedRemovedPORequest = RemovedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedRemovedAsPORequest = RemovedAsPlatformOperatorRequest.build(userAnswers).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendRemovePlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendRemovePlatformOperatorEmails(userAnswers).futureValue
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedRemovedPORequest))(any())
       verify(mockEmailConnector, times(1)).send(eqTo(expectedRemovedAsPORequest))(any())
@@ -128,9 +146,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedRemovedPORequest = RemovedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedRemovedAsPORequest = RemovedAsPlatformOperatorRequest.build(userAnswers).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendRemovePlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendRemovePlatformOperatorEmails(userAnswers).futureValue
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedRemovedPORequest))(any())
       verify(mockEmailConnector, never()).send(eqTo(expectedRemovedAsPORequest))(any())
@@ -142,15 +161,22 @@ class EmailServiceSpec extends AnyFreeSpec
         .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendRemovePlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendRemovePlatformOperatorEmails(userAnswers).futureValue
 
       verify(mockEmailConnector, never()).send(any())(any())
     }
   }
 
   ".sendUpdatedPlatformOperatorEmails(...)" - {
+    "must return false when getSubscriptionInfo fails" in {
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.failed(GetSubscriptionInfoFailure(500)))
+
+      underTest.sendUpdatedPlatformOperatorEmails(aUserAnswers).futureValue mustBe false
+    }
+
     "non-matching emails must send both UpdatedPlatformOperatorRequest UpdatedAsPlatformOperatorRequest when relevant data available" in {
       val userAnswers = aUserAnswers
         .set(PrimaryContactEmailPage, "some-email@example.com").success.value
@@ -159,9 +185,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedUpdatedPORequest = UpdatedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedUpdatedAsPORequest = UpdatedAsPlatformOperatorRequest.build(userAnswers).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendUpdatedPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendUpdatedPlatformOperatorEmails(userAnswers).futureValue
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedUpdatedPORequest))(any())
       verify(mockEmailConnector, times(1)).send(eqTo(expectedUpdatedAsPORequest))(any())
@@ -175,9 +202,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedUpdatedPORequest = UpdatedPlatformOperatorRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedUpdatedAsPORequest = UpdatedAsPlatformOperatorRequest.build(userAnswers).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendUpdatedPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendUpdatedPlatformOperatorEmails(userAnswers).futureValue
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedUpdatedPORequest))(any())
       verify(mockEmailConnector, never()).send(eqTo(expectedUpdatedAsPORequest))(any())
@@ -189,15 +217,22 @@ class EmailServiceSpec extends AnyFreeSpec
         .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendUpdatedPlatformOperatorEmails(userAnswers, aSubscriptionInfo).futureValue
+      underTest.sendUpdatedPlatformOperatorEmails(userAnswers).futureValue
 
       verify(mockEmailConnector, never()).send(any())(any())
     }
   }
 
   ".sendAddReportingNotificationEmails(...)" - {
+    "must return false when getSubscriptionInfo fails" in {
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.failed(GetSubscriptionInfoFailure(500)))
+
+      underTest.sendAddReportingNotificationEmails(aUserAnswers, aUpdatePlatformOperatorRequest).futureValue mustBe false
+    }
+
     "non-matching emails must send both AddedReportingNotificationRequest, AddedAsReportingNotificationRequest when relevant data available" in {
       val userAnswers = aUserAnswers
         .set(PrimaryContactEmailPage, "some-email@example.com").success.value
@@ -207,9 +242,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedAddedRNRequest = AddedReportingNotificationRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedAddedAsRNRequest = AddedAsReportingNotificationRequest.build(userAnswers, aUpdatePlatformOperatorRequest).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendAddReportingNotificationEmails(userAnswers, aSubscriptionInfo, aUpdatePlatformOperatorRequest).futureValue
+      underTest.sendAddReportingNotificationEmails(userAnswers, aUpdatePlatformOperatorRequest).futureValue
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedRNRequest))(any())
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedAsRNRequest))(any())
@@ -224,9 +260,10 @@ class EmailServiceSpec extends AnyFreeSpec
       val expectedAddedRNRequest = AddedReportingNotificationRequest.build(userAnswers, aSubscriptionInfo).toOption.get
       val expectedAddedAsRNRequest = AddedAsReportingNotificationRequest.build(userAnswers, aUpdatePlatformOperatorRequest).toOption.get
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendAddReportingNotificationEmails(userAnswers, aSubscriptionInfo, aUpdatePlatformOperatorRequest).futureValue
+      underTest.sendAddReportingNotificationEmails(userAnswers, aUpdatePlatformOperatorRequest).futureValue
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedRNRequest))(any())
       verify(mockEmailConnector, never()).send(eqTo(expectedAddedAsRNRequest))(any())
@@ -238,9 +275,10 @@ class EmailServiceSpec extends AnyFreeSpec
         .remove(PrimaryContactNamePage).success.value
         .remove(BusinessNamePage).success.value
 
-      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(Done))
+      when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(aSubscriptionInfo))
+      when(mockEmailConnector.send(any())(any())).thenReturn(Future.successful(anyBoolean))
 
-      underTest.sendAddReportingNotificationEmails(userAnswers, aSubscriptionInfo, aUpdatePlatformOperatorRequest).futureValue
+      underTest.sendAddReportingNotificationEmails(userAnswers, aUpdatePlatformOperatorRequest).futureValue
 
       verify(mockEmailConnector, never()).send(any())(any())
     }

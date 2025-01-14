@@ -21,7 +21,7 @@ import controllers.AnswerExtractor
 import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PlatformOperatorAddedQuery
+import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.PlatformOperatorAddedView
 
@@ -41,7 +41,8 @@ class PlatformOperatorAddedController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
     getAnswerAsync(PlatformOperatorAddedQuery) { viewModel =>
-      connector.getSubscriptionInfo.map{ x => Ok(view(viewModel, x.primaryContact.email))}
+      val emailSent = request.userAnswers.get(SentAddedPlatformOperatorEmailQuery).getOrElse(false)
+      connector.getSubscriptionInfo.map { x => Ok(view(viewModel, x.primaryContact.email, emailSent)) }
     }
   }
 }

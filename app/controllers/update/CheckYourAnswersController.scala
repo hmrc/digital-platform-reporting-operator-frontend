@@ -17,8 +17,8 @@
 package controllers.update
 
 import com.google.inject.Inject
+import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.AnswerExtractor
 import controllers.actions._
 import models.audit.ChangePlatformOperatorAuditEventModel
@@ -47,7 +47,6 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            view: CheckYourAnswersView,
                                            userAnswersService: UserAnswersService,
                                            platformOperatorConnector: PlatformOperatorConnector,
-                                           subscriptionConnector: SubscriptionConnector,
                                            sessionRepository: SessionRepository,
                                            auditService: AuditService,
                                            emailService: EmailService,
@@ -77,24 +76,20 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
       Ok(view(operatorId, platformOperatorList, primaryContactList(operatorId, request.userAnswers), secondaryContactList(operatorId, request.userAnswers)))
   }
 
-  def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async {
-    implicit request =>
-      userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
-        errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
-        updateRequest => (for {
-          _ <- platformOperatorConnector.updatePlatformOperator(updateRequest)
-          originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
-          auditModel = ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest, countriesList).toAuditModel
-          _ <- auditService.sendAudit(auditModel)
-          subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-          _ <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers, subscriptionInfo)
-        } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))).recover {
-          case error: UpdatePlatformOperatorFailure => logger.warn("Failed to update platform operator", error)
-            throw error
-          case error => logger.warn("Update platform operator emails not sent", error)
-            throw error
-        }
-      )
+  def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
+    userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
+      errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
+      updateRequest => (for {
+        _ <- platformOperatorConnector.updatePlatformOperator(updateRequest)
+        originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
+        auditModel = ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest, countriesList).toAuditModel
+        _ <- auditService.sendAudit(auditModel)
+        _ <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers)
+      } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))).recover {
+        case error: UpdatePlatformOperatorFailure => logger.warn("Failed to update platform operator", error)
+          throw error
+      }
+    )
   }
 
   def initialise(operatorId: String): Action[AnyContent] = identify.async { implicit request =>

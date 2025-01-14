@@ -37,21 +37,21 @@ class EmailConnectorSpec extends ConnectorSpecBase {
       wireMockServer.stubFor(post(urlMatching("/hmrc/email"))
         .willReturn(aResponse.withStatus(ACCEPTED)))
 
-      underTest.send(aSendEmailRequest).futureValue
+      underTest.send(aSendEmailRequest).futureValue mustBe true
     }
 
     "must return success when the server returns an error response" in {
       wireMockServer.stubFor(post(urlMatching("/hmrc/email"))
         .willReturn(badRequest()))
 
-      underTest.send(aSendEmailRequest).futureValue
+      underTest.send(aSendEmailRequest).futureValue mustBe false
     }
 
     "must return success sending email results in exception" in {
       wireMockServer.stubFor(post(urlMatching("/hmrc/email"))
         .willReturn(aResponse().withFault(Fault.RANDOM_DATA_THEN_CLOSE)))
 
-      underTest.send(aSendEmailRequest).futureValue
+      underTest.send(aSendEmailRequest).futureValue mustBe false
     }
   }
 }
