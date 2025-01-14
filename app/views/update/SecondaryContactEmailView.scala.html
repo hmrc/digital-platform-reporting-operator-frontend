@@ -45,6 +45,8 @@
                 label = LabelViewModel(messages("secondaryContactEmail.heading", contactName)).visuallyHidden()
             )
             .withWidth(Full)
+            .withHint(HintViewModel(content = messages("secondaryContactEmail.hint")))
+            .asEmail()
         )
 
         @govukButton(
