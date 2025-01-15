@@ -16,7 +16,7 @@
 
 package controllers.update
 
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
+import connectors.PlatformOperatorConnector
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
@@ -34,21 +34,18 @@ import views.html.update.RemovePlatformOperatorView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RemovePlatformOperatorController @Inject()(
-                                                  override val messagesApi: MessagesApi,
-                                                  sessionRepository: SessionRepository,
-                                                  identify: IdentifierAction,
-                                                  getData: DataRetrievalActionProvider,
-                                                  requireData: DataRequiredAction,
-                                                  formProvider: RemovePlatformOperatorFormProvider,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  view: RemovePlatformOperatorView,
-                                                  platformConnector: PlatformOperatorConnector,
-                                                  subscriptionConnector: SubscriptionConnector,
-                                                  auditService: AuditService,
-                                                  emailService: EmailService
-                                                )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport with AnswerExtractor {
+class RemovePlatformOperatorController @Inject()(override val messagesApi: MessagesApi,
+                                                 sessionRepository: SessionRepository,
+                                                 identify: IdentifierAction,
+                                                 getData: DataRetrievalActionProvider,
+                                                 requireData: DataRequiredAction,
+                                                 formProvider: RemovePlatformOperatorFormProvider,
+                                                 val controllerComponents: MessagesControllerComponents,
+                                                 view: RemovePlatformOperatorView,
+                                                 platformConnector: PlatformOperatorConnector,
+                                                 auditService: AuditService,
+                                                 emailService: EmailService)
+                                                (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
@@ -62,13 +59,12 @@ class RemovePlatformOperatorController @Inject()(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
         value => if (value) {
           for {
-            _                <- platformConnector.removePlatformOperator(operatorId)
-            cleanedData      = request.userAnswers.copy(data = Json.obj())
-            updatedAnswers   <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
-            _                <- sessionRepository.set(updatedAnswers)
-            subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-            _                <- emailService.sendRemovePlatformOperatorEmails(request.userAnswers, subscriptionInfo)
-            _                <- auditService.sendAudit(RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
+            _              <- platformConnector.removePlatformOperator(operatorId)
+            cleanedData    = request.userAnswers.copy(data = Json.obj())
+            updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
+            _              <- sessionRepository.set(updatedAnswers)
+            _              <- emailService.sendRemovePlatformOperatorEmails(request.userAnswers)
+            _              <- auditService.sendAudit(RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
           } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
         } else {
           Future.successful(Redirect(routes.PlatformOperatorController.onPageLoad(operatorId)))

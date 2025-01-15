@@ -22,9 +22,8 @@ import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import builders.UkAddressBuilder.aUkAddress
 import builders.UpdatePlatformOperatorRequestBuilder.aUpdatePlatformOperatorRequest
 import builders.UserAnswersBuilder.aUserAnswers
+import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
-import connectors.SubscriptionConnector.GetSubscriptionInfoFailure
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
 import models.operator.{AddressDetails, TinDetails, TinType}
@@ -53,13 +52,12 @@ import scala.concurrent.Future
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency with MockitoSugar with BeforeAndAfterEach {
 
   private val mockPlatformOperatorConnector = mock[PlatformOperatorConnector]
-  private val mockSubscriptionConnector = mock[SubscriptionConnector]
   private val mockSessionRepository = mock[SessionRepository]
   private val mockAuditService = mock[AuditService]
   private val mockEmailService = mock[EmailService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockPlatformOperatorConnector, mockSessionRepository, mockAuditService, mockEmailService, mockSubscriptionConnector)
+    Mockito.reset(mockPlatformOperatorConnector, mockSessionRepository, mockAuditService, mockEmailService)
     super.beforeEach()
   }
 
@@ -189,15 +187,12 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest, countriesList)
 
       "must submit an Update Operator request and redirect to the next page" in {
-
         when(mockPlatformOperatorConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
-        when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.successful(subscriptionInfo))
-        when(mockEmailService.sendUpdatedPlatformOperatorEmails(any(), any())(any())).thenReturn(Future.successful(Done))
+        when(mockEmailService.sendUpdatedPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(true))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
-          bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[EmailService].toInstance(mockEmailService),
           bind[AuditService].toInstance(mockAuditService),
@@ -206,7 +201,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
-
           val result = route(app, request).value
 
           status(result) mustEqual SEE_OTHER
@@ -215,9 +209,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           verify(mockPlatformOperatorConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockAuditService, times(1)).sendAudit(
             eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
-          verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
           verify(mockSessionRepository, never()).set(any())
-          verify(mockEmailService, times(1)).sendUpdatedPlatformOperatorEmails(eqTo(answers), eqTo(subscriptionInfo))(any())
+          verify(mockEmailService, times(1)).sendUpdatedPlatformOperatorEmails(eqTo(answers))(any())
 
         }
       }
@@ -229,7 +222,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
-          bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[EmailService].toInstance(mockEmailService),
           bind[AuditService].toInstance(mockAuditService)
@@ -241,38 +233,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockPlatformOperatorConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
-          verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
           verify(mockSessionRepository, never()).set(any())
-          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any(), any())(any())
-        }
-      }
-
-      "must return a failed future when getSubscriptionInfo fails" in {
-
-        when(mockPlatformOperatorConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
-        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
-        when(mockSubscriptionConnector.getSubscriptionInfo(any())).thenReturn(Future.failed(GetSubscriptionInfoFailure(422)))
-        when(mockEmailService.sendUpdatedPlatformOperatorEmails(any(), any())(any())).thenReturn(Future.successful(Done))
-
-        val app = applicationBuilder(Some(answers)).overrides(
-          bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
-          bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
-          bind[SessionRepository].toInstance(mockSessionRepository),
-          bind[EmailService].toInstance(mockEmailService),
-          bind[AuditService].toInstance(mockAuditService),
-          bind[CountriesList].toInstance(countriesList)
-        ).build()
-
-        running(app) {
-          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
-
-          route(app, request).value.failed.futureValue
-          verify(mockPlatformOperatorConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockAuditService, times(1)).sendAudit(
-            eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
-          verify(mockSubscriptionConnector, times(1)).getSubscriptionInfo(any())
-          verify(mockSessionRepository, never()).set(any())
-          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any(), any())(any())
+          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any())(any())
         }
       }
 
@@ -280,7 +242,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         val answers = emptyUserAnswers.set(BusinessNamePage, "business").success.value
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
-          bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
           bind[EmailService].toInstance(mockEmailService),
           bind[SessionRepository].toInstance(mockSessionRepository)
         ).build()
@@ -291,8 +252,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockPlatformOperatorConnector, never()).createPlatformOperator(any())(any())
           verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
-          verify(mockSubscriptionConnector, never()).getSubscriptionInfo(any())
-          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any(), any())(any())
+          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any())(any())
           verify(mockSessionRepository, never()).set(any())
         }
       }

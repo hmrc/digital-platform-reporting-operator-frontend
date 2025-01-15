@@ -22,6 +22,7 @@ import controllers.actions._
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.SentAddedReportingNotificationEmailQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.notification._
 import viewmodels.govuk.summarylist._
@@ -30,16 +31,14 @@ import views.html.notification.NotificationAddedView
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class NotificationAddedController @Inject()(
-                                                   override val messagesApi: MessagesApi,
-                                                   identify: IdentifierAction,
-                                                   getData: DataRetrievalActionProvider,
-                                                   requireData: DataRequiredAction,
-                                                   val controllerComponents: MessagesControllerComponents,
-                                                   view: NotificationAddedView,
-                                                   connector: SubscriptionConnector
-                                                 )(implicit executionContext: ExecutionContext)
-  extends FrontendBaseController with I18nSupport with AnswerExtractor {
+class NotificationAddedController @Inject()(override val messagesApi: MessagesApi,
+                                            identify: IdentifierAction,
+                                            getData: DataRetrievalActionProvider,
+                                            requireData: DataRequiredAction,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            view: NotificationAddedView,
+                                            connector: SubscriptionConnector)
+                                           (implicit executionContext: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
@@ -53,8 +52,8 @@ class NotificationAddedController @Inject()(
         ).flatten
       )
       val poContactEmail = request.userAnswers.get(PrimaryContactEmailPage).getOrElse("")
-
-      connector.getSubscriptionInfo.map{x => Ok(view(operatorId, businessName, list, x.primaryContact.email, poContactEmail))}
+      val emailSent = request.userAnswers.get(SentAddedReportingNotificationEmailQuery).getOrElse(false)
+      connector.getSubscriptionInfo.map { x => Ok(view(operatorId, businessName, list, x.primaryContact.email, poContactEmail, emailSent)) }
     }
   }
 }

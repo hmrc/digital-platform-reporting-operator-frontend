@@ -21,10 +21,11 @@
 @this(
         layout: templates.Layout,
         govukPanel: GovukPanel,
+        govukWarning: GovukWarningText,
         appConfig: FrontendAppConfig
 )
 
-@(viewModel: PlatformOperatorSummaryViewModel, subscriptionEmail: String)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorSummaryViewModel, subscriptionEmail: String, emailSent: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("platformOperatorAdded.title")),
@@ -36,13 +37,29 @@
         content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
     ))
 
-    @if(subscriptionEmail.trim.toLowerCase != viewModel.poPrimaryContactEmail.trim.toLowerCase) {
-        <p class="govuk-body">@messages("platformOperatorAdded.p1.two.emails", viewModel.operatorName, subscriptionEmail, viewModel.poPrimaryContactEmail)</p>
-    } else {
-        <p class="govuk-body">@messages("platformOperatorAdded.p1.one.email", viewModel.operatorName, subscriptionEmail)</p>
-    }
+    <p class="govuk-body">
+        @messages("platformOperatorAdded.p1.1", viewModel.operatorName)
+        @if(emailSent) {
+            @if(subscriptionEmail.trim.toLowerCase != viewModel.poPrimaryContactEmail.trim.toLowerCase) {
+                @messages("platformOperatorAdded.p1.2.two.emails", subscriptionEmail, viewModel.poPrimaryContactEmail)
+            } else {
+                @messages("platformOperatorAdded.p1.2.one.email", subscriptionEmail)
+            }
+        }
+    </p>
 
     <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>
+
+    @if(!emailSent) {
+        @govukWarning(WarningText(
+            iconFallbackText = Some("Warning"),
+            content = messages("platformOperatorAdded.emailNotSent.warning")
+        ))
+
+        <p class="govuk-body">
+            <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("platformOperatorAdded.print.link.text")</a>
+        </p>
+    }
 
     <h2 class="govuk-heading-m">@messages("platformOperatorAdded.whatYouNeedToDoNext")</h2>
 
@@ -56,7 +73,9 @@
         <a href="@routes.StartController.onPageLoad()" class="govuk-link">@messages("platformOperatorAdded.p4.link.text")</a>.
     </p>
 
-    <p id="print-this-page" class="govuk-list govuk-link print-link hmrc-!-js-visible govuk-!-display-none-print">
-        <a class="govuk-link hmrc-!-js-visible" data-module="hmrc-print-link" href="#" >@messages("platformOperatorAdded.print.link.text")</a>
-    </p>
+    @if(emailSent) {
+        <p id="print-this-page" class="govuk-list govuk-link print-link hmrc-!-js-visible govuk-!-display-none-print">
+            <a class="govuk-link hmrc-!-js-visible" data-module="hmrc-print-link" href="#" >@messages("platformOperatorAdded.print.link.text")</a>
+        </p>
+    }
 }

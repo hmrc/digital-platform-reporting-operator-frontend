@@ -18,7 +18,7 @@ package controllers.add
 
 import com.google.inject.Inject
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
+import connectors.PlatformOperatorConnector
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
 import models.{CountriesList, NormalMode, UserAnswers}
@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PlatformOperatorAddedQuery
+import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
 import services.{AuditService, EmailService, UserAnswersService}
@@ -40,21 +40,19 @@ import views.html.add.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckYourAnswersController @Inject()(
-                                            override val messagesApi: MessagesApi,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalActionProvider,
-                                            requireData: DataRequiredAction,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourAnswersView,
-                                            userAnswersService: UserAnswersService,
-                                            connector: PlatformOperatorConnector,
-                                            subscriptionConnector: SubscriptionConnector,
-                                            sessionRepository: SessionRepository,
-                                            auditService: AuditService,
-                                            emailService: EmailService,
-                                            countriesList: CountriesList
-                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
+                                           identify: IdentifierAction,
+                                           getData: DataRetrievalActionProvider,
+                                           requireData: DataRequiredAction,
+                                           val controllerComponents: MessagesControllerComponents,
+                                           view: CheckYourAnswersView,
+                                           userAnswersService: UserAnswersService,
+                                           connector: PlatformOperatorConnector,
+                                           sessionRepository: SessionRepository,
+                                           auditService: AuditService,
+                                           emailService: EmailService,
+                                           countriesList: CountriesList)
+                                          (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
     implicit request =>
@@ -79,31 +77,26 @@ class CheckYourAnswersController @Inject()(
       Ok(view(platformOperatorList, primaryContactList(request.userAnswers), secondaryContactList(request.userAnswers)))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async {
-    implicit request =>
-
-      userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId)
-        .fold(
-          errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
-          createRequest =>
-            (for {
-              createResponse        <- connector.createPlatformOperator(createRequest)
-              _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse, countriesList).toAuditModel)
-              cleanedAnswers        =  request.userAnswers.copy(data = Json.obj())
-              platformOperatorInfo  =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
-              updatedAnswers        <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
-              _                     <- sessionRepository.set(updatedAnswers)
-              subscriptionInfo      <- subscriptionConnector.getSubscriptionInfo
-              answersWithOperatorId =  request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
-              _                     <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId, subscriptionInfo)
-            } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
-              case error: CreatePlatformOperatorFailure => logger.warn("Failed to create platform operator", error)
-                auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status, countriesList).toAuditModel)
-                throw error
-              case error => logger.warn("Add platform operator emails not sent", error)
-                throw error
-            }
-        )
+  def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
+    userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId).fold(
+      errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
+      createRequest =>
+        (for {
+          createResponse        <- connector.createPlatformOperator(createRequest)
+          _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse, countriesList).toAuditModel)
+          answersWithOperatorId =  request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
+          emailSent             <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId)
+          platformOperatorInfo  =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
+          cleanedAnswers        =  request.userAnswers.copy(data = Json.obj())
+          poInfoAnswers         <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
+          updatedAnswers        <- Future.fromTry(poInfoAnswers.set(SentAddedPlatformOperatorEmailQuery, emailSent))
+          _                     <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
+          case error: CreatePlatformOperatorFailure => logger.warn("Failed to create platform operator", error)
+            auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status, countriesList).toAuditModel)
+            throw error
+        }
+    )
   }
 
   private def primaryContactList(answers: UserAnswers)(implicit messages: Messages): SummaryList =

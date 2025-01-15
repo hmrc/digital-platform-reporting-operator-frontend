@@ -21,10 +21,11 @@
         layout: templates.Layout,
         govukPanel: GovukPanel,
         govukSummaryList: GovukSummaryList,
+        govukWarning: GovukWarningText,
         appConfig: FrontendAppConfig
 )
 
-@(operatorId: String, businessName: String, list: SummaryList, subscriptionPrimaryEmail: String, poPrimaryEmail: String)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, businessName: String, list: SummaryList, subscriptionPrimaryEmail: String, poPrimaryEmail: String, emailSent: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("notificationAdded.title")),
@@ -37,10 +38,26 @@
 
     @govukSummaryList(list)
 
-    @if(subscriptionPrimaryEmail.trim.toLowerCase != poPrimaryEmail.trim.toLowerCase) {
-        <p class="govuk-body">@messages("notificationAdded.p1.two.emails", businessName, subscriptionPrimaryEmail, poPrimaryEmail)</p>
-    } else {
-        <p class="govuk-body">@messages("notificationAdded.p1.one.email", businessName, subscriptionPrimaryEmail)</p>
+    <p class="govuk-body">
+        @messages("notificationAdded.p1.1", businessName)
+        @if(emailSent) {
+            @if(subscriptionPrimaryEmail.trim.toLowerCase != poPrimaryEmail.trim.toLowerCase) {
+                @messages("notificationAdded.p1.2.two.emails", subscriptionPrimaryEmail, poPrimaryEmail)
+            } else {
+                @messages("notificationAdded.p1.2.one.email", subscriptionPrimaryEmail)
+            }
+        }
+    </p>
+
+    @if(!emailSent) {
+        @govukWarning(WarningText(
+            iconFallbackText = Some("Warning"),
+            content = messages("notificationAdded.emailNotSent.warning")
+        ))
+
+        <p class="govuk-body">
+            <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
+        </p>
     }
 
     <h2 class="govuk-heading-m">@messages("notificationAdded.h2")</h2>
@@ -55,7 +72,9 @@
         <a href="@routes.SelectPlatformOperatorController.onPageLoad" class="govuk-link">@messages("notificationAdded.p3.link.text")</a>.
     </p>
 
-    <p class="govuk-body">
-        <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
-    </p>
+    @if(emailSent) {
+        <p class="govuk-body">
+            <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
+        </p>
+    }
 }
