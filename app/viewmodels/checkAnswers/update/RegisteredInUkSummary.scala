@@ -20,6 +20,8 @@ import controllers.update.routes
 import models.UserAnswers
 import pages.update.{BusinessNamePage, RegisteredInUkPage}
 import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
@@ -32,11 +34,14 @@ object RegisteredInUkSummary  {
       businessName <- answers.get(BusinessNamePage)
     } yield {
 
-        val value = if (answer) "site.yes" else "site.no"
-
+      val value = ValueViewModel(
+        HtmlContent(
+          HtmlFormat.escape(messages(s"registeredInUk.$answer"))
+        )
+      )
         SummaryListRowViewModel(
           key     = messages("registeredInUk.checkYourAnswersLabel", businessName),
-          value   = ValueViewModel(value),
+          value   = value,
           actions = Seq(
             ActionItemViewModel("site.change", routes.RegisteredInUkController.onPageLoad(operatorId).url)
               .withVisuallyHiddenText(messages("registeredInUk.change.hidden", businessName))

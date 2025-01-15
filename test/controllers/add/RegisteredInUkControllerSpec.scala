@@ -19,7 +19,7 @@ package controllers.add
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.RegisteredInUkFormProvider
-import models.NormalMode
+import models.{NormalMode, RegisteredAddressCountry}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -61,7 +61,7 @@ class RegisteredInUkControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = baseAnswers.set(RegisteredInUkPage, true).success.value
+      val userAnswers = baseAnswers.set(RegisteredInUkPage, RegisteredAddressCountry.International).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -73,7 +73,8 @@ class RegisteredInUkControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(RegisteredAddressCountry.International), NormalMode, businessName)(
+          request, messages(application)).toString
       }
     }
 
@@ -91,10 +92,10 @@ class RegisteredInUkControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, registeredInUkRoute)
-            .withFormUrlEncodedBody(("value", "true"))
+            .withFormUrlEncodedBody(("value", "uk"))
 
         val result = route(application, request).value
-        val expectedAnswers = baseAnswers.set(RegisteredInUkPage, true).success.value
+        val expectedAnswers = baseAnswers.set(RegisteredInUkPage, RegisteredAddressCountry.Uk).success.value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual RegisteredInUkPage.nextPage(NormalMode, expectedAnswers).url

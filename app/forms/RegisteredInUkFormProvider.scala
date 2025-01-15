@@ -17,14 +17,15 @@
 package forms
 
 import forms.mappings.Mappings
+import models.RegisteredAddressCountry
 import play.api.data.Form
 
 import javax.inject.Inject
 
 class RegisteredInUkFormProvider @Inject() extends Mappings {
 
-  def apply(businessName: String): Form[Boolean] =
+  def apply(businessName: String): Form[RegisteredAddressCountry] =
     Form(
-      "value" -> boolean("registeredInUk.error.required", args = Seq(businessName))
+      "value" -> enumerable[RegisteredAddressCountry]("registeredInUk.error.required", args = Seq(businessName))
     )
 }

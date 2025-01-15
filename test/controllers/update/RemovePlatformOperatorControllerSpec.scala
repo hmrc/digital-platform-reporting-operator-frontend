@@ -22,7 +22,7 @@ import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
 import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
-import models.{UkAddress, UserAnswers}
+import models.{RegisteredAddressCountry, UkAddress, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
@@ -81,7 +81,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       val answers = UserAnswers(userAnswersId, Some(operatorId))
         .set(BusinessNamePage, "business").success.value
         .set(HasTradingNamePage, false).success.value
-        .set(RegisteredInUkPage, true).success.value
+        .set(RegisteredInUkPage, RegisteredAddressCountry.values.head).success.value
         .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", aCountry)).success.value
         .set(PrimaryContactNamePage, "name").success.value
         .set(PrimaryContactEmailPage, "email").success.value
