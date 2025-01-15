@@ -1,5 +1,5 @@
 @*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  *@
 
+@import viewmodels.InputWidth._
 @import controllers.add.routes
 @import models.CountriesList
 @import views.ViewUtils.countrySelectItems
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import viewmodels.InputWidth._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.accessibleautocomplete.AccessibleAutocomplete
-
 
 @this(
     layout: templates.Layout,
@@ -34,20 +34,20 @@
 
 @(form: Form[_], mode: Mode, businessName: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("ukAddress.title"))) {
+@layout(pageTitle = title(form, messages("jerseyGuernseyIoMAddress.title"))) {
 
-    @formHelper(action = routes.UkAddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.JerseyGuernseyIoMAddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <h1 class="govuk-heading-xl">@messages("ukAddress.heading", businessName)</h1>
+        <h1 class="govuk-heading-xl">@messages("jerseyGuernseyIoMAddress.heading", businessName)</h1>
 
         @govukInput(
             InputViewModel(
                 field = form("line1"),
-                label = LabelViewModel(messages("ukAddress.line1"))
+                label = LabelViewModel(messages("jerseyGuernseyIoMAddress.line1"))
             )
             .withWidth(Full)
         )
@@ -55,7 +55,7 @@
         @govukInput(
             InputViewModel(
                 field = form("line2"),
-                label = LabelViewModel(messages("ukAddress.line2"))
+                label = LabelViewModel(messages("jerseyGuernseyIoMAddress.line2"))
             )
             .withWidth(Full)
         )
@@ -63,7 +63,7 @@
         @govukInput(
             InputViewModel(
                 field = form("town"),
-                label = LabelViewModel(messages("ukAddress.town"))
+                label = LabelViewModel(messages("jerseyGuernseyIoMAddress.town"))
             )
             .withWidth(TwoThirds)
         )
@@ -71,7 +71,7 @@
         @govukInput(
             InputViewModel(
                 field = form("county"),
-                label = LabelViewModel(messages("ukAddress.county"))
+                label = LabelViewModel(messages("jerseyGuernseyIoMAddress.county"))
             )
             .withWidth(TwoThirds)
         )
@@ -79,7 +79,7 @@
         @govukInput(
             InputViewModel(
                 field = form("postCode"),
-                label = LabelViewModel(messages("ukAddress.postCode"))
+                label = LabelViewModel(messages("jerseyGuernseyIoMAddress.postCode"))
             )
             .withWidth(Fixed10)
         )
@@ -87,12 +87,8 @@
         @govukSelect(
             SelectViewModel(
                 field = form("country"),
-                items = Seq(
-                    SelectItem(
-                        value = Some(countriesList.gbCountry.code),
-                        text = countriesList.gbCountry.name
-                    )),
-                label = LabelViewModel(messages("ukAddress.country"))
+                items = countrySelectItems(countriesList.ukCountries),
+                label = LabelViewModel(messages("jerseyGuernseyIoMAddress.country"))
             )
             .withCssClass("govuk-input")
             .asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = true)))

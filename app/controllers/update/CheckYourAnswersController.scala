@@ -68,8 +68,9 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
           EmprefSummary.row(operatorId, request.userAnswers),
           ChrnSummary.row(operatorId, request.userAnswers),
           RegisteredInUkSummary.row(operatorId, request.userAnswers),
-          UkAddressSummary.row(operatorId, request.userAnswers),
+          UkAddressSummary.row(operatorId, request.userAnswers, countriesList),
           InternationalAddressSummary.row(operatorId, request.userAnswers),
+          JerseyGuernseyIoMAddressSummary.row(operatorId, request.userAnswers)
         ).flatten
       )
 

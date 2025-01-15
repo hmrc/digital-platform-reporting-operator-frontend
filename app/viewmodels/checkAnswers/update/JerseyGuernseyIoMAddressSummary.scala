@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package viewmodels.checkAnswers.update
 
 import controllers.update.routes
-import models.{UserAnswers, CountriesList}
-import pages.update.{BusinessNamePage, UkAddressPage}
+import models.UserAnswers
+import pages.update.{BusinessNamePage, JerseyGuernseyIoMAddressPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -26,11 +26,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object UkAddressSummary  {
+object JerseyGuernseyIoMAddressSummary {
 
-  def row(operatorId: String, answers: UserAnswers, countriesList: CountriesList)(implicit messages: Messages): Option[SummaryListRow] =
+  def row(operatorId: String, answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
     for {
-      answer       <- answers.get(UkAddressPage)
+      answer       <- answers.get(JerseyGuernseyIoMAddressPage)
       businessName <- answers.get(BusinessNamePage)
     } yield {
 
@@ -43,25 +43,14 @@ object UkAddressSummary  {
         Some(HtmlFormat.escape(answer.country.name))
       ).flatten.map(_.toString).mkString("<br/>")
 
-      if (countriesList.ukCountries.map(_.code).contains(answer.country.code)) {
-        SummaryListRowViewModel(
-          key     = "jerseyGuernseyIoMAddress.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId).url)
-              .withVisuallyHiddenText(messages("jerseyGuernseyIoMAddress.change.hidden", businessName))
-          )
+      SummaryListRowViewModel(
+        key = "jerseyGuernseyIoMAddress.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlContent(value)),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId).url)
+            .withVisuallyHiddenText(messages("JerseyGuernseyIoMAddress.change.hidden", businessName))
         )
-      }
-      else {
-        SummaryListRowViewModel(
-          key     = "ukAddress.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
-          actions = Seq(
-            ActionItemViewModel("site.change", routes.UkAddressController.onPageLoad(operatorId).url)
-              .withVisuallyHiddenText(messages("ukAddress.change.hidden", businessName))
-          )
-        )
-      }
+      )
     }
+  }
 }

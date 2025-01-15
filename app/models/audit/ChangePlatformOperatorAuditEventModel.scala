@@ -76,10 +76,8 @@ object ChangePlatformOperatorAuditEventModel {
   }
 
   private def getAddressJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
-    val registeredBusinessAddressInUk = info.addressDetails.countryCode.map{ countryCode =>
-      if (countriesList.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
-        Json.obj("registeredBusinessAddressInUk" -> false)}
-    }.getOrElse(Json.obj())
+    val registeredBusinessAddressCountry = info.addressDetails.countryCode.map {countryCode =>
+      Json.obj("registeredBusinessAddressCountry" -> countryCode)}.getOrElse(Json.obj())
     val addressLine2 = info.addressDetails.line2.map { line2 => Json.obj("addressLine2" -> line2) }.getOrElse(Json.obj())
     val city = info.addressDetails.line3.map { line3 => Json.obj("city" -> line3) }.getOrElse(Json.obj())
     val region = info.addressDetails.line4.map { line4 => Json.obj("region" -> line4) }.getOrElse(Json.obj())
@@ -93,7 +91,7 @@ object ChangePlatformOperatorAuditEventModel {
           "addressLine1" -> info.addressDetails.line1
         ).++(addressLine2).++(city).++(region).++(postCode).++(countryCode).++(countryName)
       )
-    registeredBusinessAddressInUk ++ registeredBusinessAddress
+    registeredBusinessAddressCountry ++ registeredBusinessAddress
   }
 
   private def getContactJsonPO(info: PlatformOperator): JsObject = {
@@ -148,10 +146,8 @@ object ChangePlatformOperatorAuditEventModel {
   }
 
   private def getAddressJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
-    val registeredBusinessAddressInUk = info.addressDetails.countryCode.map{ countryCode =>
-      if (countriesList.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
-        Json.obj("registeredBusinessAddressInUk" -> false)}
-    }.getOrElse(Json.obj())
+    val registeredBusinessAddressCountry = info.addressDetails.countryCode.map {countryCode =>
+      Json.obj("registeredBusinessAddressCountry" -> countryCode)}.getOrElse(Json.obj())
     val addressLine2 = info.addressDetails.line2.map { line2 => Json.obj("addressLine2" -> line2) }.getOrElse(Json.obj())
     val city = info.addressDetails.line3.map { line3 => Json.obj("city" -> line3) }.getOrElse(Json.obj())
     val region = info.addressDetails.line4.map { line4 => Json.obj("region" -> line4) }.getOrElse(Json.obj())
@@ -165,7 +161,7 @@ object ChangePlatformOperatorAuditEventModel {
           "addressLine1" -> info.addressDetails.line1
         ).++(addressLine2).++(city).++(region).++(postCode).++(countryCode).++(countryName)
       )
-    registeredBusinessAddressInUk ++ registeredBusinessAddress
+    registeredBusinessAddressCountry ++ registeredBusinessAddress
   }
 
   private def getContactJsonUPO(info: UpdatePlatformOperatorRequest): JsObject = {

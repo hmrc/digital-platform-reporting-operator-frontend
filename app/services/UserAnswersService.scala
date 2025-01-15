@@ -19,10 +19,11 @@ package services
 import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
 import models.UkTaxIdentifiers._
+import models.RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
 import models.operator._
 import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperator
-import models.{CountriesList, DueDiligence, InternationalAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{CountriesList, DueDiligence, InternationalAddress, JerseyGuernseyIoMAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
 import play.api.libs.json.Writes
@@ -95,18 +96,33 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
       .map(tin => set(page, tin.tin))
       .getOrElse(StateT.pure(()))
 
-  private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
+  private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] = {
     address.countryCode.map { countryCode =>
-      if (countriesList.ukCountries.map(_.code).contains(countryCode)) setUkAddress(address) else setInternationalAddress(address)
+      if (countriesList.gbCountry.code.contains(countryCode)) {setUkAddress(address)}
+      else if (countriesList.ukCountries.map(_.code).contains(countryCode)) {setJerseyGuernseyIoMAddress(address)}
+      else {setInternationalAddress(address)}
     }.getOrElse(StateT.pure(()))
+  }
 
   private def setUkAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address match {
       case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
+        for {
+          _ <- set(RegisteredInUkPage, Uk)
+          _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, countriesList.gbCountry))
+        } yield ()
+
+      case _ =>
+        StateT.pure(())
+    }
+
+  private def setJerseyGuernseyIoMAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
+    address match {
+      case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
         countriesList.ukCountries.find(_.code == countryCode).map { country =>
           for {
-            _ <- set(RegisteredInUkPage, true)
-            _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, country))
+            _ <- set(RegisteredInUkPage, JerseyGuernseyIsleOfMan)
+            _ <- set(JerseyGuernseyIoMAddressPage, JerseyGuernseyIoMAddress(line1, line2, line3, line4, postCode, country))
           } yield ()
         }.getOrElse(StateT.pure(()))
 
@@ -119,7 +135,7 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
       case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
         countriesList.internationalCountries.find(_.code == countryCode).map { country =>
           for {
-            _ <- set(RegisteredInUkPage, false)
+            _ <- set(RegisteredInUkPage, International)
             _ <- set(InternationalAddressPage, InternationalAddress(line1, line2, line3, line4, postCode, country))
           } yield ()
         }.getOrElse(StateT.pure(()))
@@ -239,12 +255,17 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
 
   private def getAddressDetails(answers: UserAnswers): EitherNec[Query, AddressDetails] =
     answers.getEither(RegisteredInUkPage).flatMap {
-      case true =>
+      case Uk =>
         answers.getEither(UkAddressPage).map { address =>
           AddressDetails(address.line1, address.line2, Some(address.town), address.county, Some(address.postCode), Some(address.country.code))
         }
 
-      case false =>
+      case JerseyGuernseyIsleOfMan =>
+        answers.getEither(JerseyGuernseyIoMAddressPage).map { address =>
+          AddressDetails(address.line1, address.line2, Some(address.town), address.county, Some(address.postCode), Some(address.country.code))
+      }
+
+      case International =>
         answers.getEither(InternationalAddressPage).map { address =>
           AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package forms
+package models
 
-import forms.behaviours.BooleanFieldBehaviours
-import play.api.data.FormError
+import play.api.libs.json._
 
-class RegisteredInUkFormProviderSpec extends BooleanFieldBehaviours {
+case class JerseyGuernseyIoMAddress(line1: String,
+                                     line2: Option[String],
+                                     town: String,
+                                     county: Option[String],
+                                     postCode: String,
+                                     country: Country)
 
-  val requiredKey = "registeredInUk.error.required"
+object JerseyGuernseyIoMAddress {
 
-  val businessName = "name"
-  val form = new RegisteredInUkFormProvider()(businessName)
-
-  ".value" - {
-
-    val fieldName = "value"
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey, Seq(businessName))
-    )
-  }
+  implicit val format: OFormat[JerseyGuernseyIoMAddress] = Json.format
 }

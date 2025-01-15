@@ -18,13 +18,14 @@ package pages.update
 
 import controllers.update.routes
 import controllers.{routes => baseRoutes}
-import models.UserAnswers
+import models.{RegisteredAddressCountry, UserAnswers}
+import RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
 import scala.util.Try
 
-case object RegisteredInUkPage extends UpdateQuestionPage[Boolean] {
+case object RegisteredInUkPage extends UpdateQuestionPage[RegisteredAddressCountry] {
 
   override def path: JsPath = JsPath \ toString
 
@@ -32,20 +33,27 @@ case object RegisteredInUkPage extends UpdateQuestionPage[Boolean] {
 
   override def nextPage(operatorId: String, answers: UserAnswers): Call =
     answers.get(this).map {
-      case true =>
+      case Uk =>
         answers.get(UkAddressPage)
           .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
           .getOrElse(routes.UkAddressController.onPageLoad(operatorId))
 
-      case false =>
+      case JerseyGuernseyIsleOfMan =>
+        answers.get(JerseyGuernseyIoMAddressPage)
+          .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
+          .getOrElse(routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId))
+
+
+      case International =>
         answers.get(InternationalAddressPage)
           .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
           .getOrElse(routes.InternationalAddressController.onPageLoad(operatorId))
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 
-  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
+  override def cleanup(value: Option[RegisteredAddressCountry], userAnswers: UserAnswers): Try[UserAnswers] = {
     value.map {
-      case true  => userAnswers.remove(InternationalAddressPage)
-      case false => userAnswers.remove(UkAddressPage)
-    }.getOrElse(super.cleanup(value, userAnswers))
+      case Uk                      => userAnswers.remove(JerseyGuernseyIoMAddressPage).flatMap(_.remove(InternationalAddressPage))
+      case JerseyGuernseyIsleOfMan => userAnswers.remove(UkAddressPage).flatMap(_.remove(InternationalAddressPage))
+      case International           => userAnswers.remove(UkAddressPage).flatMap(_.remove(JerseyGuernseyIoMAddressPage))
+    }.getOrElse(super.cleanup(value, userAnswers))}
 }
