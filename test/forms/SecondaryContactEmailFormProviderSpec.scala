@@ -62,7 +62,8 @@ class SecondaryContactEmailFormProviderSpec extends StringFieldBehaviours {
       val noAt = "fooexample.com"
       val noUserName = "@example.com"
       val noDomain = "foo@example"
-      val invalidData = Gen.oneOf(noAt, noUserName, noDomain).sample.value
+      val commaName = "foo,example@example.com"
+      val invalidData = Gen.oneOf(noAt, noUserName, noDomain, commaName).sample.value
 
       val result = form.bind(Map("value" -> invalidData)).apply(fieldName)
       result.errors mustEqual Seq(FormError(fieldName, formatKey, Seq(Validation.emailPattern.toString)))
