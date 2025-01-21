@@ -22,7 +22,11 @@ object Validation {
 
   val textInputPattern: Regex = """[0-9A-Za-zÀ-ÅÇ-ÖØ-Ýà-åç-öø-ýÿĀ-ľŁ-ňŊ-őŔ-ſ'’ \-.,_&)(]+""".r.anchored
   val ukPostcodePattern: Regex = """[a-zA-Z]{1,2}[0-9][0-9a-zA-Z]? ?[0-9][a-zA-Z]{2}""".r.anchored
-  val emailPattern: Regex = """^(?!\.)("([^"\r\\]|\\["\r\\])*"|([-a-zA-Z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$""".r.anchored
+  val emailPattern: Regex = ("""^(?!\.)""" +                                                                  // Cannot start with '.'
+    """("([^"\r\\]|\\["\r\\])+"""" +                                                  // String in double quotes. Quotes, Carriage returns and backslashes must be escaped with backslash
+    """|([-a-zA-Z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)+)""" +                             // Or string of permissable characters but no double dots ".."
+    """(?<!\.)""" +                                                                   // Cannot have a dot just before the @
+    """@[a-zA-Z0-9][\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]$""").r.anchored
   val phoneNumberPattern: Regex = "[A-Z0-9 )/(\\-*#+]*".r.anchored
   val utrPattern: Regex = "[Kk]?(?:\\d{10}|\\d{13})[kK]?".r.anchored
   val chrnPattern: Regex = "(?:[A-Za-z]{2}|[Xx])?\\d{1,5}".r.anchored
