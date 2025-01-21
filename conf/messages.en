@@ -15,6 +15,7 @@ site.or = or
 site.confirmAndAdd = Confirm and add
 site.confirmAndUpdate = Confirm and update
 site.printThisPage = Print this page
+error.nonNumeric = Reportable period must be a real year
 
 date.day = Day
 date.month = Month
