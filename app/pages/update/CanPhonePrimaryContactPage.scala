@@ -43,4 +43,6 @@ case object CanPhonePrimaryContactPage extends UpdateQuestionPage[Boolean] {
 
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
     if (value.contains(false)) userAnswers.remove(PrimaryContactPhoneNumberPage) else super.cleanup(value, userAnswers)
+
+  override def route(operatorId: String): Call = routes.CanPhonePrimaryContactController.onPageLoad(operatorId)
 }

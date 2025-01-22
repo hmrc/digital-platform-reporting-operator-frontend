@@ -33,4 +33,6 @@ case object SecondaryContactEmailPage extends UpdateQuestionPage[String] {
     } else {
       routes.CanPhoneSecondaryContactController.onPageLoad(operatorId)
     }
+
+  override def route(operatorId: String): Call = routes.SecondaryContactEmailController.onPageLoad(operatorId)
 }

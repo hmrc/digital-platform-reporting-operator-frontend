@@ -18,7 +18,7 @@ package pages.add
 
 import controllers.add.routes
 import controllers.{routes => baseRoutes}
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -49,4 +49,6 @@ case object HasTradingNamePage extends AddQuestionPage[Boolean] {
 
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
     if (value.contains(false)) userAnswers.remove(TradingNamePage) else super.cleanup(value, userAnswers)
+
+  override def route(mode: Mode): Call = routes.HasTradingNameController.onPageLoad(mode)
 }

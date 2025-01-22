@@ -17,7 +17,7 @@
 package pages.add
 
 import controllers.add.routes
-import models.{NormalMode, UserAnswers}
+import models.{Mode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -29,4 +29,6 @@ case object BusinessNamePage extends AddQuestionPage[String] {
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     routes.HasTradingNameController.onPageLoad(NormalMode)
+
+  override def route(mode: Mode): Call = routes.BusinessNameController.onPageLoad(mode)
 }

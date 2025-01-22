@@ -19,7 +19,7 @@ package pages.add
 import controllers.add.routes
 import controllers.{routes => baseRoutes}
 import models.UkTaxIdentifiers.Chrn
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -43,4 +43,6 @@ case object EmprefPage extends AddQuestionPage[String] {
         routes.CheckYourAnswersController.onPageLoad()
       }
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def route(mode: Mode): Call = routes.EmprefController.onPageLoad(mode)
 }

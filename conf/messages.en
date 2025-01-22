@@ -59,6 +59,9 @@ journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
+journeyRecovery.missingData.title = Some information is missing
+journeyRecovery.missingData.heading = Some information is missing
+journeyRecovery.missingData.guidance = You must provide this information to proceed.
 
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out

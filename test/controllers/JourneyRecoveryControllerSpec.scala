@@ -39,9 +39,28 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val result = route(application, request).value
 
           val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
+          val journeyRecoveryText = "journeyRecovery.continue."
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(request, messages(application)).toString
+          contentAsString(result) mustEqual continueView(continueUrl.unsafeValue, journeyRecoveryText)(request, messages(application)).toString
+        }
+      }
+
+      "must return OK and the continue view when a true Boolean is passed" in {
+
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val continueUrl = RedirectUrl("/foo")
+          val request     = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url)
+
+          val result = route(application, request).value
+
+          val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
+          val journeyRecoveryText = "journeyRecovery.missingData."
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual continueView(continueUrl.unsafeValue, journeyRecoveryText)(request, messages(application)).toString
         }
       }
     }

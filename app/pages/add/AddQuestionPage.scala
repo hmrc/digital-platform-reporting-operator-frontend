@@ -16,6 +16,11 @@
 
 package pages.add
 
+import models.Mode
 import pages.QuestionPage
+import play.api.mvc.Call
 
-trait AddQuestionPage[A] extends QuestionPage[A] with AddPage
+trait AddQuestionPage[A] extends QuestionPage[A] with AddPage {
+
+  def route(mode: Mode): Call
+}

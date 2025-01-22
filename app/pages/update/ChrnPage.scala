@@ -16,7 +16,9 @@
 
 package pages.update
 
+import controllers.update.routes
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object ChrnPage extends UpdateQuestionPage[String] {
 
@@ -24,4 +26,5 @@ case object ChrnPage extends UpdateQuestionPage[String] {
 
   override def toString: String = "chrn"
 
+  override def route(operatorId: String): Call = routes.ChrnController.onPageLoad(operatorId)
 }

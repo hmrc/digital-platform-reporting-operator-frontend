@@ -17,7 +17,7 @@
 package pages.add
 
 import controllers.add.routes
-import models.{JerseyGuernseyIoMAddress, NormalMode, UserAnswers}
+import models.{JerseyGuernseyIoMAddress, Mode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -29,4 +29,6 @@ case object JerseyGuernseyIoMAddressPage extends AddQuestionPage[JerseyGuernseyI
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     routes.PrimaryContactNameController.onPageLoad(NormalMode)
+
+  override def route(mode: Mode): Call = routes.JerseyGuernseyIoMAddressController.onPageLoad(mode)
 }

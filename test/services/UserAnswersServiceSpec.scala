@@ -25,7 +25,6 @@ import models.{Country, DefaultCountriesList, DueDiligence, InternationalAddress
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{EitherValues, OptionValues, TryValues}
-import pages.add._
 import pages.notification._
 import queries.NotificationDetailsQuery
 
@@ -39,6 +38,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
   private val now = Instant.now
 
   "fromPlatformOperator" - {
+
+    import pages.add._
 
     "must return a UserAnswers populated from the platform operator" - {
 
@@ -408,6 +409,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
 
   "toCreatePlatformOperator" - {
 
+    import pages.add._
+
     "must create a request" - {
 
       "with UK TIN details" in {
@@ -662,6 +665,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
   }
 
   "toUpdatePlatformOperator" - {
+
+    import pages.update._
 
     "must create a request" - {
 
@@ -919,6 +924,8 @@ class UserAnswersServiceSpec extends AnyFreeSpec with Matchers with OptionValues
   }
 
   "addNotificationRequest" - {
+
+    import pages.update._
 
     "must create a request" - {
 

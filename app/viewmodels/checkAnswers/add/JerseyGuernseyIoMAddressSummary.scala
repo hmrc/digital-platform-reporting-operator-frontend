@@ -48,7 +48,7 @@ object JerseyGuernseyIoMAddressSummary  {
         value   = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel("site.change", routes.JerseyGuernseyIoMAddressController.onPageLoad(CheckMode).url)
-            .withVisuallyHiddenText(messages("JerseyGuernseyIoMAddress.change.hidden", businessName))
+            .withVisuallyHiddenText(messages("jerseyGuernseyIoMAddress.change.hidden", businessName))
         )
       )
     }

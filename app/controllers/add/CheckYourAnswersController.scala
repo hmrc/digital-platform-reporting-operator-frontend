@@ -20,18 +20,19 @@ import com.google.inject.Inject
 import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.actions._
+import controllers.{routes => baseRoutes}
 import models.audit.CreatePlatformOperatorAuditEventModel
-import models.{CountriesList, NormalMode, UserAnswers}
-import pages.add.{CheckYourAnswersPage, HasSecondaryContactPage}
+import models.{CheckMode, CountriesList, NormalMode, UserAnswers}
+import pages.add.{AddQuestionPage, CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import queries.{PlatformOperatorAddedQuery, Query, SentAddedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
-import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
 import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.PlatformOperatorSummaryViewModel
 import viewmodels.checkAnswers.add._
@@ -78,7 +79,11 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
     userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId).fold(
-      errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
+      errors => {
+        val route = findRoute(errors.head)
+        val redirectUrl: RedirectUrl = RedirectUrl(route.url)
+        Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad(Some(redirectUrl), Some(true))))
+      },
       createRequest =>
         (for {
           createResponse        <- connector.createPlatformOperator(createRequest)
@@ -134,4 +139,11 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
     } else {
       None
     }
+
+  private def findRoute(query: Query): Call = {
+    query match {
+      case page: AddQuestionPage[_] => page.route(CheckMode)
+      case _ => baseRoutes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 }

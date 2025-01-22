@@ -26,6 +26,7 @@ import models.operator.requests.{CreatePlatformOperatorRequest, Notification, Up
 import models.operator.responses.PlatformOperator
 import models.{CountriesList, DueDiligence, InternationalAddress, JerseyGuernseyIoMAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
+import pages.{update => updatePage}
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
 import play.api.libs.json.Writes
 import queries.{NotificationDetailsQuery, Query, Settable}
@@ -35,6 +36,8 @@ import scala.util.Try
 
 @Singleton
 class UserAnswersService @Inject()(countriesList: CountriesList) {
+  val update = "update"
+  val add = "add"
 
   def fromPlatformOperator(userId: String, platformOperator: PlatformOperator): Try[UserAnswers] = {
 
@@ -168,10 +171,10 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
   def toCreatePlatformOperatorRequest(answers: UserAnswers, dprsId: String): EitherNec[Query, CreatePlatformOperatorRequest] =
     (
       answers.getEither(BusinessNamePage),
-      getTradingName(answers),
-      getUkTinDetails(answers),
-      getPrimaryContact(answers),
-      getSecondaryContact(answers),
+      getTradingName(answers, add),
+      getUkTinDetails(answers, add),
+      getPrimaryContact(answers, add),
+      getSecondaryContact(answers, add),
       getAddressDetails(answers)
     ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
       CreatePlatformOperatorRequest(dprsId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails)
@@ -179,12 +182,12 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
 
   def toUpdatePlatformOperatorRequest(answers: UserAnswers, dprsId: String, operatorId: String): EitherNec[Query, UpdatePlatformOperatorRequest] =
     (
-      answers.getEither(BusinessNamePage),
-      getTradingName(answers),
-      getUkTinDetails(answers),
-      getPrimaryContact(answers),
-      getSecondaryContact(answers),
-      getAddressDetails(answers)
+      answers.getEither(updatePage.BusinessNamePage),
+      getTradingName(answers, update),
+      getUkTinDetails(answers, update),
+      getPrimaryContact(answers, update),
+      getSecondaryContact(answers, update),
+      getUpdatePageAddressDetails(answers)
     ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
       UpdatePlatformOperatorRequest(dprsId, operatorId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails, None)
     }
@@ -197,16 +200,29 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
       baseRequest.copy(notification = Some(notification))
     }
 
-  private def getTradingName(answers: UserAnswers): EitherNec[Query, Option[String]] =
-    answers.getEither(HasTradingNamePage).flatMap {
-      case true => answers.getEither(TradingNamePage).map(Some(_))
-      case false => Right(None)
-    }
+  private def getTradingName(answers: UserAnswers, pageType: String): EitherNec[Query, Option[String]] = {
+    pageType match {
+      case pageType if pageType.contains(add) => answers.getEither(HasTradingNamePage).flatMap {
+        case true => answers.getEither(TradingNamePage).map(Some(_))
+        case false => Right(None)
+      }
 
-  private def getUkTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] =
-    answers.getEither(UkTaxIdentifiersPage).flatMap { identifiers =>
-      identifiers.toSeq.parTraverse(getUkTin(_, answers))
+      case pageType if pageType.contains(update) => answers.getEither(updatePage.HasTradingNamePage).flatMap {
+        case true => answers.getEither(updatePage.TradingNamePage).map(Some(_))
+        case false => Right(None)
+      }
     }
+  }
+
+  private def getUkTinDetails(answers: UserAnswers, pageType: String): EitherNec[Query, Seq[TinDetails]] = {
+    pageType match {
+      case pageType if pageType.contains(add) => answers.getEither(UkTaxIdentifiersPage).flatMap { identifiers =>
+        identifiers.toSeq.parTraverse(getUkTin(_, answers))}
+
+      case pageType if pageType.contains(update) => answers.getEither(updatePage.UkTaxIdentifiersPage).flatMap { identifiers =>
+        identifiers.toSeq.parTraverse(getUpdatePageUkTin(_, answers))}
+    }
+  }
 
   private def getUkTin(identifier: UkTaxIdentifiers, answers: UserAnswers): EitherNec[Query, TinDetails] = {
     identifier match {
@@ -218,41 +234,77 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
     }
   }
 
-  private def getPrimaryContact(answers: UserAnswers): EitherNec[Query, ContactDetails] =
-    (
-      answers.getEither(PrimaryContactNamePage),
-      answers.getEither(PrimaryContactEmailPage),
-      getPrimaryContactPhone(answers)
-    ).parMapN { (name, email, phone) =>
-      ContactDetails(phone, name, email)
+  private def getUpdatePageUkTin(identifier: UkTaxIdentifiers, answers: UserAnswers): EitherNec[Query, TinDetails] = {
+    identifier match {
+      case Utr    => answers.getEither(updatePage.UtrPage).map(tin => TinDetails(tin, TinType.Utr, "GB"))
+      case Crn    => answers.getEither(updatePage.CrnPage).map(tin => TinDetails(tin, TinType.Crn, "GB"))
+      case Vrn    => answers.getEither(updatePage.VrnPage).map(tin => TinDetails(tin, TinType.Vrn, "GB"))
+      case Empref => answers.getEither(updatePage.EmprefPage).map(tin => TinDetails(tin, TinType.Empref, "GB"))
+      case Chrn   => answers.getEither(updatePage.ChrnPage).map(tin => TinDetails(tin, TinType.Chrn, "GB"))
     }
+  }
 
-  private def getPrimaryContactPhone(answers: UserAnswers): EitherNec[Query, Option[String]] =
-    answers.getEither(CanPhonePrimaryContactPage).flatMap {
-      case true => answers.getEither(PrimaryContactPhoneNumberPage).map(Some(_))
-      case false => Right(None)
+  private def getPrimaryContact(answers: UserAnswers, pageType: String): EitherNec[Query, ContactDetails] = {
+    pageType match {
+      case pageType if pageType.contains(add) => (
+        answers.getEither(PrimaryContactNamePage),
+        answers.getEither(PrimaryContactEmailPage),
+        getPrimaryContactPhone(answers, pageType)).parMapN { (name, email, phone) => ContactDetails(phone, name, email)}
+
+      case pageType if pageType.contains(update) => (
+        answers.getEither(updatePage.PrimaryContactNamePage),
+        answers.getEither(updatePage.PrimaryContactEmailPage),
+        getPrimaryContactPhone(answers, pageType)).parMapN { (name, email, phone) => ContactDetails(phone, name, email)}
     }
+  }
 
-  private def getSecondaryContact(answers: UserAnswers): EitherNec[Query, Option[ContactDetails]] =
-    answers.getEither(HasSecondaryContactPage).flatMap {
-      case true =>
-        (
+  private def getPrimaryContactPhone(answers: UserAnswers, pageType: String): EitherNec[Query, Option[String]] = {
+    pageType match {
+      case pageType if pageType.contains(add) => answers.getEither(CanPhonePrimaryContactPage).flatMap {
+        case true => answers.getEither(PrimaryContactPhoneNumberPage).map(Some(_))
+        case false => Right(None)}
+
+      case pageType if pageType.contains(update) => answers.getEither(updatePage.CanPhonePrimaryContactPage).flatMap {
+        case true => answers.getEither(updatePage.PrimaryContactPhoneNumberPage).map(Some(_))
+        case false => Right(None)}
+    }
+  }
+
+  private def getSecondaryContact(answers: UserAnswers, pageType: String): EitherNec[Query, Option[ContactDetails]] = {
+    pageType match {
+      case pageType if pageType.contains(add) => answers.getEither(HasSecondaryContactPage).flatMap {
+        case true => (
           answers.getEither(SecondaryContactNamePage),
           answers.getEither(SecondaryContactEmailPage),
-          getSecondaryContactPhone(answers)
-        ).parMapN { (name, email, phone) =>
-          Some(ContactDetails(phone, name, email))
-        }
+          getSecondaryContactPhone(answers, pageType))
+          .parMapN { (name, email, phone) => Some(ContactDetails(phone, name, email))}
+        case false => Right(None)
+      }
 
-      case false =>
-        Right(None)
+      case pageType if pageType.contains(update) => answers.getEither(updatePage.HasSecondaryContactPage).flatMap {
+        case true => (
+          answers.getEither(updatePage.SecondaryContactNamePage),
+          answers.getEither(updatePage.SecondaryContactEmailPage),
+          getSecondaryContactPhone(answers, pageType))
+          .parMapN { (name, email, phone) => Some(ContactDetails(phone, name, email))}
+        case false => Right(None)
+      }
     }
+  }
 
-  private def getSecondaryContactPhone(answers: UserAnswers): EitherNec[Query, Option[String]] =
-    answers.getEither(CanPhoneSecondaryContactPage).flatMap {
-      case true => answers.getEither(SecondaryContactPhoneNumberPage).map(Some(_))
-      case false => Right(None)
+  private def getSecondaryContactPhone(answers: UserAnswers, pageType: String): EitherNec[Query, Option[String]] = {
+    pageType match {
+      case pageType if pageType.contains(add) => answers.getEither(CanPhoneSecondaryContactPage).flatMap {
+        case true => answers.getEither(SecondaryContactPhoneNumberPage).map(Some(_))
+        case false => Right(None)
+      }
+
+      case pageType if pageType.contains(update) => answers.getEither(updatePage.CanPhoneSecondaryContactPage).flatMap {
+        case true => answers.getEither(updatePage.SecondaryContactPhoneNumberPage).map(Some(_))
+        case false => Right(None)
+      }
     }
+  }
 
   private def getAddressDetails(answers: UserAnswers): EitherNec[Query, AddressDetails] =
     answers.getEither(RegisteredInUkPage).flatMap {
@@ -268,6 +320,24 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
 
       case International =>
         answers.getEither(InternationalAddressPage).map { address =>
+          AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
+        }
+    }
+
+  private def getUpdatePageAddressDetails(answers: UserAnswers): EitherNec[Query, AddressDetails] =
+    answers.getEither(updatePage.RegisteredInUkPage).flatMap {
+      case Uk =>
+        answers.getEither(updatePage.UkAddressPage).map { address =>
+          AddressDetails(address.line1, address.line2, Some(address.town), address.county, Some(address.postCode), Some(address.country.code))
+        }
+
+      case JerseyGuernseyIsleOfMan =>
+        answers.getEither(updatePage.JerseyGuernseyIoMAddressPage).map { address =>
+          AddressDetails(address.line1, address.line2, Some(address.town), address.county, Some(address.postCode), Some(address.country.code))
+        }
+
+      case International =>
+        answers.getEither(updatePage.InternationalAddressPage).map { address =>
           AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
         }
     }

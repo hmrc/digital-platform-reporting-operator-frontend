@@ -19,11 +19,15 @@
     govukButton: GovukButton
 )
 
-@(continueUrl: String)(implicit request: Request[_], messages: Messages)
+@(continueUrl: String, journeyRecoveryText: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("journeyRecovery.continue.title"))) {
+@layout(pageTitle = titleNoForm(messages(journeyRecoveryText + "title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("journeyRecovery.continue.heading")</h1>
+    <h1 class="govuk-heading-xl">@messages(journeyRecoveryText + "heading")</h1>
+
+    @if(journeyRecoveryText.contains("missingData")) {
+        <p class="govuk-body">@messages(journeyRecoveryText + "guidance")</p>
+    }
 
     <p class="govuk-body">
         @govukButton(

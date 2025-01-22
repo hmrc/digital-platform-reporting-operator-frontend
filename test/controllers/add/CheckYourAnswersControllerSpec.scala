@@ -23,10 +23,11 @@ import builders.PlatformOperatorSummaryViewModelBuilder.aPlatformOperatorSummary
 import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
+import models.RegisteredAddressCountry.Uk
 import models.UkTaxIdentifiers.Utr
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, TinDetails, TinType}
-import models.{Country, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
+import models.{CheckMode, Country, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -41,6 +42,7 @@ import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
 import viewmodels.govuk.SummaryListFluency
 import views.html.add.CheckYourAnswersView
@@ -223,23 +225,91 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         }
       }
 
-      "must return a failed future when a payload cannot be built" in {
-        val answers = emptyUserAnswers.set(BusinessNamePage, "business").success.value
-        val app = applicationBuilder(Some(answers)).overrides(
-          bind[PlatformOperatorConnector].toInstance(mockConnector),
-          bind[SessionRepository].toInstance(mockRepository),
-          bind[EmailService].toInstance(mockEmailService),
-          bind[AuditService].toInstance(mockAuditService)
-        ).build()
+      "must redirect to UkAddressPage for a POST if Uk address is missing" in {
 
-        running(app) {
+        val answers = emptyUserAnswers.copy(operatorId = Some("operatorId"))
+          .set(BusinessNamePage, "default-operator-name").success.value
+          .set(HasTradingNamePage, false).success.value
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(VrnPage, "vrn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(ChrnPage, "chrn").success.value
+          .set(RegisteredInUkPage, RegisteredAddressCountry.values.head).success.value
+          .set(PrimaryContactNamePage, "default-contact-name").success.value
+          .set(PrimaryContactEmailPage, "default.contact@example.com").success.value
+          .set(CanPhonePrimaryContactPage, false).success.value
+          .set(HasSecondaryContactPage, false).success.value
+
+        val application = applicationBuilder(Some(answers)).build()
+
+        running(application) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
 
-          route(app, request).value.failed.futureValue
-          verify(mockConnector, never()).createPlatformOperator(any())(any())
-          verify(mockRepository, never()).set(any())
-          verify(mockEmailService, never()).sendAddPlatformOperatorEmails(any())(any())
-          verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
+          val result = route(application, request).value
+          val continueUrl = RedirectUrl(routes.UkAddressController.onPageLoad(CheckMode).url)
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url
+        }
+      }
+
+      "must redirect to VrnPage for a POST if Vrn code is missing" in {
+
+        val answers = emptyUserAnswers.copy(operatorId = Some("operatorId"))
+          .set(BusinessNamePage, "default-operator-name").success.value
+          .set(HasTradingNamePage, false).success.value
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(ChrnPage, "chrn").success.value
+          .set(RegisteredInUkPage, Uk).success.value
+          .set(UkAddressPage, UkAddress("default-line-1", None, "default-town", None, "default-postcode", Country("GB", "United Kingdom"))).success.value
+          .set(PrimaryContactNamePage, "default-contact-name").success.value
+          .set(PrimaryContactEmailPage, "default.contact@example.com").success.value
+          .set(CanPhonePrimaryContactPage, false).success.value
+          .set(HasSecondaryContactPage, false).success.value
+
+        val application = applicationBuilder(Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+          val result = route(application, request).value
+          val continueUrl = RedirectUrl(routes.VrnController.onPageLoad(CheckMode).url)
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url
+        }
+      }
+
+      "must redirect to first missing data page for a POST when multiple answers missing" in {
+
+        val answers = emptyUserAnswers.copy(operatorId = Some("operatorId"))
+          .set(BusinessNamePage, "default-operator-name").success.value
+          .set(HasTradingNamePage, true).success.value
+          .set(UkTaxIdentifiersPage, UkTaxIdentifiers.values.toSet).success.value
+          .set(UtrPage, "utr").success.value
+          .set(CrnPage, "crn").success.value
+          .set(EmprefPage, "empref").success.value
+          .set(RegisteredInUkPage, Uk).success.value
+          .set(PrimaryContactNamePage, "default-contact-name").success.value
+          .set(PrimaryContactEmailPage, "default.contact@example.com").success.value
+          .set(CanPhonePrimaryContactPage, false).success.value
+          .set(HasSecondaryContactPage, false).success.value
+
+        val application = applicationBuilder(Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+
+          val result = route(application, request).value
+          val continueUrl = RedirectUrl(routes.TradingNameController.onPageLoad(CheckMode).url)
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url
         }
       }
     }

@@ -19,19 +19,19 @@ package controllers.update
 import com.google.inject.Inject
 import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
-import controllers.AnswerExtractor
 import controllers.actions._
+import controllers.{AnswerExtractor, routes => baseRoutes}
 import models.audit.ChangePlatformOperatorAuditEventModel
 import models.{CountriesList, UserAnswers}
-import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
+import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage, UpdateQuestionPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.OriginalPlatformOperatorQuery
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import queries.{OriginalPlatformOperatorQuery, Query}
 import repositories.SessionRepository
-import services.UserAnswersService._
 import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.checkAnswers.update._
 import viewmodels.govuk.summarylist._
@@ -79,7 +79,11 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
-      errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
+      errors => {
+        val route = findRoute(errors.head, operatorId)
+        val redirectUrl: RedirectUrl = RedirectUrl(route.url)
+        Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad(Some(redirectUrl), Some(true))))
+      },
       updateRequest => (for {
         _ <- platformOperatorConnector.updatePlatformOperator(updateRequest)
         originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
@@ -138,4 +142,11 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
     } else {
       None
     }
+
+  private def findRoute(error: Query, operatorId: String): Call = {
+    error match {
+      case page: UpdateQuestionPage[_] => page.route(operatorId)
+      case _ => baseRoutes.JourneyRecoveryController.onPageLoad()
+    }
+  }
 }

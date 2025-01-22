@@ -51,4 +51,6 @@ case object HasSecondaryContactPage extends UpdateQuestionPage[Boolean] {
     } else {
       super.cleanup(value, userAnswers)
     }
+
+  override def route(operatorId: String): Call = routes.HasSecondaryContactController.onPageLoad(operatorId)
 }

@@ -19,7 +19,7 @@ package pages.add
 import controllers.add.routes
 import controllers.{routes => baseRoutes}
 import models.UkTaxIdentifiers._
-import models.{CheckMode, NormalMode, UkTaxIdentifiers, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UkTaxIdentifiers, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -81,4 +81,6 @@ case object UkTaxIdentifiersPage extends AddQuestionPage[Set[UkTaxIdentifiers]] 
 
   private def maybeRemoveChrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
     if (identifiers.contains(Chrn)) Success(answers) else answers.remove(ChrnPage)
+
+  override def route(mode: Mode): Call = routes.UkTaxIdentifiersController.onPageLoad(mode)
 }

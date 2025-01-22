@@ -16,11 +16,15 @@
 
 package pages.update
 
+import controllers.update.routes
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object PrimaryContactPhoneNumberPage extends UpdateQuestionPage[String] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "primaryContactPhoneNumber"
+
+  override def route(operatorId: String): Call = routes.PrimaryContactPhoneNumberController.onPageLoad(operatorId)
 }

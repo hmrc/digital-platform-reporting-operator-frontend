@@ -19,7 +19,7 @@ package pages.add
 import controllers.add.routes
 import controllers.{routes => baseRoutes}
 import models.RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
-import models.{CheckMode, NormalMode, RegisteredAddressCountry, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, RegisteredAddressCountry, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -62,4 +62,6 @@ case object RegisteredInUkPage extends AddQuestionPage[RegisteredAddressCountry]
     case JerseyGuernseyIsleOfMan => userAnswers.remove(UkAddressPage).flatMap(_.remove(InternationalAddressPage))
     case International           => userAnswers.remove(UkAddressPage).flatMap(_.remove(JerseyGuernseyIoMAddressPage))
   }.getOrElse(super.cleanup(value, userAnswers))}
+
+  override def route(mode: Mode): Call = routes.RegisteredInUkController.onPageLoad(mode)
 }

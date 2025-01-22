@@ -56,4 +56,6 @@ case object RegisteredInUkPage extends UpdateQuestionPage[RegisteredAddressCount
       case JerseyGuernseyIsleOfMan => userAnswers.remove(UkAddressPage).flatMap(_.remove(InternationalAddressPage))
       case International           => userAnswers.remove(UkAddressPage).flatMap(_.remove(JerseyGuernseyIoMAddressPage))
     }.getOrElse(super.cleanup(value, userAnswers))}
+
+  override def route(operatorId: String): Call = routes.RegisteredInUkController.onPageLoad(operatorId)
 }

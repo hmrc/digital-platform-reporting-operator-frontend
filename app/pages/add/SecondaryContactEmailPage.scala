@@ -17,7 +17,7 @@
 package pages.add
 
 import controllers.add.routes
-import models.{CheckMode, NormalMode, UserAnswers}
+import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -36,4 +36,6 @@ case object SecondaryContactEmailPage extends AddQuestionPage[String] {
     } else {
       routes.CanPhoneSecondaryContactController.onPageLoad(CheckMode)
     }
+
+  override def route(mode: Mode): Call = routes.SecondaryContactEmailController.onPageLoad(mode)
 }
