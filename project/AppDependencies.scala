@@ -2,12 +2,12 @@ import sbt._
 
 object AppDependencies {
 
-  private val bootstrapVersion = "9.3.0"
-  private val hmrcMongoVersion = "2.2.0"
+  private val bootstrapVersion = "9.7.0"
+  private val hmrcMongoVersion = "2.4.0"
 
   val compile = Seq(
     play.sbt.PlayImport.ws,
-    "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30"    % "10.8.0",
+    "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30"    % "11.11.0",
     "uk.gov.hmrc"                   %% "bootstrap-frontend-play-30"    % bootstrapVersion,
     "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-30"            % hmrcMongoVersion,
     "com.googlecode.libphonenumber"  % "libphonenumber"                % "8.13.42",

@@ -43,9 +43,11 @@
             SelectViewModel(
                 field = form("value"),
                 items = SelectItem(value = None, text = "") +: operators.map { operator =>
-                  SelectItemViewModel(value = operator.operatorId, text = operator.operatorName)
+                  SelectItemViewModel(value = operator.operatorId, text = operator.operatorId)
+                  .withAttribute("aria-describedby", "value")
                 },
                 label = LabelViewModel(messages("selectPlatformOperatorToView.heading")).asPageHeading()
+
             )
             .withCssClass("govuk-input")
             .asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = true)))
