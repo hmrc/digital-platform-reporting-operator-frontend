@@ -71,8 +71,8 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
           _ <- auditService.sendAudit(CreateReportingNotificationAuditEventModel(addNotificationRequest, operatorId).toAuditModel)
           updatedPlatformOperator <- connector.viewPlatformOperator(operatorId)
           newAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, updatedPlatformOperator))
-          emailSent <- emailService.sendAddReportingNotificationEmails(request.userAnswers, addNotificationRequest)
-          answersWithEmailSent <- Future.fromTry(newAnswers.set(SentAddedReportingNotificationEmailQuery, emailSent))
+          emailsSentResult <- emailService.sendAddReportingNotificationEmails(request.userAnswers, addNotificationRequest)
+          answersWithEmailSent <- Future.fromTry(newAnswers.set(SentAddedReportingNotificationEmailQuery, emailsSentResult))
           _ <- sessionRepository.set(answersWithEmailSent)
         } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, operatorId, answersWithEmailSent))).recover {
           case error: UpdatePlatformOperatorFailure => logger.warn("Failed to add notification for platform", error)

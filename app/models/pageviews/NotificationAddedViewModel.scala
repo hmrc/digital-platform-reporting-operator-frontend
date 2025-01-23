@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package queries
+package models.pageviews
 
 import models.email.EmailsSentResult
-import play.api.libs.json.JsPath
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
-case object SentAddedReportingNotificationEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
-  override def path: JsPath = JsPath \ "sentAddedReportingNotificationEmail"
+case class NotificationAddedViewModel(summaryList: SummaryList,
+                                      userEmail: String,
+                                      poBusinessName: String,
+                                      poEmail: String,
+                                      emailsSentResult: EmailsSentResult) {
+
+  lazy val sentEmails: Seq[String] = Seq(
+    if (emailsSentResult.userEmailSent) Some(userEmail) else None,
+    emailsSentResult.poEmailSent.filter(identity).map(_ => poEmail)
+  ).flatten
 }

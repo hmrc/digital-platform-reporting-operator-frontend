@@ -30,17 +30,16 @@ import views.html.add.JerseyGuernseyIoMAddressView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class JerseyGuernseyIoMAddressController @Inject()(
-                                                    override val messagesApi: MessagesApi,
-                                                    sessionRepository: SessionRepository,
-                                                    identify: IdentifierAction,
-                                                    getData: DataRetrievalActionProvider,
-                                                    requireData: DataRequiredAction,
-                                                    formProvider: JerseyGuernseyIoMAddressFormProvider,
-                                                    val countriesList: CountriesList,
-                                                    val controllerComponents: MessagesControllerComponents,
-                                                    view: JerseyGuernseyIoMAddressView
-                                                  )(implicit ec: ExecutionContext)
+class JerseyGuernseyIoMAddressController @Inject()(override val messagesApi: MessagesApi,
+                                                   sessionRepository: SessionRepository,
+                                                   identify: IdentifierAction,
+                                                   getData: DataRetrievalActionProvider,
+                                                   requireData: DataRequiredAction,
+                                                   formProvider: JerseyGuernseyIoMAddressFormProvider,
+                                                   val countriesList: CountriesList,
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   view: JerseyGuernseyIoMAddressView)
+                                                  (implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>

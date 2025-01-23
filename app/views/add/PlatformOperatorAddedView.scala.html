@@ -16,51 +16,26 @@
 
 @import config.FrontendAppConfig
 @import controllers.add.routes
-@import viewmodels.PlatformOperatorSummaryViewModel
+@import models.email.EmailsSentResult
+@import models.pageviews.PlatformOperatorAddedViewModel
 
 @this(
-        layout: templates.Layout,
-        govukPanel: GovukPanel,
-        govukWarning: GovukWarningText,
-        appConfig: FrontendAppConfig
+    layout: templates.Layout,
+    govukPanel: GovukPanel,
+    govukWarning: GovukWarningText,
+    appConfig: FrontendAppConfig
 )
 
-@(viewModel: PlatformOperatorSummaryViewModel, subscriptionEmail: String, emailSent: Boolean)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorAddedViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("platformOperatorAdded.title")),
-    showBackLink = false
-) {
-
+@heading = {
     @govukPanel(Panel(
-        title = messages("platformOperatorAdded.panel.heading", viewModel.operatorName),
+        title = messages("platformOperatorAdded.panel.heading", viewModel.poBusinessName),
         content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
     ))
+}
 
-    <p class="govuk-body">
-        @messages("platformOperatorAdded.p1.1", viewModel.operatorName)
-        @if(emailSent) {
-            @if(subscriptionEmail.trim.toLowerCase != viewModel.poPrimaryContactEmail.trim.toLowerCase) {
-                @messages("platformOperatorAdded.p1.2.two.emails", subscriptionEmail, viewModel.poPrimaryContactEmail)
-            } else {
-                @messages("platformOperatorAdded.p1.2.one.email", subscriptionEmail)
-            }
-        }
-    </p>
-
-    <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>
-
-    @if(!emailSent) {
-        @govukWarning(WarningText(
-            iconFallbackText = Some("Warning"),
-            content = messages("platformOperatorAdded.emailNotSent.warning")
-        ))
-
-        <p class="govuk-body">
-            <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("platformOperatorAdded.print.link.text")</a>
-        </p>
-    }
-
+@whatYouNeedToDoNext = {
     <h2 class="govuk-heading-m">@messages("platformOperatorAdded.whatYouNeedToDoNext")</h2>
 
     <p class="govuk-body">
@@ -72,10 +47,47 @@
         @messages("platformOperatorAdded.p4")
         <a href="@routes.StartController.onPageLoad()" class="govuk-link">@messages("platformOperatorAdded.p4.link.text")</a>.
     </p>
+}
 
-    @if(emailSent) {
-        <p id="print-this-page" class="govuk-list govuk-link print-link hmrc-!-js-visible govuk-!-display-none-print">
-            <a class="govuk-link hmrc-!-js-visible" data-module="hmrc-print-link" href="#" >@messages("platformOperatorAdded.print.link.text")</a>
-        </p>
+@printThisPage = {
+    <p id="print-this-page" class="govuk-list govuk-link print-link hmrc-!-js-visible govuk-!-display-none-print">
+        <a class="govuk-link hmrc-!-js-visible" data-module="hmrc-print-link" href="#" >@messages("platformOperatorAdded.print.link.text")</a>
+    </p>
+}
+
+@pageBodyContent = {
+    <p class="govuk-body">
+        @if(viewModel.sentEmails.size == 2) {
+            @messages("platformOperatorAdded.p1.1", viewModel.poBusinessName)
+            @messages("platformOperatorAdded.p1.2.two.emails", viewModel.userEmail, viewModel.poEmail)
+        } else if(viewModel.sentEmails.size == 1) {
+            @messages("platformOperatorAdded.p1.1", viewModel.poBusinessName)
+            @messages("platformOperatorAdded.p1.2.one.email", viewModel.sentEmails.head)
+        } else {
+            @messages("platformOperatorAdded.p1.1", viewModel.poBusinessName)
+        }
+    </p>
+
+    <p class="govuk-body">@messages("platformOperatorAdded.p2")</p>
+
+    @if(viewModel.sentEmails.size == 0) {
+        @govukWarning(WarningText(
+            iconFallbackText = Some("Warning"),
+            content = messages("platformOperatorAdded.emailNotSent.warning")
+        ))
+
+        @printThisPage
     }
+
+    @whatYouNeedToDoNext
+
+    @if(viewModel.sentEmails.size != 0) {
+        @printThisPage
+    }
+}
+
+@layout(pageTitle = titleNoForm(messages("platformOperatorAdded.title")), showBackLink = false) {
+    @heading
+
+    @pageBodyContent
 }

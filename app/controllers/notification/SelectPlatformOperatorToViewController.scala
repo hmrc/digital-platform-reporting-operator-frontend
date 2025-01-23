@@ -28,22 +28,20 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.PlatformOperatorViewModel
 import views.html.notification.SelectPlatformOperatorToViewView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelectPlatformOperatorToViewController @Inject()(
-                                                  override val messagesApi: MessagesApi,
-                                                  identify: IdentifierAction,
-                                                  val controllerComponents: MessagesControllerComponents,
-                                                  formProvider: SelectPlatformOperatorToViewFormProvider,
-                                                  view: SelectPlatformOperatorToViewView,
-                                                  connector: PlatformOperatorConnector,
-                                                  userAnswersService: UserAnswersService,
-                                                  sessionRepository: SessionRepository
-                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+class SelectPlatformOperatorToViewController @Inject()(override val messagesApi: MessagesApi,
+                                                       identify: IdentifierAction,
+                                                       val controllerComponents: MessagesControllerComponents,
+                                                       formProvider: SelectPlatformOperatorToViewFormProvider,
+                                                       view: SelectPlatformOperatorToViewView,
+                                                       connector: PlatformOperatorConnector,
+                                                       userAnswersService: UserAnswersService,
+                                                       sessionRepository: SessionRepository)
+                                                      (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     connector.viewPlatformOperators.map { operatorInfo =>

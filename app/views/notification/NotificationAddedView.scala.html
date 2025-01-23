@@ -16,6 +16,7 @@
 
 @import config.FrontendAppConfig
 @import controllers.notification.routes
+@import models.pageviews.NotificationAddedViewModel
 
 @this(
         layout: templates.Layout,
@@ -25,41 +26,13 @@
         appConfig: FrontendAppConfig
 )
 
-@(operatorId: String, businessName: String, list: SummaryList, subscriptionPrimaryEmail: String, poPrimaryEmail: String, emailSent: Boolean)(implicit request: Request[_], messages: Messages)
+@(viewModel: NotificationAddedViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("notificationAdded.title")),
-    showBackLink = false
-) {
+@heading = {
+    @govukPanel(Panel(title = messages("notificationAdded.panel.heading")))
+}
 
-    @govukPanel(Panel(
-        title = messages("notificationAdded.panel.heading")
-    ))
-
-    @govukSummaryList(list)
-
-    <p class="govuk-body">
-        @messages("notificationAdded.p1.1", businessName)
-        @if(emailSent) {
-            @if(subscriptionPrimaryEmail.trim.toLowerCase != poPrimaryEmail.trim.toLowerCase) {
-                @messages("notificationAdded.p1.2.two.emails", subscriptionPrimaryEmail, poPrimaryEmail)
-            } else {
-                @messages("notificationAdded.p1.2.one.email", subscriptionPrimaryEmail)
-            }
-        }
-    </p>
-
-    @if(!emailSent) {
-        @govukWarning(WarningText(
-            iconFallbackText = Some("Warning"),
-            content = messages("notificationAdded.emailNotSent.warning")
-        ))
-
-        <p class="govuk-body">
-            <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
-        </p>
-    }
-
+@whatYouNeedToDoNext = {
     <h2 class="govuk-heading-m">@messages("notificationAdded.h2")</h2>
 
     <p class="govuk-body">
@@ -71,10 +44,48 @@
         @messages("notificationAdded.p3")
         <a href="@routes.SelectPlatformOperatorController.onPageLoad" class="govuk-link">@messages("notificationAdded.p3.link.text")</a>.
     </p>
+}
 
-    @if(emailSent) {
-        <p class="govuk-body">
-            <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
-        </p>
+@printThisPage = {
+    <p class="govuk-body">
+        <a class="govuk-link" href="#" data-module="hmrc-print-link">@messages("site.printThisPage")</a>
+    </p>
+}
+
+@pageBodyContent = {
+    <p class="govuk-body">
+        @if(viewModel.sentEmails.size == 2) {
+            @messages("notificationAdded.p1.1", viewModel.poBusinessName)
+            @messages("notificationAdded.p1.2.two.emails", viewModel.userEmail, viewModel.poEmail)
+        } else if(viewModel.sentEmails.size == 1) {
+            @messages("notificationAdded.p1.1", viewModel.poBusinessName)
+            @messages("notificationAdded.p1.2.one.email", viewModel.sentEmails.head)
+        } else {
+            @messages("notificationAdded.p1.1", viewModel.poBusinessName)
+        }
+    </p>
+
+    @if(viewModel.sentEmails.isEmpty) {
+        @govukWarning(WarningText(
+            iconFallbackText = Some("Warning"),
+            content = messages("notificationAdded.emailNotSent.warning")
+        ))
+
+        @printThisPage
     }
+
+    @whatYouNeedToDoNext
+
+    @if(viewModel.sentEmails.nonEmpty) {
+        @printThisPage
+    }
+}
+
+@layout(pageTitle = titleNoForm(messages("notificationAdded.title")), showBackLink = false) {
+
+    @heading
+
+    @govukSummaryList(viewModel.summaryList)
+
+    @pageBodyContent
 }

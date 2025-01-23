@@ -17,8 +17,8 @@
 package controllers.add
 
 import com.google.inject.Inject
-import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import connectors.PlatformOperatorConnector
+import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
 import models.{CountriesList, NormalMode, UserAnswers}
@@ -54,28 +54,26 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            countriesList: CountriesList)
                                           (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) {
-    implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
+    val platformOperatorList = SummaryListViewModel(
+      rows = Seq(
+        BusinessNameSummary.row(request.userAnswers),
+        HasTradingNameSummary.row(request.userAnswers),
+        TradingNameSummary.row(request.userAnswers),
+        UkTaxIdentifiersSummary.row(request.userAnswers),
+        UtrSummary.row(request.userAnswers),
+        CrnSummary.row(request.userAnswers),
+        VrnSummary.row(request.userAnswers),
+        EmprefSummary.row(request.userAnswers),
+        ChrnSummary.row(request.userAnswers),
+        RegisteredInUkSummary.row(request.userAnswers),
+        UkAddressSummary.row(request.userAnswers),
+        InternationalAddressSummary.row(request.userAnswers),
+        JerseyGuernseyIoMAddressSummary.row(request.userAnswers)
+      ).flatten
+    )
 
-      val platformOperatorList = SummaryListViewModel(
-        rows = Seq(
-          BusinessNameSummary.row(request.userAnswers),
-          HasTradingNameSummary.row(request.userAnswers),
-          TradingNameSummary.row(request.userAnswers),
-          UkTaxIdentifiersSummary.row(request.userAnswers),
-          UtrSummary.row(request.userAnswers),
-          CrnSummary.row(request.userAnswers),
-          VrnSummary.row(request.userAnswers),
-          EmprefSummary.row(request.userAnswers),
-          ChrnSummary.row(request.userAnswers),
-          RegisteredInUkSummary.row(request.userAnswers),
-          UkAddressSummary.row(request.userAnswers),
-          InternationalAddressSummary.row(request.userAnswers),
-          JerseyGuernseyIoMAddressSummary.row(request.userAnswers)
-        ).flatten
-      )
-
-      Ok(view(platformOperatorList, primaryContactList(request.userAnswers), secondaryContactList(request.userAnswers)))
+    Ok(view(platformOperatorList, primaryContactList(request.userAnswers), secondaryContactList(request.userAnswers)))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
@@ -85,12 +83,12 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
         (for {
           createResponse        <- connector.createPlatformOperator(createRequest)
           _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse, countriesList).toAuditModel)
-          answersWithOperatorId =  request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
-          emailSent             <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId)
-          platformOperatorInfo  =  PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
-          cleanedAnswers        =  request.userAnswers.copy(data = Json.obj())
+          answersWithOperatorId = request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
+          emailsSentResult      <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId)
+          platformOperatorInfo  = PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
+          cleanedAnswers        = request.userAnswers.copy(data = Json.obj())
           poInfoAnswers         <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
-          updatedAnswers        <- Future.fromTry(poInfoAnswers.set(SentAddedPlatformOperatorEmailQuery, emailSent))
+          updatedAnswers        <- Future.fromTry(poInfoAnswers.set(SentAddedPlatformOperatorEmailQuery, emailsSentResult))
           _                     <- sessionRepository.set(updatedAnswers)
         } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
           case error: CreatePlatformOperatorFailure => logger.warn("Failed to create platform operator", error)

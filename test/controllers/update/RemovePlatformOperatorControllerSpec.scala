@@ -18,10 +18,10 @@ package controllers.update
 
 import base.SpecBase
 import builders.CountryBuilder.aCountry
+import builders.EmailsSentResultBuilder.anEmailsSentResult
 import connectors.PlatformOperatorConnector
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import models.{RegisteredAddressCountry, UkAddress, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
@@ -61,14 +61,11 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
   "RemovePlatformOperator Controller" - {
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(baseAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.RemovePlatformOperatorController.onPageLoad(operatorId).url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[RemovePlatformOperatorView]
 
         status(result) mustEqual OK
@@ -92,7 +89,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
       when(mockRepository.set(any())) thenReturn Future.successful(true)
       when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      when(mockEmailService.sendRemovePlatformOperatorEmails(any())(any())).thenReturn(Future.successful(true))
+      when(mockEmailService.sendRemovePlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anEmailsSentResult))
 
       val application = applicationBuilder(userAnswers = Some(answers)).overrides(
         bind[PlatformOperatorConnector].toInstance(mockConnector),
