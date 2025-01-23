@@ -88,10 +88,11 @@
             SelectViewModel(
                 field = form("country"),
                 items = Seq(
-                    SelectItem(
-                        value = Some(countriesList.gbCountry.code),
+                    SelectItemViewModel(
+                        value = countriesList.gbCountry.code,
                         text = countriesList.gbCountry.name
-                    )),
+                    ).withAttribute("aria-describedby", countriesList.gbCountry.name)
+                ),
                 label = LabelViewModel(messages("ukAddress.country"))
             )
             .withCssClass("govuk-input")
