@@ -225,7 +225,7 @@ trait CountriesList {
 
   lazy val gbCountry: Country = allCountries.filter(x => x.code == "GB").head
   lazy val ukCountries: Seq[Country] = allCountries.filter(x => x.code == "GG" || x.code == "IM" || x.code == "JE")
-  lazy val internationalCountries: Seq[Country] = allCountries.filterNot(x => ukCountries.exists(_.code == x.code))
+  lazy val internationalCountries: Seq[Country] = allCountries.filterNot(x => x.code == "GG" || x.code == "IM" || x.code == "JE" || x.code == "GB")
   lazy val nonUkInternationalCountries: Seq[Country] = allCountries.filterNot(_.code == "GB")
 }
 
