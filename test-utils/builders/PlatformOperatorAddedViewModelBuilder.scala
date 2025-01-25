@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package queries
+package builders
 
-import models.email.EmailsSentResult
-import play.api.libs.json.JsPath
+import builders.EmailsSentResultBuilder.anEmailsSentResult
+import models.pageviews.PlatformOperatorAddedViewModel
 
-case object SentAddedReportingNotificationEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
-  override def path: JsPath = JsPath \ "sentAddedReportingNotificationEmail"
+object PlatformOperatorAddedViewModelBuilder {
+
+  val aPlatformOperatorAddedViewModel: PlatformOperatorAddedViewModel = PlatformOperatorAddedViewModel(
+    userEmail = "default.user.email@example.com",
+    operatorId = "default-operator-id",
+    poBusinessName = "default-po-name",
+    poEmail = "default.po.email@example.com",
+    emailsSentResult = anEmailsSentResult
+  )
 }

@@ -18,17 +18,15 @@ package controllers.add
 
 import base.SpecBase
 import builders.CreatePlatformOperatorRequestBuilder.aCreatePlatformOperatorRequest
+import builders.EmailsSentResultBuilder.anEmailsSentResult
 import builders.PlatformOperatorSummaryViewModelBuilder.aPlatformOperatorSummaryViewModel
 import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
-import connectors.SubscriptionConnector.GetSubscriptionInfoFailure
-import connectors.{PlatformOperatorConnector, SubscriptionConnector}
 import controllers.{routes => baseRoutes}
 import models.UkTaxIdentifiers.Utr
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, TinDetails, TinType}
 import models.{Country, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
-import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.mockito.{ArgumentCaptor, Mockito}
@@ -140,7 +138,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
     }
 
     "for a POST" - {
-      val anyBoolean = true
       val answers = UserAnswers(userAnswersId, Some(operatorId))
         .set(BusinessNamePage, "default-operator-name").success.value
         .set(HasTradingNamePage, false).success.value
@@ -176,7 +173,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
-        when(mockEmailService.sendAddPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anyBoolean))
+        when(mockEmailService.sendAddPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anEmailsSentResult))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app = applicationBuilder(Some(answers)).overrides(
@@ -200,7 +197,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           val savedAnswers = answersCaptor.getValue
           savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual aPlatformOperatorSummaryViewModel
-          savedAnswers.get(SentAddedPlatformOperatorEmailQuery).value mustEqual anyBoolean
+          savedAnswers.get(SentAddedPlatformOperatorEmailQuery).value mustEqual anEmailsSentResult
         }
       }
 

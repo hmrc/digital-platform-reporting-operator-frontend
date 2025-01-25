@@ -17,10 +17,13 @@
 package controllers.notification
 
 import base.SpecBase
+import builders.EmailsSentResultBuilder.anEmailsSentResult
+import builders.NotificationAddedViewModelBuilder.aNotificationAddedViewModel
+import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import connectors.SubscriptionConnector
+import models.email.EmailsSentResult
 import models.operator.NotificationType
 import models.operator.responses.NotificationDetails
-import models.subscription.{Individual, IndividualContact, SubscriptionInfo}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
@@ -57,17 +60,14 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
       val notification2 = NotificationDetails(NotificationType.Rpo, None, Some(true), 2025, instant.plusSeconds(1))
 
       "for different emails" in {
-        val contact = IndividualContact(Individual("first", "last"), "individualEmail", Some("phone"))
-        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
-
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val answers = emptyUserAnswers
-          .set(BusinessNamePage, "name").success.value
-          .set(PrimaryContactEmailPage, "poEmail").success.value
+          .set(BusinessNamePage, aNotificationAddedViewModel.poBusinessName).success.value
+          .set(PrimaryContactEmailPage, aNotificationAddedViewModel.poEmail).success.value
           .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
-          .set(SentAddedReportingNotificationEmailQuery, true).success.value
+          .set(SentAddedReportingNotificationEmailQuery, EmailsSentResult(userEmailSent = true, Some(true))).success.value
 
         val application = applicationBuilder(userAnswers = Some(answers)).overrides(
           bind[SubscriptionConnector].toInstance(mockConnector),
@@ -88,24 +88,26 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
             ).flatten
           )
           status(result) mustEqual OK
-          contentAsString(result) mustEqual
-            view(operatorId, "name", expectedList, "individualEmail", "poEmail", emailSent = true)(request, messages(application)).toString
-          contentAsString(result) must include(messages(application)("notificationAdded.p1.2.two.emails", "individualEmail", "poEmail"))
+          val model = aNotificationAddedViewModel.copy(
+            summaryList = expectedList,
+            userEmail = aSubscriptionInfo.primaryContact.email,
+            emailsSentResult = EmailsSentResult(userEmailSent = true, Some(true))
+          )
+          contentAsString(result) mustEqual view(model)(request, messages(application)).toString
+          contentAsString(result) must include(messages(application)("notificationAdded.p1.2.two.emails",
+            aSubscriptionInfo.primaryContact.email, aNotificationAddedViewModel.poEmail))
         }
       }
 
       "for same emails" in {
-        val contact = IndividualContact(Individual("first", "last"), "email", Some("phone"))
-        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
-
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val answers = emptyUserAnswers
-          .set(BusinessNamePage, "name").success.value
-          .set(PrimaryContactEmailPage, "email").success.value
+          .set(BusinessNamePage, aNotificationAddedViewModel.poBusinessName).success.value
+          .set(PrimaryContactEmailPage, aSubscriptionInfo.primaryContact.email).success.value
           .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
-          .set(SentAddedReportingNotificationEmailQuery, true).success.value
+          .set(SentAddedReportingNotificationEmailQuery, anEmailsSentResult).success.value
 
         val application = applicationBuilder(userAnswers = Some(answers)).overrides(
           bind[SubscriptionConnector].toInstance(mockConnector),
@@ -126,23 +128,26 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
             ).flatten
           )
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(operatorId, "name", expectedList, "email", "email", emailSent = true)(request, messages(application)).toString
-          contentAsString(result) must include(messages(application)("notificationAdded.p1.2.one.email", "email"))
+          val viewModel = aNotificationAddedViewModel.copy(
+            summaryList = expectedList,
+            userEmail = aSubscriptionInfo.primaryContact.email,
+            emailsSentResult = EmailsSentResult(userEmailSent = true, None)
+          )
+          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) must include(messages(application)("notificationAdded.p1.2.one.email",
+            aSubscriptionInfo.primaryContact.email))
         }
       }
 
-      "when emailSent is false" in {
-        val contact = IndividualContact(Individual("first", "last"), "email", Some("phone"))
-        val subscriptionInfo = SubscriptionInfo("id", gbUser = true, None, contact, None)
-
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(subscriptionInfo)
+      "when no email is sent" in {
+        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val answers = emptyUserAnswers
-          .set(BusinessNamePage, "name").success.value
-          .set(PrimaryContactEmailPage, "email").success.value
+          .set(BusinessNamePage, aNotificationAddedViewModel.poBusinessName).success.value
+          .set(PrimaryContactEmailPage, "any.email@example.com").success.value
           .set(NotificationDetailsQuery, Seq(notification1, notification2)).success.value
-          .set(SentAddedReportingNotificationEmailQuery, false).success.value
+          .set(SentAddedReportingNotificationEmailQuery, EmailsSentResult(userEmailSent = false, None)).success.value
 
         val application = applicationBuilder(userAnswers = Some(answers)).overrides(
           bind[SubscriptionConnector].toInstance(mockConnector),
@@ -163,7 +168,8 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
             ).flatten
           )
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(operatorId, "name", expectedList, "email", "email", emailSent = false)(request, messages(application)).toString
+          val viewModel = aNotificationAddedViewModel.copy(expectedList, emailsSentResult = EmailsSentResult(userEmailSent = false, None))
+          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
           contentAsString(result) must include(messages(application)("notificationAdded.emailNotSent.warning"))
         }
       }

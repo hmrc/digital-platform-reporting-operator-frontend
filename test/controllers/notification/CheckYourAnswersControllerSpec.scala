@@ -17,6 +17,7 @@
 package controllers.notification
 
 import base.SpecBase
+import builders.EmailsSentResultBuilder.anEmailsSentResult
 import builders.PlatformOperatorBuilder.aPlatformOperator
 import builders.UpdatePlatformOperatorRequestBuilder.aUpdatePlatformOperatorRequest
 import connectors.PlatformOperatorConnector
@@ -150,7 +151,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
         when(mockConnector.viewPlatformOperator(eqTo(operatorId))(any())) thenReturn Future.successful(getPlatformOperatorResponse)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
-        when(mockEmailService.sendAddReportingNotificationEmails(any(), any())(any())).thenReturn(Future.successful(true))
+        when(mockEmailService.sendAddReportingNotificationEmails(any(), any())(any())).thenReturn(Future.successful(anEmailsSentResult))
 
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockConnector),

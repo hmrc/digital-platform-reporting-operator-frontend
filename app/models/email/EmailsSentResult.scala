@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package queries
+package models.email
 
-import models.email.EmailsSentResult
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object SentAddedReportingNotificationEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
-  override def path: JsPath = JsPath \ "sentAddedReportingNotificationEmail"
+case class EmailsSentResult(userEmailSent: Boolean,
+                            poEmailSent: Option[Boolean])
+
+object EmailsSentResult {
+  implicit val format: OFormat[EmailsSentResult] = Json.format
 }

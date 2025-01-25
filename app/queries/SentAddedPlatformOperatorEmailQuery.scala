@@ -16,8 +16,9 @@
 
 package queries
 
+import models.email.EmailsSentResult
 import play.api.libs.json.JsPath
 
-case object SentAddedPlatformOperatorEmailQuery extends Gettable[Boolean] with Settable[Boolean] {
+case object SentAddedPlatformOperatorEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
   override def path: JsPath = JsPath \ "sentAddedPlatformOperatorEmail"
 }
