@@ -23,9 +23,8 @@ import play.api.data.FormError
 
 class UkAddressFormProviderSpec extends StringFieldBehaviours {
 
-  private val businessName = "name"
   private val countriesList = new DefaultCountriesList
-  private val form = new UkAddressFormProvider(countriesList)(businessName)
+  private val form = new UkAddressFormProvider()()
 
   ".line1" - {
 
@@ -187,7 +186,7 @@ class UkAddressFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      Gen.oneOf(countriesList.ukCountries.map(_.code))
+      Gen.oneOf(countriesList.crownDependantCountries.map(_.code))
     )
 
     behave like mandatoryField(

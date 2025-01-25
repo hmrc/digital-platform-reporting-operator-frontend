@@ -18,6 +18,7 @@ package services
 
 import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
+import models.Country.UnitedKingdom
 import models.UkTaxIdentifiers._
 import models.RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
 import models.operator._
@@ -98,8 +99,8 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
 
   private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] = {
     address.countryCode.map { countryCode =>
-      if (countriesList.gbCountry.code.contains(countryCode)) {setUkAddress(address)}
-      else if (countriesList.ukCountries.map(_.code).contains(countryCode)) {setJerseyGuernseyIoMAddress(address)}
+      if (UnitedKingdom.code.contains(countryCode)) {setUkAddress(address)}
+      else if (countriesList.crownDependantCountries.map(_.code).contains(countryCode)) {setJerseyGuernseyIoMAddress(address)}
       else {setInternationalAddress(address)}
     }.getOrElse(StateT.pure(()))
   }
@@ -109,7 +110,7 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
       case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
         for {
           _ <- set(RegisteredInUkPage, Uk)
-          _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, countriesList.gbCountry))
+          _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, UnitedKingdom))
         } yield ()
 
       case _ =>
@@ -119,7 +120,7 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
   private def setJerseyGuernseyIoMAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address match {
       case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
-        countriesList.ukCountries.find(_.code == countryCode).map { country =>
+        countriesList.crownDependantCountries.find(_.code == countryCode).map { country =>
           for {
             _ <- set(RegisteredInUkPage, JerseyGuernseyIsleOfMan)
             _ <- set(JerseyGuernseyIoMAddressPage, JerseyGuernseyIoMAddress(line1, line2, line3, line4, postCode, country))

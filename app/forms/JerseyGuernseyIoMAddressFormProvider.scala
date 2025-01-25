@@ -16,41 +16,43 @@
 
 package forms
 
-import javax.inject.Inject
 import forms.mappings.Mappings
+import models.{CountriesList, Country, JerseyGuernseyIoMAddress}
 import play.api.data.Form
 import play.api.data.Forms._
-import models.{CountriesList, Country, JerseyGuernseyIoMAddress}
+
+import javax.inject.Inject
 
 class JerseyGuernseyIoMAddressFormProvider @Inject()(countriesList: CountriesList) extends Mappings {
+  private val maximumLength = 35
 
-   def apply(businessName: String): Form[JerseyGuernseyIoMAddress] = Form(
-     mapping(
-       "line1" -> text("jerseyGuernseyIoMAddress.error.line1.required")
-         .verifying(firstError(
-           maxLength(35, "jerseyGuernseyIoMAddress.error.line1.length"),
-           regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.line1.format")
-         )),
-       "line2" -> optional(text("")
-         .verifying(firstError(
-           maxLength(35, "jerseyGuernseyIoMAddress.error.line2.length"),
-           regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.line2.format")
-         ))),
-       "town" -> text("jerseyGuernseyIoMAddress.error.town.required")
-         .verifying(firstError(
-           maxLength(35, "jerseyGuernseyIoMAddress.error.town.length"),
-           regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.town.format")
-         )),
-       "county" -> optional(text("")
-         .verifying(firstError(
-           maxLength(35, "jerseyGuernseyIoMAddress.error.county.length"),
-           regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.county.format")
-         ))),
-       "postCode" -> text("jerseyGuernseyIoMAddress.error.postCode.required")
-         .verifying(regexp(Validation.ukPostcodePattern.toString, "jerseyGuernseyIoMAddress.error.postCode.format")),
-       "country" -> text("jerseyGuernseyIoMAddress.error.country.required")
-         .verifying("jerseyGuernseyIoMAddress.error.country.required", value => countriesList.ukCountries.exists(_.code == value))
-         .transform[Country](value => countriesList.ukCountries.find(_.code == value).get, _.code)
-     )(JerseyGuernseyIoMAddress.apply)(x => Some((x.line1, x.line2, x.town, x.county, x.postCode, x.country)))
-   )
- }
+  def apply(): Form[JerseyGuernseyIoMAddress] = Form(
+    mapping(
+      "line1" -> text("jerseyGuernseyIoMAddress.error.line1.required")
+        .verifying(firstError(
+          maxLength(maximumLength, "jerseyGuernseyIoMAddress.error.line1.length"),
+          regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.line1.format")
+        )),
+      "line2" -> optional(text("")
+        .verifying(firstError(
+          maxLength(maximumLength, "jerseyGuernseyIoMAddress.error.line2.length"),
+          regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.line2.format")
+        ))),
+      "town" -> text("jerseyGuernseyIoMAddress.error.town.required")
+        .verifying(firstError(
+          maxLength(maximumLength, "jerseyGuernseyIoMAddress.error.town.length"),
+          regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.town.format")
+        )),
+      "county" -> optional(text("")
+        .verifying(firstError(
+          maxLength(maximumLength, "jerseyGuernseyIoMAddress.error.county.length"),
+          regexp(Validation.textInputPattern.toString, "jerseyGuernseyIoMAddress.error.county.format")
+        ))),
+      "postCode" -> text("jerseyGuernseyIoMAddress.error.postCode.required")
+        .verifying(regexp(Validation.ukPostcodePattern.toString, "jerseyGuernseyIoMAddress.error.postCode.format")),
+      "country" -> text("jerseyGuernseyIoMAddress.error.country.required")
+        .verifying("jerseyGuernseyIoMAddress.error.country.required", value => countriesList.crownDependantCountries.exists(_.code == value))
+        .transform[Country](value => countriesList.crownDependantCountries.find(_.code == value).get, _.code)
+    )(JerseyGuernseyIoMAddress.apply)(x => Some((x.line1, x.line2, x.town, x.county, x.postCode, x.country)))
+  )
+}

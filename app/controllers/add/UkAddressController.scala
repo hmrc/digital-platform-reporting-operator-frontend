@@ -16,10 +16,9 @@
 
 package controllers.add
 
-import controllers.actions._
 import controllers.AnswerExtractor
+import controllers.actions._
 import forms.UkAddressFormProvider
-import javax.inject.Inject
 import models.Mode
 import pages.add.{BusinessNamePage, UkAddressPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -28,48 +27,39 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.add.UkAddressView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UkAddressController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      sessionRepository: SessionRepository,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalActionProvider,
-                                      requireData: DataRequiredAction,
-                                      formProvider: UkAddressFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      view: UkAddressView
-                                     )(implicit ec: ExecutionContext)
+class UkAddressController @Inject()(override val messagesApi: MessagesApi,
+                                    sessionRepository: SessionRepository,
+                                    identify: IdentifierAction,
+                                    getData: DataRetrievalActionProvider,
+                                    requireData: DataRequiredAction,
+                                    formProvider: UkAddressFormProvider,
+                                    val controllerComponents: MessagesControllerComponents,
+                                    view: UkAddressView)
+                                   (implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
       val preparedForm = request.userAnswers.get(UkAddressPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
+        case None => formProvider()
+        case Some(value) => formProvider().fill(value)
       }
 
-       Ok(view(preparedForm, mode, businessName))
+      Ok(view(preparedForm, mode, businessName))
     }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(UkAddressPage.nextPage(mode, updatedAnswers))
+      formProvider().bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+        value => for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
+          _ <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(UkAddressPage.nextPage(mode, updatedAnswers))
       )
     }
   }

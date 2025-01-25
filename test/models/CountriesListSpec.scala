@@ -16,46 +16,43 @@
 
 package models
 
+import models.Country.{Guernsey, Jersey, TheIsleOfMan, UnitedKingdom}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
 class CountriesListSpec extends AnyFreeSpec with Matchers {
 
-  val countryList: CountriesList = new CountriesList {}
+  private val underTest = new CountriesList {}
 
   "CountryList" - {
-    "must have only GB in country list for gbCountry" in {
+    "crownDependantCountries" - {
+      "must contain only Guernsey, Jersey and The Isle of Man" in {
+        val expectedList = Seq(Guernsey, Jersey, TheIsleOfMan)
 
-      countryList.gbCountry mustEqual Country("GB", "United Kingdom")
-      countryList.gbCountry must not be Country("US", "United States")
-      countryList.gbCountry must not be Country("GG", "Guernsey")
-      countryList.gbCountry must not be Country("IM", "The Isle of Man")
-      countryList.gbCountry must not be Country("JE", "Jersey")
+        underTest.crownDependantCountries must contain theSameElementsAs expectedList
+      }
     }
 
-    "must have only Jersey, Guernsey, Isle of Man for ukCountries" in {
+    "internationalCountries" - {
+      "must not contain crown dependencies" in {
+        underTest.internationalCountries must not contain underTest.crownDependantCountries
+      }
+      "must not contain the United Kingdom" in {
+        underTest.internationalCountries must not contain UnitedKingdom
+      }
+      "must contain all other countries" in {
+        val expectedList: Seq[Country] = underTest.allCountries diff underTest.crownDependantCountries :+ UnitedKingdom
 
-      countryList.ukCountries mustEqual List(Country("GG", "Guernsey"),
-        Country("IM", "The Isle of Man"),
-        Country("JE", "Jersey"))
-      countryList.ukCountries must not contain Country("GB", "United Kingdom")
-      countryList.ukCountries must not contain Country("US", "United States")
+        underTest.internationalCountries must contain theSameElementsAs expectedList
+      }
     }
 
-    "must have only International countries for internationalCountries" in {
+    "nonUkCountries" - {
+      "must not contain all countries except the United Kingdom" in {
+        val expectedList = underTest.allCountries.filterNot(_ == UnitedKingdom)
 
-      countryList.internationalCountries mustEqual
-        countryList.allCountries.filterNot(x => x.code == "GG" || x.code == "IM" || x.code == "JE" || x.code == "GB")
-      countryList.internationalCountries must not contain Country("GB", "United Kingdom")
-      countryList.internationalCountries must not contain Country("GG", "Guernsey")
-      countryList.internationalCountries must not contain Country("IM", "The Isle of Man")
-      countryList.internationalCountries must not contain Country("JE", "Jersey")
-    }
-
-    "must have all countries except GB for nonUkInternationalCountries" in {
-
-      countryList.nonUkInternationalCountries must not contain Country("GB", "United Kingdom")
+        underTest.nonUkCountries must contain theSameElementsAs expectedList
+      }
     }
   }
-
 }

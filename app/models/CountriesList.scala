@@ -16,6 +16,8 @@
 
 package models
 
+import models.Country.{Guernsey, Jersey, TheIsleOfMan, UnitedKingdom}
+
 import javax.inject.{Inject, Singleton}
 
 trait CountriesList {
@@ -88,7 +90,7 @@ trait CountriesList {
     Country("GR", "Greece"),
     Country("GD", "Grenada"),
     Country("GT", "Guatemala"),
-    Country("GG", "Guernsey"),
+    Guernsey,
     Country("GN", "Guinea"),
     Country("GW", "Guinea-Bissau"),
     Country("GY", "Guyana"),
@@ -101,13 +103,13 @@ trait CountriesList {
     Country("IR", "Iran"),
     Country("IQ", "Iraq"),
     Country("IE", "Ireland"),
-    Country("IM", "The Isle of Man"),
+    TheIsleOfMan,
     Country("IL", "Israel"),
     Country("IT", "Italy"),
     Country("CI", "Ivory Coast"),
     Country("JM", "Jamaica"),
     Country("JP", "Japan"),
-    Country("JE", "Jersey"),
+    Jersey,
     Country("JO", "Jordan"),
     Country("KZ", "Kazakhstan"),
     Country("KE", "Kenya"),
@@ -208,7 +210,7 @@ trait CountriesList {
     Country("UG", "Uganda"),
     Country("UA", "Ukraine"),
     Country("AE", "United Arab Emirates"),
-    Country("GB", "United Kingdom"),
+    UnitedKingdom,
     Country("US", "United States"),
     Country("UY", "Uruguay"),
     Country("UZ", "Uzbekistan"),
@@ -223,10 +225,9 @@ trait CountriesList {
 
   def allCountries: Seq[Country] = countriesList
 
-  lazy val gbCountry: Country = allCountries.filter(x => x.code == "GB").head
-  lazy val ukCountries: Seq[Country] = allCountries.filter(x => x.code == "GG" || x.code == "IM" || x.code == "JE")
-  lazy val internationalCountries: Seq[Country] = allCountries.filterNot(x => x.code == "GG" || x.code == "IM" || x.code == "JE" || x.code == "GB")
-  lazy val nonUkInternationalCountries: Seq[Country] = allCountries.filterNot(_.code == "GB")
+  val crownDependantCountries: Seq[Country] = Seq(Guernsey, Jersey, TheIsleOfMan)
+  val internationalCountries: Seq[Country] = allCountries.diff(crownDependantCountries :+ UnitedKingdom)
+  val nonUkCountries: Seq[Country] = allCountries.filterNot(_.code == UnitedKingdom.code)
 }
 
 @Singleton
