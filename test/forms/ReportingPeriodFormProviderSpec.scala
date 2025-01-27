@@ -25,6 +25,7 @@ import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 class ReportingPeriodFormProviderSpec extends IntFieldBehaviours {
 
   private val requiredKey = "reportingPeriod.error.required"
+  private val nonNumericKey = "reportingPeriod.error.nonNumeric"
 
   private val businessName = "name"
   private val clock = Clock.fixed(Instant.parse("2100-12-31T00:00:00Z"), ZoneOffset.UTC)
@@ -38,6 +39,13 @@ class ReportingPeriodFormProviderSpec extends IntFieldBehaviours {
       form,
       fieldName,
       Gen.choose(LocalDate.now(clock).getYear, LocalDate.now(clock).getYear).map(_.toString)
+    )
+
+    behave like intField(
+      form,
+      fieldName,
+      FormError(fieldName, nonNumericKey, Seq(businessName)),
+      FormError(fieldName, nonNumericKey, Seq(businessName))
     )
 
     behave like mandatoryField(

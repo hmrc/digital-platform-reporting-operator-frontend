@@ -21,5 +21,10 @@ import play.api.libs.json.{Json, OFormat}
 final case class Country(code: String, name: String)
 
 object Country {
+  val Guernsey: Country = Country("GG", "Guernsey")
+  val Jersey: Country = Country("JE", "Jersey")
+  val TheIsleOfMan: Country = Country("IM", "The Isle of Man")
+  val UnitedKingdom: Country = Country("GB", "United Kingdom")
+
   implicit val format: OFormat[Country] = Json.format[Country]
 }

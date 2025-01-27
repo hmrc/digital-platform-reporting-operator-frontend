@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers.update
 
 import controllers.update.routes
-import models.{UserAnswers, CountriesList}
+import models.{CountriesList, UserAnswers}
 import pages.update.{BusinessNamePage, UkAddressPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -26,11 +26,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
 import viewmodels.implicits._
 
-object UkAddressSummary  {
+object UkAddressSummary {
 
   def row(operatorId: String, answers: UserAnswers, countriesList: CountriesList)(implicit messages: Messages): Option[SummaryListRow] =
     for {
-      answer       <- answers.get(UkAddressPage)
+      answer <- answers.get(UkAddressPage)
       businessName <- answers.get(BusinessNamePage)
     } yield {
 
@@ -43,10 +43,10 @@ object UkAddressSummary  {
         Some(HtmlFormat.escape(answer.country.name))
       ).flatten.map(_.toString).mkString("<br/>")
 
-      if (countriesList.ukCountries.map(_.code).contains(answer.country.code)) {
+      if (countriesList.crownDependantCountries.map(_.code).contains(answer.country.code)) {
         SummaryListRowViewModel(
-          key     = "jerseyGuernseyIoMAddress.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
+          key = "jerseyGuernseyIoMAddress.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlContent(value)),
           actions = Seq(
             ActionItemViewModel("site.change", routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId).url)
               .withVisuallyHiddenText(messages("jerseyGuernseyIoMAddress.change.hidden", businessName))
@@ -55,8 +55,8 @@ object UkAddressSummary  {
       }
       else {
         SummaryListRowViewModel(
-          key     = "ukAddress.checkYourAnswersLabel",
-          value   = ValueViewModel(HtmlContent(value)),
+          key = "ukAddress.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlContent(value)),
           actions = Seq(
             ActionItemViewModel("site.change", routes.UkAddressController.onPageLoad(operatorId).url)
               .withVisuallyHiddenText(messages("ukAddress.change.hidden", businessName))

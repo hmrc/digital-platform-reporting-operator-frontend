@@ -19,6 +19,9 @@ package controllers.notification
 import connectors.SubscriptionConnector
 import controllers.AnswerExtractor
 import controllers.actions._
+import models.email.EmailsSentResult
+import models.pageviews.NotificationAddedViewModel
+import models.subscription.SubscriptionInfo
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,18 +45,21 @@ class NotificationAddedController @Inject()(override val messagesApi: MessagesAp
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
-      val list = SummaryListViewModel(
-        rows = Seq(
-          OperatorNameSummary.summaryRow(request.userAnswers),
-          OperatorIdSummary.summaryRow(request.userAnswers),
-          NotificationTypeSummary.summaryRow(request.userAnswers),
-          ReportingPeriodSummary.summaryRow(request.userAnswers),
-          DueDiligenceSummary.summaryRow(request.userAnswers)
-        ).flatten
-      )
-      val poContactEmail = request.userAnswers.get(PrimaryContactEmailPage).getOrElse("")
-      val emailSent = request.userAnswers.get(SentAddedReportingNotificationEmailQuery).getOrElse(false)
-      connector.getSubscriptionInfo.map { x => Ok(view(operatorId, businessName, list, x.primaryContact.email, poContactEmail, emailSent)) }
+      getAnswerAsync(PrimaryContactEmailPage) { poContactEmail =>
+        val summaryList = SummaryListViewModel(
+          rows = Seq(
+            OperatorNameSummary.summaryRow(request.userAnswers),
+            OperatorIdSummary.summaryRow(request.userAnswers),
+            NotificationTypeSummary.summaryRow(request.userAnswers),
+            ReportingPeriodSummary.summaryRow(request.userAnswers),
+            DueDiligenceSummary.summaryRow(request.userAnswers)
+          ).flatten
+        )
+        val emailsSentResult = request.userAnswers.get(SentAddedReportingNotificationEmailQuery).getOrElse(EmailsSentResult(userEmailSent = false, None))
+        connector.getSubscriptionInfo.map { x: SubscriptionInfo =>
+          Ok(view(NotificationAddedViewModel(summaryList, x.primaryContact.email, businessName, poContactEmail, emailsSentResult)))
+        }
+      }
     }
   }
 }

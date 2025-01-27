@@ -38,7 +38,7 @@ class JerseyGuernseyIoMAddressControllerSpec extends SpecBase with MockitoSugar 
   private val countriesList = new DefaultCountriesList
   private val formProvider = new JerseyGuernseyIoMAddressFormProvider(countriesList)
   private val businessName = "name"
-  private val form = formProvider(businessName)
+  private val form = formProvider()
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   private lazy val jerseyGuernseyIoMAddressRoute = routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId).url

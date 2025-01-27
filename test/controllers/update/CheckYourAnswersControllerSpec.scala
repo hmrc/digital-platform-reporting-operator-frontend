@@ -17,8 +17,8 @@
 package controllers.update
 
 import base.SpecBase
+import builders.EmailsSentResultBuilder.anEmailsSentResult
 import builders.PlatformOperatorBuilder.aPlatformOperator
-import builders.SubscriptionInfoBuilder.aSubscriptionInfo
 import builders.UkAddressBuilder.aUkAddress
 import builders.UpdatePlatformOperatorRequestBuilder.aUpdatePlatformOperatorRequest
 import builders.UserAnswersBuilder.aUserAnswers
@@ -26,8 +26,8 @@ import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
-import models.{CountriesList, DefaultCountriesList, RegisteredAddressCountry, UkTaxIdentifiers}
 import models.operator.{AddressDetails, TinDetails, TinType}
+import models.{CountriesList, DefaultCountriesList, RegisteredAddressCountry, UkTaxIdentifiers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito
@@ -93,7 +93,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val secondaryContactList = SummaryListViewModel(Seq(hasSecondaryContactRow))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(operatorId, platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
+          contentAsString(result) mustEqual
+            view(operatorId, platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
         }
       }
 
@@ -181,14 +182,13 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         notification = None
       )
 
-      val subscriptionInfo = aSubscriptionInfo
       val auditType: String = "ChangePlatformOperatorDetails"
       val countriesList = new DefaultCountriesList
       val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest, countriesList)
 
       "must submit an Update Operator request and redirect to the next page" in {
         when(mockPlatformOperatorConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
-        when(mockEmailService.sendUpdatedPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(true))
+        when(mockEmailService.sendUpdatedPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anEmailsSentResult))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app = applicationBuilder(Some(answers)).overrides(
@@ -211,7 +211,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
           verify(mockSessionRepository, never()).set(any())
           verify(mockEmailService, times(1)).sendUpdatedPlatformOperatorEmails(eqTo(answers))(any())
-
         }
       }
 

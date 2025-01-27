@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package queries
+package builders
 
-import models.email.EmailsSentResult
-import play.api.libs.json.JsPath
+import builders.EmailsSentResultBuilder.anEmailsSentResult
+import models.pageviews.NotificationAddedViewModel
+import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
 
-case object SentAddedReportingNotificationEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
-  override def path: JsPath = JsPath \ "sentAddedReportingNotificationEmail"
+object NotificationAddedViewModelBuilder {
+
+  val aNotificationAddedViewModel: NotificationAddedViewModel = NotificationAddedViewModel(
+    summaryList = SummaryList(),
+    userEmail = "default.user.email@example.com",
+    poBusinessName = "default-po-name",
+    poEmail = "default.po.email@example.com",
+    emailsSentResult = anEmailsSentResult
+  )
 }

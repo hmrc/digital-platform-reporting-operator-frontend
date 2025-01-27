@@ -19,6 +19,8 @@ package controllers.add
 import connectors.SubscriptionConnector
 import controllers.AnswerExtractor
 import controllers.actions._
+import models.email.EmailsSentResult
+import models.pageviews.PlatformOperatorAddedViewModel
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
@@ -28,21 +30,20 @@ import views.html.add.PlatformOperatorAddedView
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PlatformOperatorAddedController @Inject()(
-                                                 override val messagesApi: MessagesApi,
-                                                 identify: IdentifierAction,
-                                                 getData: DataRetrievalActionProvider,
-                                                 requireData: DataRequiredAction,
-                                                 val controllerComponents: MessagesControllerComponents,
-                                                 view: PlatformOperatorAddedView,
-                                                 connector: SubscriptionConnector
-                                               )(implicit executionContent: ExecutionContext)
+class PlatformOperatorAddedController @Inject()(override val messagesApi: MessagesApi,
+                                                identify: IdentifierAction,
+                                                getData: DataRetrievalActionProvider,
+                                                requireData: DataRequiredAction,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                view: PlatformOperatorAddedView,
+                                                connector: SubscriptionConnector)
+                                               (implicit executionContent: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    getAnswerAsync(PlatformOperatorAddedQuery) { viewModel =>
-      val emailSent = request.userAnswers.get(SentAddedPlatformOperatorEmailQuery).getOrElse(false)
-      connector.getSubscriptionInfo.map { x => Ok(view(viewModel, x.primaryContact.email, emailSent)) }
+    getAnswerAsync(PlatformOperatorAddedQuery) { platformOperatorDetails =>
+      val emailsSentResult = request.userAnswers.get(SentAddedPlatformOperatorEmailQuery).getOrElse(EmailsSentResult(userEmailSent = false, None))
+      connector.getSubscriptionInfo.map { x => Ok(view(PlatformOperatorAddedViewModel(x, platformOperatorDetails, emailsSentResult))) }
     }
   }
 }

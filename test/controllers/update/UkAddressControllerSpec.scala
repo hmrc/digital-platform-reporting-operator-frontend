@@ -19,7 +19,7 @@ package controllers.update
 import base.SpecBase
 import controllers.{routes => baseRoutes}
 import forms.UkAddressFormProvider
-import models.{Country, DefaultCountriesList, UkAddress}
+import models.{Country, UkAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,10 +34,9 @@ import scala.concurrent.Future
 
 class UkAddressControllerSpec extends SpecBase with MockitoSugar {
 
-  private val countriesList = new DefaultCountriesList
-  private val formProvider = new UkAddressFormProvider(countriesList)
+  private val formProvider = new UkAddressFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
+  private val form = formProvider()
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
   private lazy val ukAddressRoute = routes.UkAddressController.onPageLoad(operatorId).url
 

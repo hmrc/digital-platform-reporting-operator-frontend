@@ -27,8 +27,9 @@ object PlatformOperatorSummaryViewModel {
 
   implicit lazy val format: OFormat[PlatformOperatorSummaryViewModel] = Json.format
 
-  def apply(operatorId: String, createRequest: CreatePlatformOperatorRequest): PlatformOperatorSummaryViewModel = {
-    PlatformOperatorSummaryViewModel(operatorId, createRequest.operatorName, createRequest.primaryContactDetails.emailAddress)
-  }
-
+  def apply(operatorId: String,
+            createRequest: CreatePlatformOperatorRequest): PlatformOperatorSummaryViewModel = PlatformOperatorSummaryViewModel(
+    operatorId = operatorId,
+    operatorName = createRequest.operatorName,
+    poPrimaryContactEmail = createRequest.primaryContactDetails.emailAddress)
 }

@@ -20,7 +20,7 @@ import scala.util.matching.Regex
 
 object Validation {
 
-  val textInputPattern: Regex = """[0-9A-Za-zÀ-ÅÇ-ÖØ-Ýà-åç-öø-ýÿĀ-ľŁ-ňŊ-őŔ-ſ'’ \-.,_&)(]+""".r.anchored
+  val textInputPattern: Regex = """[0-9A-Za-zÀ-ÅÇ-ÖØ-Ýà-åç-öø-ýÿĀ-ľŁ-ňŊ-őŔ-ſ'’ \-.,_&!)(]+""".r.anchored
   val ukPostcodePattern: Regex = """[a-zA-Z]{1,2}[0-9][0-9a-zA-Z]? ?[0-9][a-zA-Z]{2}""".r.anchored
   val emailPattern: Regex = ("""^(?!\.)""" +                                                                  // Cannot start with '.'
     """("([^"\r\\]|\\["\r\\])+"""" +                                                  // String in double quotes. Quotes, Carriage returns and backslashes must be escaped with backslash

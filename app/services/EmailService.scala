@@ -20,6 +20,7 @@ import cats.data.EitherNec
 import com.google.inject.Inject
 import connectors.{EmailConnector, SubscriptionConnector}
 import models.UserAnswers
+import models.email.EmailsSentResult
 import models.email.requests.AddedAsPlatformOperatorRequest.AddedAsPlatformOperatorTemplateId
 import models.email.requests.AddedAsReportingNotificationRequest.AddedAsReportingNotificationTemplateId
 import models.email.requests.AddedPlatformOperatorRequest.AddedPlatformOperatorTemplateId
@@ -42,60 +43,84 @@ class EmailService @Inject()(emailConnector: EmailConnector,
                             (implicit ec: ExecutionContext) {
 
   def sendAddPlatformOperatorEmails(userAnswers: UserAnswers)
-                                   (implicit hc: HeaderCarrier): Future[Boolean] = (for {
+                                   (implicit hc: HeaderCarrier): Future[EmailsSentResult] = (for {
     subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-    emailSent <- {
-      if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
-        sendEmail(AddedAsPlatformOperatorRequest.build(userAnswers), AddedAsPlatformOperatorTemplateId)
+    emailSentResult <- {
+      val poEmailSent = if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+        Some(sendEmail(AddedAsPlatformOperatorRequest.build(userAnswers), AddedAsPlatformOperatorTemplateId))
+      } else {
+        None
       }
-      sendEmail(AddedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), AddedPlatformOperatorTemplateId)
+      val userEmailSent = sendEmail(AddedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), AddedPlatformOperatorTemplateId)
+      for {
+        userResult <- userEmailSent
+        poResult <- poEmailSent.map(_.map(Some(_))).getOrElse(Future.successful(None))
+      } yield EmailsSentResult(userResult, poResult)
     }
-  } yield emailSent).recover {
+  } yield emailSentResult).recover {
     case error => logger.warn("Add platform operator emails not sent", error)
-      false
+      EmailsSentResult(userEmailSent = false, None)
   }
 
   def sendRemovePlatformOperatorEmails(userAnswers: UserAnswers)
-                                      (implicit hc: HeaderCarrier): Future[Boolean] = (for {
+                                      (implicit hc: HeaderCarrier): Future[EmailsSentResult] = (for {
     subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-    emailSent <- {
-      if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
-        sendEmail(RemovedAsPlatformOperatorRequest.build(userAnswers), RemovedAsPlatformOperatorTemplateId)
+    emailSentResult <- {
+      val poEmailSent = if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+        Some(sendEmail(RemovedAsPlatformOperatorRequest.build(userAnswers), RemovedAsPlatformOperatorTemplateId))
+      } else {
+        None
       }
-      sendEmail(RemovedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), RemovedPlatformOperatorTemplateId)
+      val userEmailSent = sendEmail(RemovedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), RemovedPlatformOperatorTemplateId)
+      for {
+        userResult <- userEmailSent
+        poResult <- poEmailSent.map(_.map(Some(_))).getOrElse(Future.successful(None))
+      } yield EmailsSentResult(userResult, poResult)
     }
-  } yield emailSent).recover {
+  } yield emailSentResult).recover {
     case error => logger.warn("Remove platform operator emails not sent", error)
-      false
+      EmailsSentResult(userEmailSent = false, None)
   }
 
   def sendUpdatedPlatformOperatorEmails(userAnswers: UserAnswers)
-                                       (implicit hc: HeaderCarrier): Future[Boolean] = (for {
+                                       (implicit hc: HeaderCarrier): Future[EmailsSentResult] = (for {
     subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-    emailSent <- {
-      if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
-        sendEmail(UpdatedAsPlatformOperatorRequest.build(userAnswers), UpdatedAsPlatformOperatorTemplateId)
+    emailSentResult <- {
+      val poEmailSent = if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+        Some(sendEmail(UpdatedAsPlatformOperatorRequest.build(userAnswers), UpdatedAsPlatformOperatorTemplateId))
+      } else {
+        None
       }
-      sendEmail(UpdatedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), UpdatedPlatformOperatorTemplateId)
+      val userEmailSent = sendEmail(UpdatedPlatformOperatorRequest.build(userAnswers, subscriptionInfo), UpdatedPlatformOperatorTemplateId)
+      for {
+        userResult <- userEmailSent
+        poResult <- poEmailSent.map(_.map(Some(_))).getOrElse(Future.successful(None))
+      } yield EmailsSentResult(userResult, poResult)
     }
-  } yield emailSent).recover {
+  } yield emailSentResult).recover {
     case error => logger.warn("Update platform operator emails not sent", error)
-      false
+      EmailsSentResult(userEmailSent = false, None)
   }
 
   def sendAddReportingNotificationEmails(userAnswers: UserAnswers,
                                          addNotificationRequest: UpdatePlatformOperatorRequest)
-                                        (implicit hc: HeaderCarrier): Future[Boolean] = (for {
+                                        (implicit hc: HeaderCarrier): Future[EmailsSentResult] = (for {
     subscriptionInfo <- subscriptionConnector.getSubscriptionInfo
-    emailSent <- {
-      if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
-        sendEmail(AddedAsReportingNotificationRequest.build(userAnswers, addNotificationRequest), AddedAsReportingNotificationTemplateId)
+    emailSentResult <- {
+      val poEmailSent = if (!matchingEmails(userAnswers, subscriptionInfo.primaryContact.email)) {
+        Some(sendEmail(AddedAsReportingNotificationRequest.build(userAnswers, addNotificationRequest), AddedAsReportingNotificationTemplateId))
+      } else {
+        None
       }
-      sendEmail(AddedReportingNotificationRequest.build(userAnswers, subscriptionInfo), AddedReportingNotificationTemplateId)
+      val userEmailSent = sendEmail(AddedReportingNotificationRequest.build(userAnswers, subscriptionInfo), AddedReportingNotificationTemplateId)
+      for {
+        userResult <- userEmailSent
+        poResult <- poEmailSent.map(_.map(Some(_))).getOrElse(Future.successful(None))
+      } yield EmailsSentResult(userResult, poResult)
     }
-  } yield emailSent).recover {
+  } yield emailSentResult).recover {
     case error => logger.warn("Add notification for platform operator emails not sent", error)
-      false
+      EmailsSentResult(userEmailSent = false, None)
   }
 
   private def matchingEmails(userAnswers: UserAnswers, poEmail: String): Boolean =
@@ -106,7 +131,7 @@ class EmailService @Inject()(emailConnector: EmailConnector,
     errors => {
       logger.warn(s"Unable to send email ($templateName), path(s) missing:" +
         s"${errors.toChain.toList.map(_.path).mkString(", ")}")
-      Future.successful(false)
+      Future.failed(new RuntimeException(errors.toString))
     },
     request => emailConnector.send(request)
   )

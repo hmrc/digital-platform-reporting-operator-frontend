@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package queries
+package builders
 
 import models.email.EmailsSentResult
-import play.api.libs.json.JsPath
 
-case object SentAddedReportingNotificationEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
-  override def path: JsPath = JsPath \ "sentAddedReportingNotificationEmail"
+object EmailsSentResultBuilder {
+
+  val anEmailsSentResult: EmailsSentResult = EmailsSentResult(
+    userEmailSent = true,
+    poEmailSent = None
+  )
 }

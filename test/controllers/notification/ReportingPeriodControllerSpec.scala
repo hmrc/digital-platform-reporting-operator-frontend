@@ -310,6 +310,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName)(request, messages(application)).toString
         }
       }
+
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
