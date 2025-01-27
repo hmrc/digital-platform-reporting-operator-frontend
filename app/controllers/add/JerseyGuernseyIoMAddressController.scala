@@ -43,32 +43,26 @@ class JerseyGuernseyIoMAddressController @Inject()(override val messagesApi: Mes
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData) { implicit request =>
-      getAnswer(BusinessNamePage) { businessName =>
-        val form = formProvider(businessName)
-
-        val preparedForm = request.userAnswers.get(JerseyGuernseyIoMAddressPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
-
-        Ok(view(preparedForm, mode, businessName))
+    getAnswer(BusinessNamePage) { businessName =>
+      val preparedForm = request.userAnswers.get(JerseyGuernseyIoMAddressPage) match {
+        case None => formProvider()
+        case Some(value) => formProvider().fill(value)
       }
+
+      Ok(view(preparedForm, mode, businessName))
+    }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-      getAnswerAsync(BusinessNamePage) { businessName =>
-        val form = formProvider(businessName)
-
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
-
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(JerseyGuernseyIoMAddressPage, value))
-              _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(JerseyGuernseyIoMAddressPage.nextPage(mode, updatedAnswers))
-        )
-      }
+    getAnswerAsync(BusinessNamePage) { businessName =>
+      formProvider().bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(JerseyGuernseyIoMAddressPage, value))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(JerseyGuernseyIoMAddressPage.nextPage(mode, updatedAnswers))
+      )
+    }
   }
 }

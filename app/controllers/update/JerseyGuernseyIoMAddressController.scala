@@ -31,51 +31,45 @@ import views.html.update.JerseyGuernseyIoMAddressView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class JerseyGuernseyIoMAddressController @Inject()(
-                                                    override val messagesApi: MessagesApi,
-                                                    sessionRepository: SessionRepository,
-                                                    identify: IdentifierAction,
-                                                    getData: DataRetrievalActionProvider,
-                                                    requireData: DataRequiredAction,
-                                                    formProvider: JerseyGuernseyIoMAddressFormProvider,
-                                                    val countriesList: CountriesList,
-                                                    val controllerComponents: MessagesControllerComponents,
-                                                    view: JerseyGuernseyIoMAddressView
-                                                  )(implicit ec: ExecutionContext)
+class JerseyGuernseyIoMAddressController @Inject()(override val messagesApi: MessagesApi,
+                                                   sessionRepository: SessionRepository,
+                                                   identify: IdentifierAction,
+                                                   getData: DataRetrievalActionProvider,
+                                                   requireData: DataRequiredAction,
+                                                   formProvider: JerseyGuernseyIoMAddressFormProvider,
+                                                   val countriesList: CountriesList,
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   view: JerseyGuernseyIoMAddressView)
+                                                  (implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-      getAnswer(BusinessNamePage) { businessName =>
-        val form = formProvider(businessName)
-
-        val preparedForm = request.userAnswers.get(JerseyGuernseyIoMAddressPage) match {
-          case None => request.userAnswers.get(UkAddressPage) match {
-            case Some(value) if countriesList.ukCountries.exists(_.code == value.country.code) => form.fill(convertToJerseyGuernseyIoMAddress(value))
-            case _ => form
-          }
-
-          case Some(value) => form.fill(value)
+    getAnswer(BusinessNamePage) { businessName =>
+      val form = formProvider()
+      val preparedForm = request.userAnswers.get(JerseyGuernseyIoMAddressPage) match {
+        case None => request.userAnswers.get(UkAddressPage) match {
+          case Some(value) if countriesList.crownDependantCountries.exists(_.code == value.country.code) => form.fill(convertToJerseyGuernseyIoMAddress(value))
+          case _ => form
         }
 
-        Ok(view(preparedForm, operatorId, businessName))
+        case Some(value) => form.fill(value)
       }
+
+      Ok(view(preparedForm, operatorId, businessName))
+    }
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-      getAnswerAsync(BusinessNamePage) { businessName =>
-        val form = formProvider(businessName)
-
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
-
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(JerseyGuernseyIoMAddressPage, value))
-              _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(JerseyGuernseyIoMAddressPage.nextPage(operatorId, updatedAnswers))
-        )
-      }
+    getAnswerAsync(BusinessNamePage) { businessName =>
+      formProvider().bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(JerseyGuernseyIoMAddressPage, value))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(JerseyGuernseyIoMAddressPage.nextPage(operatorId, updatedAnswers))
+      )
+    }
   }
 
   private def convertToJerseyGuernseyIoMAddress(ukAddress: UkAddress): JerseyGuernseyIoMAddress = {

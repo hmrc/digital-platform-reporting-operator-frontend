@@ -36,9 +36,9 @@ import scala.concurrent.Future
 class UkAddressControllerSpec extends SpecBase with MockitoSugar {
 
   private val countriesList = new DefaultCountriesList
-  private val formProvider = new UkAddressFormProvider(countriesList)
+  private val formProvider = new UkAddressFormProvider()
   private val businessName = "name"
-  private val form = formProvider(businessName)
+  private val form = formProvider()
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
   private val gbCountry: Country = Country("GB", "United Kingdom")
 
@@ -146,10 +146,12 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request =
-          FakeRequest(POST, ukAddressRoute)
-            .withFormUrlEncodedBody(("line1", "line 1"), ("town", "town 2"), ("postCode", "AA1 1AA"), ("country", countriesList.ukCountries.head.code))
-
+        val request = FakeRequest(POST, ukAddressRoute).withFormUrlEncodedBody(
+          ("line1", "line 1"),
+          ("town", "town 2"),
+          ("postCode", "AA1 1AA"),
+          ("country", countriesList.crownDependantCountries.head.code)
+        )
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

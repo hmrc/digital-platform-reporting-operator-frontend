@@ -30,45 +30,35 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UkAddressController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      sessionRepository: SessionRepository,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalActionProvider,
-                                      requireData: DataRequiredAction,
-                                      formProvider: UkAddressFormProvider,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      view: UkAddressView
-                                     )(implicit ec: ExecutionContext)
+                                     override val messagesApi: MessagesApi,
+                                     sessionRepository: SessionRepository,
+                                     identify: IdentifierAction,
+                                     getData: DataRetrievalActionProvider,
+                                     requireData: DataRequiredAction,
+                                     formProvider: UkAddressFormProvider,
+                                     val controllerComponents: MessagesControllerComponents,
+                                     view: UkAddressView
+                                   )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
     getAnswer(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
       val preparedForm = request.userAnswers.get(UkAddressPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
+        case None => formProvider()
+        case Some(value) => formProvider().fill(value)
       }
-
-       Ok(view(preparedForm, operatorId, businessName))
+      Ok(view(preparedForm, operatorId, businessName))
     }
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     getAnswerAsync(BusinessNamePage) { businessName =>
-
-      val form = formProvider(businessName)
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(UkAddressPage.nextPage(operatorId, updatedAnswers))
+      formProvider().bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
+        value => for {
+          updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
+          _ <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(UkAddressPage.nextPage(operatorId, updatedAnswers))
       )
     }
   }

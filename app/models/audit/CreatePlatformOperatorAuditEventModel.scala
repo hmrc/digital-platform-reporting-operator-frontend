@@ -52,31 +52,47 @@ object CreatePlatformOperatorAuditEventModel {
   }
 
   private def getTaxJson(info: CreatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
-    val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
-    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
+    val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {
+      Json.obj("hasTaxIdentificationNumber" -> true)
+    } else {
+      Json.obj("hasTaxIdentificationNumber" -> false)
+    }
+    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {
+      Json.obj("ukTaxResident" -> true)
+    } else {
+      Json.obj("ukTaxResident" -> false)
+    }
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
     val crn = info.tinDetails.find(obj => obj.tinType == TinType.Crn).map(obj => Json.obj("companyRegistrationNumber" -> obj.tin)).getOrElse(Json.obj())
     val vrn = info.tinDetails.find(obj => obj.tinType == TinType.Vrn).map(obj => Json.obj("vrn" -> obj.tin)).getOrElse(Json.obj())
     val empRef = info.tinDetails.find(obj => obj.tinType == TinType.Empref).map(obj => Json.obj("employerPayeReferenceNumber" -> obj.tin)).getOrElse(Json.obj())
     val chrn = info.tinDetails.find(obj => obj.tinType == TinType.Chrn).map(obj => Json.obj("hmrcCharityReference" -> obj.tin)).getOrElse(Json.obj())
     val other = info.tinDetails.find(obj => obj.tinType == TinType.Other).map(obj => Json.obj("internationalTaxIdentifier" -> obj.tin)).getOrElse(Json.obj())
-    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == "GB"))
-    {Json.obj("taxIdentifiers" -> {utr ++ crn ++ vrn ++ empRef ++ chrn ++ other})} else {Json.obj()}
+    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == "GB")) {
+      Json.obj("taxIdentifiers" -> {
+        utr ++ crn ++ vrn ++ empRef ++ chrn ++ other
+      })
+    } else {
+      Json.obj()
+    }
     hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers
   }
 
   private def getAddressJson(info: CreatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
-    val registeredBusinessAddressInUk = info.addressDetails.countryCode.map{ countryCode =>
-      if (countriesList.ukCountries.map(_.code).contains(countryCode)) {Json.obj("registeredBusinessAddressInUk" -> true)} else {
-        Json.obj("registeredBusinessAddressInUk" -> false)}
+    val registeredBusinessAddressInUk = info.addressDetails.countryCode.map { countryCode =>
+      if (countriesList.crownDependantCountries.map(_.code).contains(countryCode)) {
+        Json.obj("registeredBusinessAddressInUk" -> true)
+      } else {
+        Json.obj("registeredBusinessAddressInUk" -> false)
+      }
     }.getOrElse(Json.obj())
-    val addressLine2 = info.addressDetails.line2.map {line2 => Json.obj("addressLine2" -> line2)}.getOrElse(Json.obj())
-    val city = info.addressDetails.line3.map {line3 => Json.obj("city" -> line3)}.getOrElse(Json.obj())
-    val region = info.addressDetails.line4.map {line4 => Json.obj("region" -> line4)}.getOrElse(Json.obj())
-    val postCode = info.addressDetails.postCode.map {postCode => Json.obj("postCode" -> postCode)}.getOrElse(Json.obj())
-    val countryCode = info.addressDetails.countryCode.map {countryCode => Json.obj("countryCode" -> countryCode)}.getOrElse(Json.obj())
-    val country = info.addressDetails.countryCode.flatMap { countryCode => countriesList.allCountries.find(_.code == countryCode).map(c => c.name)}
-    val countryName = info.addressDetails.countryCode.map {_ => Json.obj("country" -> country)}.getOrElse(Json.obj())
+    val addressLine2 = info.addressDetails.line2.map { line2 => Json.obj("addressLine2" -> line2) }.getOrElse(Json.obj())
+    val city = info.addressDetails.line3.map { line3 => Json.obj("city" -> line3) }.getOrElse(Json.obj())
+    val region = info.addressDetails.line4.map { line4 => Json.obj("region" -> line4) }.getOrElse(Json.obj())
+    val postCode = info.addressDetails.postCode.map { postCode => Json.obj("postCode" -> postCode) }.getOrElse(Json.obj())
+    val countryCode = info.addressDetails.countryCode.map { countryCode => Json.obj("countryCode" -> countryCode) }.getOrElse(Json.obj())
+    val country = info.addressDetails.countryCode.flatMap { countryCode => countriesList.allCountries.find(_.code == countryCode).map(c => c.name) }
+    val countryName = info.addressDetails.countryCode.map { _ => Json.obj("country" -> country) }.getOrElse(Json.obj())
     val registeredBusinessAddress =
       Json.obj(
         "registeredBusinessAddress" -> Json.obj(
@@ -95,10 +111,14 @@ object CreatePlatformOperatorAuditEventModel {
       "primaryContactName" -> info.primaryContactDetails.contactName,
       "primaryContactEmail" -> info.primaryContactDetails.emailAddress,
     ) ++ canPhonePrimaryContactJson
-    val hasSecondaryContactJson = if (info.secondaryContactDetails.nonEmpty) {Json.obj("hasSecondaryContact" -> true)}
-      else {Json.obj("hasSecondaryContact" -> false)}
+    val hasSecondaryContactJson = if (info.secondaryContactDetails.nonEmpty) {
+      Json.obj("hasSecondaryContact" -> true)
+    }
+    else {
+      Json.obj("hasSecondaryContact" -> false)
+    }
     val canPhoneSecondaryContactJson = info.secondaryContactDetails.map(secondaryContact =>
-      secondaryContact.phoneNumber.map( phone =>
+      secondaryContact.phoneNumber.map(phone =>
         Json.obj(
           "canPhoneSecondaryContact" -> true,
           "secondaryContactPhoneNumber" -> phone

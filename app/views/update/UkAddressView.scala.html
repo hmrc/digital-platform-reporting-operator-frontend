@@ -16,6 +16,7 @@
 
 @import controllers.update.routes
 @import models.CountriesList
+@import models.Country.UnitedKingdom
 @import views.ViewUtils.countrySelectItems
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import viewmodels.InputWidth._
@@ -89,8 +90,8 @@
                 field = form("country"),
                 items = Seq(
                     SelectItem(
-                        value = Some(countriesList.gbCountry.code),
-                        text = countriesList.gbCountry.name
+                        value = Some(UnitedKingdom.code),
+                        text = UnitedKingdom.name
                     )),
                 label = LabelViewModel(messages("ukAddress.country"))
             )
