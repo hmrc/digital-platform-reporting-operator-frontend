@@ -225,9 +225,9 @@ trait CountriesList {
 
   def allCountries: Seq[Country] = countriesList
 
-  val crownDependantCountries: Seq[Country] = Seq(Guernsey, Jersey, TheIsleOfMan)
-  val internationalCountries: Seq[Country] = allCountries.diff(crownDependantCountries :+ UnitedKingdom)
-  val nonUkCountries: Seq[Country] = allCountries.filterNot(_.code == UnitedKingdom.code)
+  lazy val crownDependantCountries: Seq[Country] = Seq(Guernsey, Jersey, TheIsleOfMan)
+  lazy val internationalCountries: Seq[Country] = allCountries.diff(crownDependantCountries :+ UnitedKingdom)
+  lazy val nonUkCountries: Seq[Country] = allCountries.filterNot(_.code == UnitedKingdom.code)
 }
 
 @Singleton
