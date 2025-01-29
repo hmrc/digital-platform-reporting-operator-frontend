@@ -89,14 +89,16 @@
             SelectViewModel(
                 field = form("country"),
                 items = Seq(
-                    SelectItem(
-                        value = Some(UnitedKingdom.code),
+                    SelectItemViewModel(
+                        value = UnitedKingdom.code,
                         text = UnitedKingdom.name
-                    )),
+                    ).withAttribute("aria-describedby", UnitedKingdom.name)
+                ),
                 label = LabelViewModel(messages("ukAddress.country"))
             )
             .withCssClass("govuk-input")
             .asAccessibleAutocomplete(Some(AccessibleAutocomplete(showAllValues = true)))
+            .withAttribute("aria-controls", "country_listbox")
         )
 
         @govukButton(
