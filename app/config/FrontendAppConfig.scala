@@ -60,8 +60,7 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
 
   def addXMLSubmissions(operatorId: String) = s"$submissionFrontendUrl/submission/$operatorId/start-page"
 
-  // TODO: This will become a method where we pass operatorId after filtering is implemented for the page
-  val viewAssumedReporting = s"$submissionFrontendUrl/assumed-reporting/view"
+  def viewAssumedReporting(operatorId: String) = s"$submissionFrontendUrl/assumed-reporting/view?operatorId=$operatorId"
 
   def addAssumedReporting(operatorId: String) = s"$submissionFrontendUrl/assumed-reporting/$operatorId/start"
 }
