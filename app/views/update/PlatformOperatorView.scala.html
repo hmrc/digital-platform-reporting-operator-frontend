@@ -97,7 +97,7 @@
             <div class="card-action">
             @if(viewModel.hasAssumedReports) {
                 <p class="govuk-body">
-                    <a href="@appConfig.viewAssumedReporting" class="govuk-link">@messages("platformOperator.assumedReporting.details.actions.view")</a>
+                    <a href="@appConfig.viewAssumedReporting(viewModel.operatorId)" class="govuk-link">@messages("platformOperator.assumedReporting.details.actions.view")</a>
                 </p>
             }
                 <p class="govuk-body">
