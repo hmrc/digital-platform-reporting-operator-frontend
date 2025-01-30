@@ -34,7 +34,7 @@ class JourneyRecoveryController @Inject()(
                                            startAgainView: JourneyRecoveryStartAgainView
                                          ) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad(continueUrl: Option[RedirectUrl] = None, missingDataError: Option[Boolean] = Some(false)): Action[AnyContent] = identify {
+  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = identify {
     implicit request =>
 
       val safeUrl: Option[String] = continueUrl.flatMap {
@@ -48,13 +48,23 @@ class JourneyRecoveryController @Inject()(
           }
       }
 
-      val journeyRecoveryText = missingDataError match {
-        case Some(true) => "journeyRecovery.missingData."
-        case Some(false) =>"journeyRecovery.continue."
+      safeUrl
+        .map(url => Ok(continueView(url)))
+        .getOrElse(Ok(startAgainView()))
+
+  }
+
+  def missingDataPageLoad(continueUrl: RedirectUrl): Action[AnyContent] = identify {
+    implicit request =>
+
+      val safeUrl = continueUrl.getEither(OnlyRelative) match {
+        case Right(x) =>
+          Some(x.url)
+        case Left(message) =>
+          logger.info(message)
+          None
       }
 
-      safeUrl
-        .map(url => Ok(continueView(url, journeyRecoveryText)))
-        .getOrElse(Ok(startAgainView()))
+      safeUrl.map(url => Ok(continueView(url, missingData = true))).getOrElse(Ok(startAgainView()))
   }
 }

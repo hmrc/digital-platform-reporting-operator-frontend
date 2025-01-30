@@ -82,7 +82,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
       errors => {
         val route = findRoute(errors.head)
         val redirectUrl: RedirectUrl = RedirectUrl(route.url)
-        Future.successful(Redirect(baseRoutes.JourneyRecoveryController.onPageLoad(Some(redirectUrl), Some(true))))
+        Future.successful(Redirect(baseRoutes.JourneyRecoveryController.missingDataPageLoad(redirectUrl)))
       },
       createRequest =>
         (for {

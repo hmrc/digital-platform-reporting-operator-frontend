@@ -225,7 +225,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         }
       }
 
-      "must redirect to UkAddressPage for a POST if Uk address is missing" in {
+      "when mandatory data missing: must redirect to UkAddressPage for a POST if Uk address is missing" in {
 
         val answers = emptyUserAnswers.copy(operatorId = Some("operatorId"))
           .set(BusinessNamePage, "default-operator-name").success.value
@@ -251,11 +251,11 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val continueUrl = RedirectUrl(routes.UkAddressController.onPageLoad(CheckMode).url)
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url
+          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.missingDataPageLoad(continueUrl).url
         }
       }
 
-      "must redirect to VrnPage for a POST if Vrn code is missing" in {
+      "when mandatory data missing: must redirect to VrnPage for a POST if Vrn code is missing" in {
 
         val answers = emptyUserAnswers.copy(operatorId = Some("operatorId"))
           .set(BusinessNamePage, "default-operator-name").success.value
@@ -281,7 +281,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val continueUrl = RedirectUrl(routes.VrnController.onPageLoad(CheckMode).url)
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url
+          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.missingDataPageLoad(continueUrl).url
         }
       }
 
@@ -309,7 +309,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val continueUrl = RedirectUrl(routes.TradingNameController.onPageLoad(CheckMode).url)
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.onPageLoad(Some(continueUrl), Some(true)).url
+          redirectLocation(result).value mustEqual baseRoutes.JourneyRecoveryController.missingDataPageLoad(continueUrl).url
         }
       }
     }

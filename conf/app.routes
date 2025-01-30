@@ -2,7 +2,8 @@
 
 ->          /platform-operator/hmrc-frontend             hmrcfrontend.Routes
 
-GET         /platform-operator/there-is-a-problem        controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None, missingDataError: Option[Boolean] ?= Some(false))
+GET         /platform-operator/there-is-a-problem        controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
+GET         /platform-operator/missing-information       controllers.JourneyRecoveryController.missingDataPageLoad(continueUrl: RedirectUrl)
 
 GET         /platform-operator/assets/*file              controllers.Assets.versioned(path="/public", file: Asset)
 
