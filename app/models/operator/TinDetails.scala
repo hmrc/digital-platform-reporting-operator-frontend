@@ -18,11 +18,9 @@ package models.operator
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class TinDetails(
-                             tin: String,
-                             tinType: TinType,
-                             issuedBy: String
-                           )
+final case class TinDetails(tin: String,
+                            tinType: TinType,
+                            issuedBy: String)
 
 object TinDetails {
 

@@ -30,17 +30,15 @@ case object CanPhoneSecondaryContactPage extends UpdateQuestionPage[Boolean] {
 
   override def toString: String = "canPhoneSecondaryContact"
 
-  override def nextPage(operatorId: String, answers: UserAnswers): Call =
-    answers.get(this).map {
-      case true =>
-        answers.get(SecondaryContactPhoneNumberPage)
-          .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-          .getOrElse(routes.SecondaryContactPhoneNumberController.onPageLoad(operatorId))
-
-      case false =>
-        routes.CheckYourAnswersController.onPageLoad(operatorId)
-    }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+  override def nextPage(operatorId: String, answers: UserAnswers): Call = answers.get(this).map {
+    case true => answers.get(SecondaryContactPhoneNumberPage)
+      .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
+      .getOrElse(routes.SecondaryContactPhoneNumberController.onPageLoad(operatorId))
+    case false => routes.CheckYourAnswersController.onPageLoad(operatorId)
+  }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
 
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
     if (value.contains(false)) userAnswers.remove(SecondaryContactPhoneNumberPage) else super.cleanup(value, userAnswers)
+
+  override def route(operatorId: String): Call = routes.CanPhoneSecondaryContactController.onPageLoad(operatorId)
 }

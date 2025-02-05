@@ -22,6 +22,7 @@ import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.AnswerExtractor
 import controllers.actions._
 import models.audit.ChangePlatformOperatorAuditEventModel
+import models.operator.requests.UpdatePlatformOperatorRequest
 import models.{CountriesList, UserAnswers}
 import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
@@ -29,7 +30,6 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.OriginalPlatformOperatorQuery
 import repositories.SessionRepository
-import services.UserAnswersService._
 import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -78,8 +78,8 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
-    userAnswersService.toUpdatePlatformOperatorRequest(request.userAnswers, request.dprsId, operatorId).fold(
-      errors => Future.failed(BuildUpdatePlatformOperatorRequestFailure(errors)),
+    UpdatePlatformOperatorRequest.build(request.userAnswers, request.dprsId, operatorId).fold(
+      _ => Future.successful(Redirect(routes.MissingInformationController.onPageLoad(operatorId))),
       updateRequest => (for {
         _ <- platformOperatorConnector.updatePlatformOperator(updateRequest)
         originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get

@@ -21,6 +21,7 @@ import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.actions._
 import models.audit.CreatePlatformOperatorAuditEventModel
+import models.operator.requests.CreatePlatformOperatorRequest
 import models.{CountriesList, NormalMode, UserAnswers}
 import pages.add.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
@@ -29,8 +30,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
-import services.UserAnswersService.BuildCreatePlatformOperatorRequestFailure
-import services.{AuditService, EmailService, UserAnswersService}
+import services.{AuditService, EmailService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.PlatformOperatorSummaryViewModel
@@ -46,7 +46,6 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            requireData: DataRequiredAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            view: CheckYourAnswersView,
-                                           userAnswersService: UserAnswersService,
                                            connector: PlatformOperatorConnector,
                                            sessionRepository: SessionRepository,
                                            auditService: AuditService,
@@ -77,19 +76,19 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
-    userAnswersService.toCreatePlatformOperatorRequest(request.userAnswers, request.dprsId).fold(
-      errors => Future.failed(BuildCreatePlatformOperatorRequestFailure(errors)),
+    CreatePlatformOperatorRequest.build(request.userAnswers, request.dprsId).fold(
+      _ => Future.successful(Redirect(routes.MissingInformationController.onPageLoad())),
       createRequest =>
         (for {
-          createResponse        <- connector.createPlatformOperator(createRequest)
-          _                     <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse, countriesList).toAuditModel)
+          createResponse <- connector.createPlatformOperator(createRequest)
+          _ <- auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, createResponse, countriesList).toAuditModel)
           answersWithOperatorId = request.userAnswers.copy(operatorId = Some(createResponse.operatorId))
-          emailsSentResult      <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId)
-          platformOperatorInfo  = PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
-          cleanedAnswers        = request.userAnswers.copy(data = Json.obj())
-          poInfoAnswers         <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
-          updatedAnswers        <- Future.fromTry(poInfoAnswers.set(SentAddedPlatformOperatorEmailQuery, emailsSentResult))
-          _                     <- sessionRepository.set(updatedAnswers)
+          emailsSentResult <- emailService.sendAddPlatformOperatorEmails(answersWithOperatorId)
+          platformOperatorInfo = PlatformOperatorSummaryViewModel(createResponse.operatorId, createRequest)
+          cleanedAnswers = request.userAnswers.copy(data = Json.obj())
+          poInfoAnswers <- Future.fromTry(cleanedAnswers.set(PlatformOperatorAddedQuery, platformOperatorInfo))
+          updatedAnswers <- Future.fromTry(poInfoAnswers.set(SentAddedPlatformOperatorEmailQuery, emailsSentResult))
+          _ <- sessionRepository.set(updatedAnswers)
         } yield Redirect(CheckYourAnswersPage.nextPage(NormalMode, updatedAnswers))).recover {
           case error: CreatePlatformOperatorFailure => logger.warn("Failed to create platform operator", error)
             auditService.sendAudit(CreatePlatformOperatorAuditEventModel(createRequest, error.status, countriesList).toAuditModel)

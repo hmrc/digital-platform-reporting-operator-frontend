@@ -215,7 +215,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       }
 
       "must return a failed future when updatePlatformOperator fails" in {
-
         when(mockPlatformOperatorConnector.updatePlatformOperator(any())(any())) thenReturn Future.failed(UpdatePlatformOperatorFailure(422))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -247,8 +246,11 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
+          val result = route(app, request).value
 
-          route(app, request).value.failed.futureValue
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.MissingInformationController.onPageLoad(operatorId).url
+
           verify(mockPlatformOperatorConnector, never()).createPlatformOperator(any())(any())
           verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
           verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any())(any())

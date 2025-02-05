@@ -16,12 +16,16 @@
 
 package pages.update
 
+import controllers.update.routes
 import models.InternationalAddress
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object InternationalAddressPage extends UpdateQuestionPage[InternationalAddress] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "internationalAddress"
+
+  override def route(operatorId: String): Call = routes.InternationalAddressController.onPageLoad(operatorId)
 }

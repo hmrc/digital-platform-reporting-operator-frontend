@@ -529,3 +529,7 @@ viewNotifications.dueDiligence.extendedDueDiligence = Extended time limits for d
 viewNotifications.dueDiligence.activeSellerDueDiligence = Active seller due diligence
 viewNotifications.dueDiligence.noDueDiligence = None
 viewNotifications.dueDiligence.notApplicable = N/A
+
+missingInformation.title = Some information is missing
+missingInformation.heading = Some information is missing
+missingInformation.guidance = You must provide this information to proceed.

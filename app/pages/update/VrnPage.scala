@@ -39,4 +39,6 @@ case object VrnPage extends UpdateQuestionPage[String] {
         routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def route(operatorId: String): Call = routes.VrnController.onPageLoad(operatorId)
 }

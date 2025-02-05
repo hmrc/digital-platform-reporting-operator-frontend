@@ -72,4 +72,6 @@ case object UkTaxIdentifiersPage extends UpdateQuestionPage[Set[UkTaxIdentifiers
 
   private def maybeRemoveChrn(answers: UserAnswers, identifiers: Set[UkTaxIdentifiers]): Try[UserAnswers] =
     if (identifiers.contains(Chrn)) Success(answers) else answers.remove(ChrnPage)
+
+  override def route(operatorId: String): Call = routes.UkTaxIdentifiersController.onPageLoad(operatorId)
 }

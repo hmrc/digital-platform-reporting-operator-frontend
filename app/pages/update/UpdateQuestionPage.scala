@@ -17,5 +17,8 @@
 package pages.update
 
 import pages.QuestionPage
+import play.api.mvc.Call
 
-trait UpdateQuestionPage[A] extends QuestionPage[A] with UpdatePage
+trait UpdateQuestionPage[A] extends QuestionPage[A] with UpdatePage {
+  def route(operatorId: String): Call
+}

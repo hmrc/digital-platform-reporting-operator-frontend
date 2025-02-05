@@ -76,3 +76,6 @@ GET        /remove/:operatorId/are-you-sure                 controllers.update.R
 POST       /remove/:operatorId/are-you-sure                 controllers.update.RemovePlatformOperatorController.onSubmit(operatorId: String)
 
 GET        /remove/:operatorId/removed-successfully         controllers.update.PlatformOperatorRemovedController.onPageLoad(operatorId: String)
+
+GET        /:operatorId/missing-information                 controllers.update.MissingInformationController.onPageLoad(operatorId: String)
+POST       /:operatorId/missing-information                 controllers.update.MissingInformationController.onSubmit(operatorId: String)

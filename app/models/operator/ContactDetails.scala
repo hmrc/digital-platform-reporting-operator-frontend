@@ -19,11 +19,9 @@ package models.operator
 import play.api.libs.json.{Json, OFormat}
 
 
-final case class ContactDetails(
-                                 phoneNumber: Option[String],
-                                 contactName: String,
-                                 emailAddress: String
-                               )
+final case class ContactDetails(phoneNumber: Option[String],
+                                contactName: String,
+                                emailAddress: String)
 
 object ContactDetails {
 

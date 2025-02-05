@@ -223,7 +223,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         }
       }
 
-      "must return a failed future when a payload cannot be built" in {
+      "must redirect to MissingInformationController when a payload cannot be built" in {
         val answers = emptyUserAnswers.set(BusinessNamePage, "business").success.value
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockConnector),
@@ -234,8 +234,11 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
         running(app) {
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
+          val result = route(app, request).value
 
-          route(app, request).value.failed.futureValue
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.MissingInformationController.onPageLoad().url
+
           verify(mockConnector, never()).createPlatformOperator(any())(any())
           verify(mockRepository, never()).set(any())
           verify(mockEmailService, never()).sendAddPlatformOperatorEmails(any())(any())

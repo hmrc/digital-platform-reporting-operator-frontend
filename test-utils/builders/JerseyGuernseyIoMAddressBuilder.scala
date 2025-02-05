@@ -16,17 +16,17 @@
 
 package builders
 
-import models.Country.UnitedKingdom
-import models.UkAddress
+import models.Country.Jersey
+import models.JerseyGuernseyIoMAddress
 
-object UkAddressBuilder {
+object JerseyGuernseyIoMAddressBuilder {
 
-  val aUkAddress: UkAddress = UkAddress(
+  val aJerseyGuernseyIoMAddress: JerseyGuernseyIoMAddress = JerseyGuernseyIoMAddress(
     line1 = "default-line-1",
     line2 = None,
     town = "default-town",
     county = None,
     postCode = "default-postcode",
-    country = UnitedKingdom
+    country = Jersey
   )
 }
