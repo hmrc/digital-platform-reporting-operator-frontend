@@ -34,8 +34,8 @@ case object HasSecondaryContactPage extends UpdateQuestionPage[Boolean] {
     answers.get(this).map {
       case true =>
         answers.get(SecondaryContactNamePage)
-        .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-        .getOrElse(routes.SecondaryContactNameController.onPageLoad(operatorId))
+          .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
+          .getOrElse(routes.SecondaryContactNameController.onPageLoad(operatorId))
 
       case false =>
         routes.CheckYourAnswersController.onPageLoad(operatorId)
@@ -51,4 +51,6 @@ case object HasSecondaryContactPage extends UpdateQuestionPage[Boolean] {
     } else {
       super.cleanup(value, userAnswers)
     }
+
+  override def route(operatorId: String): Call = routes.HasSecondaryContactController.onPageLoad(operatorId)
 }

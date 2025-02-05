@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,25 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package builders
+@import controllers.update.routes
 
-import models.Country.UnitedKingdom
-import models.UkAddress
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukButton: GovukButton
+)
 
-object UkAddressBuilder {
+@(operatorId: String)(implicit request: Request[_], messages: Messages)
 
-  val aUkAddress: UkAddress = UkAddress(
-    line1 = "default-line-1",
-    line2 = None,
-    town = "default-town",
-    county = None,
-    postCode = "default-postcode",
-    country = UnitedKingdom
-  )
+@layout(pageTitle = titleNoForm(messages("missingInformation.title"))) {
+
+    <h1 class="govuk-heading-xl">@messages("missingInformation.heading")</h1>
+
+    <p class="govuk-body">@messages("missingInformation.guidance")</p>
+
+    @formHelper(action = routes.MissingInformationController.onSubmit(operatorId)) {
+        @govukButton(ButtonViewModel("site.continue"))
+    }
 }

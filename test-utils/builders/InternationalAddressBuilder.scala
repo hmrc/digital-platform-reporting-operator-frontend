@@ -16,17 +16,16 @@
 
 package builders
 
-import models.Country.UnitedKingdom
-import models.UkAddress
+import models.{Country, InternationalAddress}
 
-object UkAddressBuilder {
+object InternationalAddressBuilder {
 
-  val aUkAddress: UkAddress = UkAddress(
+  val anInternationalAddress: InternationalAddress = InternationalAddress(
     line1 = "default-line-1",
     line2 = None,
-    town = "default-town",
-    county = None,
-    postCode = "default-postcode",
-    country = UnitedKingdom
+    city = "default-town",
+    region = None,
+    postal = "default-postcode",
+    country = Country("US", "United States")
   )
 }

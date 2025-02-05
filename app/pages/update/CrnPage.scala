@@ -41,4 +41,6 @@ case object CrnPage extends UpdateQuestionPage[String] {
         routes.CheckYourAnswersController.onPageLoad(operatorId)
       }
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
+
+  override def route(operatorId: String): Call = routes.CrnController.onPageLoad(operatorId)
 }

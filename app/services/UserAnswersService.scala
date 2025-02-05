@@ -19,10 +19,10 @@ package services
 import cats.data.{EitherNec, NonEmptyChain, NonEmptyList, StateT}
 import cats.implicits._
 import models.Country.UnitedKingdom
-import models.UkTaxIdentifiers._
 import models.RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
+import models.UkTaxIdentifiers._
 import models.operator._
-import models.operator.requests.{CreatePlatformOperatorRequest, Notification, UpdatePlatformOperatorRequest}
+import models.operator.requests.{Notification, UpdatePlatformOperatorRequest}
 import models.operator.responses.PlatformOperator
 import models.{CountriesList, DueDiligence, InternationalAddress, JerseyGuernseyIoMAddress, UkAddress, UkTaxIdentifiers, UserAnswers}
 import pages.add._
@@ -61,7 +61,7 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
     }.getOrElse(StateT.pure(()))
 
   private def setTaxIdentifiers(tinDetails: Seq[TinDetails]): StateT[Try, UserAnswers, Unit] =
-    NonEmptyList.fromList(tinDetails.toList).map { tins =>setUkTaxIdentifierDetails(tins)
+    NonEmptyList.fromList(tinDetails.toList).map { tins => setUkTaxIdentifierDetails(tins)
     }.getOrElse(StateT.pure(()))
 
   private def setUkTaxIdentifierDetails(tinDetails: NonEmptyList[TinDetails])(implicit ev: Writes[String]): StateT[Try, UserAnswers, Unit] =
@@ -78,7 +78,7 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
   private def setUkTaxIdentifiers(tinDetails: NonEmptyList[TinDetails]): StateT[Try, UserAnswers, Unit] =
     tinDetails.toList.flatMap(tinToTaxIdentifier).toSet match {
       case ids if ids.nonEmpty => set(UkTaxIdentifiersPage, ids)
-      case _                   => StateT.pure(())
+      case _ => StateT.pure(())
     }
 
   private def tinToTaxIdentifier(tinDetails: TinDetails): Option[UkTaxIdentifiers] =
@@ -99,15 +99,21 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
 
   private def setAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] = {
     address.countryCode.map { countryCode =>
-      if (UnitedKingdom.code.contains(countryCode)) {setUkAddress(address)}
-      else if (countriesList.crownDependantCountries.map(_.code).contains(countryCode)) {setJerseyGuernseyIoMAddress(address)}
-      else {setInternationalAddress(address)}
+      if (UnitedKingdom.code.contains(countryCode)) {
+        setUkAddress(address)
+      }
+      else if (countriesList.crownDependantCountries.map(_.code).contains(countryCode)) {
+        setJerseyGuernseyIoMAddress(address)
+      }
+      else {
+        setInternationalAddress(address)
+      }
     }.getOrElse(StateT.pure(()))
   }
 
   private def setUkAddress(address: AddressDetails): StateT[Try, UserAnswers, Unit] =
     address match {
-      case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(countryCode)) =>
+      case AddressDetails(line1, line2, Some(line3), line4, Some(postCode), Some(_)) =>
         for {
           _ <- set(RegisteredInUkPage, Uk)
           _ <- set(UkAddressPage, UkAddress(line1, line2, line3, line4, postCode, UnitedKingdom))
@@ -165,111 +171,12 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
     }.getOrElse(set(HasSecondaryContactPage, false))
   }
 
-  def toCreatePlatformOperatorRequest(answers: UserAnswers, dprsId: String): EitherNec[Query, CreatePlatformOperatorRequest] =
-    (
-      answers.getEither(BusinessNamePage),
-      getTradingName(answers),
-      getUkTinDetails(answers),
-      getPrimaryContact(answers),
-      getSecondaryContact(answers),
-      getAddressDetails(answers)
-    ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
-      CreatePlatformOperatorRequest(dprsId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails)
-    }
-
-  def toUpdatePlatformOperatorRequest(answers: UserAnswers, dprsId: String, operatorId: String): EitherNec[Query, UpdatePlatformOperatorRequest] =
-    (
-      answers.getEither(BusinessNamePage),
-      getTradingName(answers),
-      getUkTinDetails(answers),
-      getPrimaryContact(answers),
-      getSecondaryContact(answers),
-      getAddressDetails(answers)
-    ).parMapN { (operatorName, tradingName, tinDetails, primaryContact, secondaryContact, addressDetails) =>
-      UpdatePlatformOperatorRequest(dprsId, operatorId, operatorName, tinDetails, None, tradingName, primaryContact, secondaryContact, addressDetails, None)
-    }
-
   def addNotificationRequest(answers: UserAnswers, dprsId: String, operatorId: String): EitherNec[Query, UpdatePlatformOperatorRequest] =
     (
-      toUpdatePlatformOperatorRequest(answers, dprsId, operatorId),
+      UpdatePlatformOperatorRequest.build(answers, dprsId, operatorId),
       getNotificationDetails(answers)
     ).parMapN { (baseRequest, notification) =>
       baseRequest.copy(notification = Some(notification))
-    }
-
-  private def getTradingName(answers: UserAnswers): EitherNec[Query, Option[String]] =
-    answers.getEither(HasTradingNamePage).flatMap {
-      case true => answers.getEither(TradingNamePage).map(Some(_))
-      case false => Right(None)
-    }
-
-  private def getUkTinDetails(answers: UserAnswers): EitherNec[Query, Seq[TinDetails]] =
-    answers.getEither(UkTaxIdentifiersPage).flatMap { identifiers =>
-      identifiers.toSeq.parTraverse(getUkTin(_, answers))
-    }
-
-  private def getUkTin(identifier: UkTaxIdentifiers, answers: UserAnswers): EitherNec[Query, TinDetails] = {
-    identifier match {
-      case Utr    => answers.getEither(UtrPage).map(tin => TinDetails(tin, TinType.Utr, "GB"))
-      case Crn    => answers.getEither(CrnPage).map(tin => TinDetails(tin, TinType.Crn, "GB"))
-      case Vrn    => answers.getEither(VrnPage).map(tin => TinDetails(tin, TinType.Vrn, "GB"))
-      case Empref => answers.getEither(EmprefPage).map(tin => TinDetails(tin, TinType.Empref, "GB"))
-      case Chrn   => answers.getEither(ChrnPage).map(tin => TinDetails(tin, TinType.Chrn, "GB"))
-    }
-  }
-
-  private def getPrimaryContact(answers: UserAnswers): EitherNec[Query, ContactDetails] =
-    (
-      answers.getEither(PrimaryContactNamePage),
-      answers.getEither(PrimaryContactEmailPage),
-      getPrimaryContactPhone(answers)
-    ).parMapN { (name, email, phone) =>
-      ContactDetails(phone, name, email)
-    }
-
-  private def getPrimaryContactPhone(answers: UserAnswers): EitherNec[Query, Option[String]] =
-    answers.getEither(CanPhonePrimaryContactPage).flatMap {
-      case true => answers.getEither(PrimaryContactPhoneNumberPage).map(Some(_))
-      case false => Right(None)
-    }
-
-  private def getSecondaryContact(answers: UserAnswers): EitherNec[Query, Option[ContactDetails]] =
-    answers.getEither(HasSecondaryContactPage).flatMap {
-      case true =>
-        (
-          answers.getEither(SecondaryContactNamePage),
-          answers.getEither(SecondaryContactEmailPage),
-          getSecondaryContactPhone(answers)
-        ).parMapN { (name, email, phone) =>
-          Some(ContactDetails(phone, name, email))
-        }
-
-      case false =>
-        Right(None)
-    }
-
-  private def getSecondaryContactPhone(answers: UserAnswers): EitherNec[Query, Option[String]] =
-    answers.getEither(CanPhoneSecondaryContactPage).flatMap {
-      case true => answers.getEither(SecondaryContactPhoneNumberPage).map(Some(_))
-      case false => Right(None)
-    }
-
-  private def getAddressDetails(answers: UserAnswers): EitherNec[Query, AddressDetails] =
-    answers.getEither(RegisteredInUkPage).flatMap {
-      case Uk =>
-        answers.getEither(UkAddressPage).map { address =>
-          AddressDetails(address.line1, address.line2, Some(address.town), address.county, Some(address.postCode), Some(address.country.code))
-        }
-
-      case JerseyGuernseyIsleOfMan =>
-        answers.getEither(JerseyGuernseyIoMAddressPage).map { address =>
-          AddressDetails(address.line1, address.line2, Some(address.town), address.county, Some(address.postCode), Some(address.country.code))
-      }
-
-      case International =>
-        answers.getEither(InternationalAddressPage).map { address =>
-          AddressDetails(address.line1, address.line2, Some(address.city), address.region, Some(address.postal), Some(address.country.code))
-        }
     }
 
   private def getNotificationDetails(answers: UserAnswers): EitherNec[Query, Notification] =
@@ -295,14 +202,6 @@ class UserAnswersService @Inject()(countriesList: CountriesList) {
 }
 
 object UserAnswersService {
-
-  final case class BuildCreatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
-    override def getMessage: String = s"unable to build Create Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
-  }
-
-  final case class BuildUpdatePlatformOperatorRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
-    override def getMessage: String = s"unable to build Update Platform Operator request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"
-  }
 
   final case class BuildAddNotificationRequestFailure(errors: NonEmptyChain[Query]) extends Throwable {
     override def getMessage: String = s"unable to build Add Notification request, path(s) missing: ${errors.toChain.toList.map(_.path).mkString(", ")}"

@@ -16,18 +16,43 @@
 
 package models.operator
 
+import models.{InternationalAddress, JerseyGuernseyIoMAddress, UkAddress}
 import play.api.libs.json.{Json, OFormat}
 
-final case class AddressDetails(
-                                 line1: String,
-                                 line2: Option[String],
-                                 line3: Option[String],
-                                 line4: Option[String],
-                                 postCode: Option[String],
-                                 countryCode: Option[String]
-                               )
+final case class AddressDetails(line1: String,
+                                line2: Option[String],
+                                line3: Option[String],
+                                line4: Option[String],
+                                postCode: Option[String],
+                                countryCode: Option[String])
 
 object AddressDetails {
-  
   implicit lazy val format: OFormat[AddressDetails] = Json.format
+
+  def apply(ukAddress: UkAddress): AddressDetails = AddressDetails(
+    line1 = ukAddress.line1,
+    line2 = ukAddress.line2,
+    line3 = Some(ukAddress.town),
+    line4 = ukAddress.county,
+    postCode = Some(ukAddress.postCode),
+    countryCode = Some(ukAddress.country.code)
+  )
+
+  def apply(jerseyGuernseyIoMAddress: JerseyGuernseyIoMAddress): AddressDetails = AddressDetails(
+    line1 = jerseyGuernseyIoMAddress.line1,
+    line2 = jerseyGuernseyIoMAddress.line2,
+    line3 = Some(jerseyGuernseyIoMAddress.town),
+    line4 = jerseyGuernseyIoMAddress.county,
+    postCode = Some(jerseyGuernseyIoMAddress.postCode),
+    countryCode = Some(jerseyGuernseyIoMAddress.country.code)
+  )
+
+  def apply(internationalAddress: InternationalAddress): AddressDetails = AddressDetails(
+    line1 = internationalAddress.line1,
+    line2 = internationalAddress.line2,
+    line3 = Some(internationalAddress.city),
+    line4 = internationalAddress.region,
+    postCode = Some(internationalAddress.postal),
+    countryCode = Some(internationalAddress.country.code)
+  )
 }

@@ -19,11 +19,11 @@ package models
 import play.api.libs.json._
 
 case class JerseyGuernseyIoMAddress(line1: String,
-                                     line2: Option[String],
-                                     town: String,
-                                     county: Option[String],
-                                     postCode: String,
-                                     country: Country)
+                                    line2: Option[String],
+                                    town: String,
+                                    county: Option[String],
+                                    postCode: String,
+                                    country: Country)
 
 object JerseyGuernseyIoMAddress {
 

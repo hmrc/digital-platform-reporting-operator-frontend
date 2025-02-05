@@ -115,3 +115,6 @@ GET        /change-vrn                                  controllers.add.VrnContr
 POST       /change-vrn                                  controllers.add.VrnController.onSubmit(mode: Mode = CheckMode)
 
 GET        /added-successfully                          controllers.add.PlatformOperatorAddedController.onPageLoad
+
+GET        /missing-information                         controllers.add.MissingInformationController.onPageLoad()
+POST       /missing-information                         controllers.add.MissingInformationController.onSubmit()

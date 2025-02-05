@@ -16,8 +16,10 @@
 
 package pages.update
 
+import controllers.update.routes
 import models.{JerseyGuernseyIoMAddress, UserAnswers}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 import scala.util.Try
 
@@ -27,7 +29,10 @@ case object JerseyGuernseyIoMAddressPage extends UpdateQuestionPage[JerseyGuerns
 
   override def toString: String = "jerseyGuernseyIoMAddress"
 
-  override def cleanup(value: Option[JerseyGuernseyIoMAddress], userAnswers: UserAnswers): Try[UserAnswers] = {
-    userAnswers.get(JerseyGuernseyIoMAddressPage).map { _ => {userAnswers.remove(UkAddressPage)}}.getOrElse(super.cleanup(value, userAnswers))
-  }
+  override def cleanup(value: Option[JerseyGuernseyIoMAddress], userAnswers: UserAnswers): Try[UserAnswers] =
+    userAnswers.get(JerseyGuernseyIoMAddressPage)
+      .map(_ => userAnswers.remove(UkAddressPage))
+      .getOrElse(super.cleanup(value, userAnswers))
+
+  override def route(operatorId: String): Call = routes.JerseyGuernseyIoMAddressController.onPageLoad(operatorId)
 }

@@ -18,8 +18,8 @@ package pages.update
 
 import controllers.update.routes
 import controllers.{routes => baseRoutes}
+import models.RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
 import models.{RegisteredAddressCountry, UserAnswers}
-import RegisteredAddressCountry.{International, JerseyGuernseyIsleOfMan, Uk}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -52,8 +52,11 @@ case object RegisteredInUkPage extends UpdateQuestionPage[RegisteredAddressCount
 
   override def cleanup(value: Option[RegisteredAddressCountry], userAnswers: UserAnswers): Try[UserAnswers] = {
     value.map {
-      case Uk                      => userAnswers.remove(JerseyGuernseyIoMAddressPage).flatMap(_.remove(InternationalAddressPage))
+      case Uk => userAnswers.remove(JerseyGuernseyIoMAddressPage).flatMap(_.remove(InternationalAddressPage))
       case JerseyGuernseyIsleOfMan => userAnswers.remove(UkAddressPage).flatMap(_.remove(InternationalAddressPage))
-      case International           => userAnswers.remove(UkAddressPage).flatMap(_.remove(JerseyGuernseyIoMAddressPage))
-    }.getOrElse(super.cleanup(value, userAnswers))}
+      case International => userAnswers.remove(UkAddressPage).flatMap(_.remove(JerseyGuernseyIoMAddressPage))
+    }.getOrElse(super.cleanup(value, userAnswers))
+  }
+
+  override def route(operatorId: String): Call = routes.RegisteredInUkController.onPageLoad(operatorId)
 }

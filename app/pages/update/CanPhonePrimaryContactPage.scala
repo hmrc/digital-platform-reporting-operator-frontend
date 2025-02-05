@@ -34,8 +34,8 @@ case object CanPhonePrimaryContactPage extends UpdateQuestionPage[Boolean] {
     answers.get(this).map {
       case true =>
         answers.get(PrimaryContactPhoneNumberPage)
-        .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
-        .getOrElse(routes.PrimaryContactPhoneNumberController.onPageLoad(operatorId))
+          .map(_ => routes.CheckYourAnswersController.onPageLoad(operatorId))
+          .getOrElse(routes.PrimaryContactPhoneNumberController.onPageLoad(operatorId))
 
       case false =>
         routes.CheckYourAnswersController.onPageLoad(operatorId)
@@ -43,4 +43,6 @@ case object CanPhonePrimaryContactPage extends UpdateQuestionPage[Boolean] {
 
   override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
     if (value.contains(false)) userAnswers.remove(PrimaryContactPhoneNumberPage) else super.cleanup(value, userAnswers)
+
+  override def route(operatorId: String): Call = routes.CanPhonePrimaryContactController.onPageLoad(operatorId)
 }
