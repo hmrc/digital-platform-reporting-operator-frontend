@@ -27,11 +27,11 @@ import connectors.PlatformOperatorConnector.UpdatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
 import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
 import models.operator.{AddressDetails, TinDetails, TinType}
-import models.{CountriesList, DefaultCountriesList, RegisteredAddressCountry, UkTaxIdentifiers}
+import models.{CountriesList, DefaultCountriesList, RegisteredAddressCountry, UkTaxIdentifiers, UserAnswers}
 import org.apache.pekko.Done
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
 import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add.{ChrnPage, CrnPage, EmprefPage, UkTaxIdentifiersPage, UtrPage, VrnPage}
@@ -39,7 +39,7 @@ import pages.update._
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import queries.OriginalPlatformOperatorQuery
+import queries.{OriginalPlatformOperatorQuery, SentUpdatedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -187,7 +187,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       val expectedAuditEvent = ChangePlatformOperatorAuditEventModel(platformOperator, expectedRequest, countriesList)
 
       "must submit an Update Operator request and redirect to the next page" in {
+        val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
+
         when(mockPlatformOperatorConnector.updatePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+        when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
         when(mockEmailService.sendUpdatedPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anEmailsSentResult))
         when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
@@ -209,8 +212,11 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           verify(mockPlatformOperatorConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockAuditService, times(1)).sendAudit(
             eqTo(AuditModel[ChangePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
-          verify(mockSessionRepository, never()).set(any())
+          verify(mockSessionRepository, times(1)).set(answersCaptor.capture())
           verify(mockEmailService, times(1)).sendUpdatedPlatformOperatorEmails(eqTo(answers))(any())
+
+          val savedAnswers = answersCaptor.getValue
+          savedAnswers.get(SentUpdatedPlatformOperatorEmailQuery).value mustEqual anEmailsSentResult
         }
       }
 

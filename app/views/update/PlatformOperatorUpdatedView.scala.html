@@ -16,15 +16,17 @@
 
 @import config.FrontendAppConfig
 @import controllers.routes
-@import viewmodels.PlatformOperatorSummaryViewModel
+@import models.email.EmailsSentResult
+@import models.pageviews.PlatformOperatorUpdatedViewModel
 
 @this(
         layout: templates.Layout,
         govukPanel: GovukPanel,
+        govukWarning: GovukWarningText,
         appConfig: FrontendAppConfig
 )
 
-@(operatorId: String, viewModel: PlatformOperatorSummaryViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorUpdatedViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("platformOperatorUpdated.title")),
@@ -32,8 +34,28 @@
 ) {
 
     @govukPanel(Panel(
-        title = messages("platformOperatorUpdated.panel.heading", viewModel.operatorName)
+        title = messages("platformOperatorUpdated.panel.heading", viewModel.poBusinessName)
     ))
+
+        <p class="govuk-body">
+            @if(viewModel.sentEmails.size == 2) {
+                @messages("platformOperatorUpdated.p1.1.two.emails", viewModel.userEmail, viewModel.poEmail)
+            } else if(viewModel.sentEmails.size == 1) {
+                @messages("platformOperatorUpdated.p1.1.one.email", viewModel.sentEmails.head)
+            }
+        </p>
+
+        @if(viewModel.sentEmails.size == 0) {
+            @govukWarning(WarningText(
+                iconFallbackText = Some("Warning"),
+                content = messages("platformOperatorUpdated.emailNotSent.warning")
+            ))
+
+            <p id="print-this-page" class="govuk-list govuk-link print-link hmrc-!-js-visible govuk-!-display-none-print">
+                <a class="govuk-link hmrc-!-js-visible" data-module="hmrc-print-link" href="#" >@messages("platformOperatorUpdated.print.link.text")</a>
+            </p>
+        }
+
 
     <p class="govuk-body">
         <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-link">@messages("platformOperatorUpdated.link1.text")</a>

@@ -324,6 +324,10 @@ platformOperatorUpdated.title = Platform operator updated
 platformOperatorUpdated.panel.heading = Details updated for {0}
 platformOperatorUpdated.link1.text = Return to view your platform operators
 platformOperatorUpdated.link2.text = Return to manage your digital platform reporting
+platformOperatorUpdated.p1.1.two.emails = We have sent a confirmation email to {0} and {1}.
+platformOperatorUpdated.p1.1.one.email = We have sent a confirmation email to {0}.
+platformOperatorUpdated.emailNotSent.warning = You will not be emailed a confirmation of this.
+platformOperatorUpdated.print.link.text = Print this page
 
 platformOperatorAdded.title = Platform operator added
 platformOperatorAdded.panel.heading = {0} added
