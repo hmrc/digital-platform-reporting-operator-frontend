@@ -44,6 +44,11 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
 
   val emailServiceUrl: String = configuration.get[Service]("microservice.services.email").baseUrl
 
+  val addressLookupFrontendUrl: String = configuration.get[Service]("microservice.services.address-lookup-frontend").baseUrl
+  lazy val addressLookupContinueUrlNormalMode: String = configuration.get[String]("microservice.services.address-lookup-frontend.continueUrlNormalMode")
+  lazy val addressLookupContinueUrlCheckMode: String = configuration.get[String]("microservice.services.address-lookup-frontend.continueUrlCheckMode")
+
+
   val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 

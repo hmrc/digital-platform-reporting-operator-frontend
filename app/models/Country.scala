@@ -28,3 +28,9 @@ object Country {
 
   implicit val format: OFormat[Country] = Json.format[Country]
 }
+
+case class FcoCountry(country: String, name: String)
+
+object FcoCountry {
+  implicit val formats: OFormat[FcoCountry] = Json.format[FcoCountry]
+}

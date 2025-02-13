@@ -56,10 +56,11 @@ class UkAddressController @Inject()(override val messagesApi: MessagesApi,
     getAnswerAsync(BusinessNamePage) { businessName =>
       formProvider().bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, businessName))),
-        value => for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
-          _ <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(UkAddressPage.nextPage(mode, updatedAnswers))
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(UkAddressPage, value))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(UkAddressPage.nextPage(mode, updatedAnswers))
       )
     }
   }

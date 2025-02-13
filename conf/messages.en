@@ -533,3 +533,10 @@ viewNotifications.dueDiligence.notApplicable = N/A
 missingInformation.title = Some information is missing
 missingInformation.heading = Some information is missing
 missingInformation.guidance = You must provide this information to proceed.
+
+addressLookup.lookupPage.title = What is the platform operator’s address?
+addressLookup.lookupPage.heading = What is the registered address for {0}?
+addressLookup.editPage.title = What is the platform operator’s address?
+addressLookup.editPage.heading = What is the registered address for {0}?
+addressLookup.selectPage.title = What is the platform operator’s address?
+addressLookup.selectPage.heading = What is the registered address for {0}?

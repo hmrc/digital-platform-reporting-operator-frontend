@@ -16,6 +16,12 @@ GET         /platform-operator/unauthorised              controllers.Unauthorise
 
 GET         /platform-operator/view                      controllers.PlatformOperatorsController.onPageLoad
 
+GET         /platform-operator/address-callback-normal-mode   controllers.AddressLookupRoutingController.addressLookupCallback(id: Option[String], mode: Mode = NormalMode)
+GET         /platform-operator/address-callback-check-mode    controllers.AddressLookupRoutingController.addressLookupCallback(id: Option[String], mode: Mode = CheckMode)
+
+GET         /platform-operator/address-initialise-normal-mode   controllers.AddressLookupRoutingController.addressLookupInitialize(mode: Mode = NormalMode)
+GET         /platform-operator/address-initialise-check-mode    controllers.AddressLookupRoutingController.addressLookupInitialize(mode: Mode = CheckMode)
+
 ->          /platform-operator/add-platform-operator     add.Routes
 
 ->          /platform-operator                           update.Routes

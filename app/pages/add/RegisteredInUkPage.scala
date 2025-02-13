@@ -33,7 +33,7 @@ case object RegisteredInUkPage extends AddQuestionPage[RegisteredAddressCountry]
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     answers.get(this).map {
-      case Uk                      => routes.UkAddressController.onPageLoad(NormalMode)
+      case Uk                      => baseRoutes.AddressLookupRoutingController.addressLookupInitialize(NormalMode) // routes.UkAddressController.onPageLoad(NormalMode)
       case JerseyGuernseyIsleOfMan => routes.JerseyGuernseyIoMAddressController.onPageLoad(NormalMode)
       case International           => routes.InternationalAddressController.onPageLoad(NormalMode)
     }.getOrElse(baseRoutes.JourneyRecoveryController.onPageLoad())
