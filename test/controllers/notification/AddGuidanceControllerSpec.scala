@@ -17,29 +17,55 @@
 package controllers.notification
 
 import base.SpecBase
-import models.NormalMode
+import builders.PlatformOperatorBuilder.aPlatformOperator
+import connectors.PlatformOperatorConnector
+import models.{NormalMode, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
 import pages.notification.AddGuidancePage
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.SessionRepository
 import views.html.notification.AddGuidanceView
 
-class AddGuidanceControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class AddGuidanceControllerSpec extends SpecBase with MockitoSugar {
+
+  private val mockPlatformOperatorConnector = mock[PlatformOperatorConnector]
+  private val mockRepository = mock[SessionRepository]
 
   "Start Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must get platform operator details, save them, and show the correct view" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockPlatformOperatorConnector.viewPlatformOperator(any())(any())) thenReturn Future.successful(aPlatformOperator)
+      when(mockRepository.set(any())) thenReturn Future.successful(true)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[PlatformOperatorConnector].toInstance(mockPlatformOperatorConnector),
+          bind[SessionRepository].toInstance(mockRepository)
+        )
+        .build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.AddGuidanceController.onPageLoad(operatorId).url)
+        val request = FakeRequest(GET, routes.AddGuidanceController.onPageLoad(aPlatformOperator.operatorId).url)
+        val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[AddGuidanceView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(aPlatformOperator.operatorId)(request, messages(application)).toString
+
+        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(any())
+        verify(mockRepository, times(1)).set(answersCaptor.capture())
+
       }
     }
 
