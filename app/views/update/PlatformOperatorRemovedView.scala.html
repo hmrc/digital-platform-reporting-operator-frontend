@@ -15,16 +15,38 @@
  *@
 
 @import controllers.routes
+@import models.email.EmailsSentResult
+@import models.pageviews.PlatformOperatorRemovedViewModel
 
 @this(
-        layout: templates.Layout
+        layout: templates.Layout,
+        govukWarning: GovukWarningText
 )
 
-@(operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorRemovedViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("platformOperatorRemoved.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("platformOperatorRemoved.heading", businessName, operatorId)</h1>
+    <h1 class="govuk-heading-xl">@messages("platformOperatorRemoved.heading", viewModel.poBusinessName, viewModel.operatorId)</h1>
+
+    <p class="govuk-body">
+        @if(viewModel.sentEmails.size == 2) {
+            @messages("platformOperatorRemoved.p1.1.two.emails", viewModel.userEmail, viewModel.poEmail)
+        } else if(viewModel.sentEmails.size == 1) {
+            @messages("platformOperatorRemoved.p1.1.one.email", viewModel.sentEmails.head)
+        }
+    </p>
+
+    @if(viewModel.sentEmails.size == 0) {
+        @govukWarning(WarningText(
+            iconFallbackText = Some("Warning"),
+        content = messages("platformOperatorRemoved.emailNotSent.warning")
+        ))
+
+        <p id="print-this-page" class="govuk-list govuk-link print-link hmrc-!-js-visible govuk-!-display-none-print">
+            <a class="govuk-link hmrc-!-js-visible" data-module="hmrc-print-link" href="#" >@messages("platformOperatorRemoved.print.link.text")</a>
+        </p>
+    }
 
     <p class="govuk-body">
         <a href="@routes.PlatformOperatorsController.onPageLoad" class="govuk-button">@messages("platformOperatorRemoved.button")</a>

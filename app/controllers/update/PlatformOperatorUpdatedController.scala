@@ -45,12 +45,10 @@ class PlatformOperatorUpdatedController @Inject()(
   def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     request.userAnswers.get(BusinessNamePage).map { businessName =>
       val emailsSentResult = request.userAnswers.get(SentUpdatedPlatformOperatorEmailQuery).getOrElse(EmailsSentResult(userEmailSent = false, None))
-      request.userAnswers.get(PrimaryContactEmailPage).map { poEmail =>
-        connector.getSubscriptionInfo.map { x =>
-          Ok(view(PlatformOperatorUpdatedViewModel(x.primaryContact.email, operatorId, businessName, poEmail, emailsSentResult)))
-        }
-      }.getOrElse {
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      val poEmail = request.userAnswers.get(PrimaryContactEmailPage).get
+
+      connector.getSubscriptionInfo.map { x =>
+        Ok(view(PlatformOperatorUpdatedViewModel(x.primaryContact.email, operatorId, businessName, poEmail, emailsSentResult)))
       }
     }.getOrElse {
       Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

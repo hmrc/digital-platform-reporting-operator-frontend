@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 package queries
 
+import models.email.EmailsSentResult
 import play.api.libs.json.JsPath
-import viewmodels.PlatformOperatorSummaryViewModel
 
-case object PlatformOperatorDeletedQuery extends Gettable[PlatformOperatorSummaryViewModel] with Settable[PlatformOperatorSummaryViewModel] {
-
-  override def path: JsPath = JsPath \ "platformOperatorDeletedInfo"
+case object SentRemovedPlatformOperatorEmailQuery extends Gettable[EmailsSentResult] with Settable[EmailsSentResult] {
+  override def path: JsPath = JsPath \ "sentRemovedPlatformOperatorEmail"
 }
