@@ -327,7 +327,6 @@ platformOperatorUpdated.link2.text = Return to manage your digital platform repo
 platformOperatorUpdated.p1.1.two.emails = We have sent a confirmation email to {0} and {1}.
 platformOperatorUpdated.p1.1.one.email = We have sent a confirmation email to {0}.
 platformOperatorUpdated.emailNotSent.warning = You will not be emailed a confirmation of this.
-platformOperatorUpdated.print.link.text = Print this page
 
 platformOperatorAdded.title = Platform operator added
 platformOperatorAdded.panel.heading = {0} added
@@ -385,7 +384,6 @@ platformOperatorRemoved.button = Return to view platform operators
 platformOperatorRemoved.p1.1.two.emails = We have sent a confirmation email to {0} and {1}.
 platformOperatorRemoved.p1.1.one.email = We have sent a confirmation email to {0}.
 platformOperatorRemoved.emailNotSent.warning = You will not be emailed a confirmation of this.
-platformOperatorRemoved.print.link.text = Print this page
 
 addGuidance.title = Add a reporting notification
 addGuidance.heading = Add a reporting notification

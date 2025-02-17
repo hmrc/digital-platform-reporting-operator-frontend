@@ -93,13 +93,12 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "when no emails were sent is false" in {
+      "when no emails were sent" in {
         when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
 
         val emailsSentResult = EmailsSentResult(userEmailSent = false, poEmailSent = None)
         val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "default-operator-name").success.value
           .set(PrimaryContactEmailPage, "default.email@example.com").success.value
-          .set(SentUpdatedPlatformOperatorEmailQuery, emailsSentResult).success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
           bind[SubscriptionConnector].toInstance(mockConnector)).build
@@ -116,6 +115,18 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) must include(
             messages(application)("platformOperatorUpdated.emailNotSent.warning")
           )
+        }
+      }
+
+      "redirects to JourneyRecovery page when subscriptionInfo fails" in {
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build
+
+        running(application) {
+          val request = FakeRequest(GET, routes.PlatformOperatorUpdatedController.onPageLoad(operatorId).url)
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
         }
       }
     }

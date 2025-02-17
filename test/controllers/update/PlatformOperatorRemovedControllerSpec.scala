@@ -97,7 +97,6 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
 
         val emailsSentResult = EmailsSentResult(userEmailSent = false, poEmailSent = None)
         val baseAnswers = emptyUserAnswers.set(PlatformOperatorDeletedQuery, aPlatformOperatorSummaryViewModel).success.value
-          .set(SentRemovedPlatformOperatorEmailQuery, emailsSentResult).success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
           inject.bind[SubscriptionConnector].toInstance(mockConnector)).build
