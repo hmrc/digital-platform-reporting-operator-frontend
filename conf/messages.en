@@ -324,6 +324,9 @@ platformOperatorUpdated.title = Platform operator updated
 platformOperatorUpdated.panel.heading = Details updated for {0}
 platformOperatorUpdated.link1.text = Return to view your platform operators
 platformOperatorUpdated.link2.text = Return to manage your digital platform reporting
+platformOperatorUpdated.p1.1.two.emails = We have sent a confirmation email to {0} and {1}.
+platformOperatorUpdated.p1.1.one.email = We have sent a confirmation email to {0}.
+platformOperatorUpdated.emailNotSent.warning = You will not be emailed a confirmation of this.
 
 platformOperatorAdded.title = Platform operator added
 platformOperatorAdded.panel.heading = {0} added
@@ -377,7 +380,10 @@ removePlatformOperator.error.required = Select yes if you want to remove {0}
 
 platformOperatorRemoved.title = Platform operator has been successfully removed
 platformOperatorRemoved.heading = {0} (PO {1}) has been successfully removed
-platformOperatorRemoved.button = Back to view platform operators
+platformOperatorRemoved.button = Return to view platform operators
+platformOperatorRemoved.p1.1.two.emails = We have sent a confirmation email to {0} and {1}.
+platformOperatorRemoved.p1.1.one.email = We have sent a confirmation email to {0}.
+platformOperatorRemoved.emailNotSent.warning = You will not be emailed a confirmation of this.
 
 addGuidance.title = Add a reporting notification
 addGuidance.heading = Add a reporting notification

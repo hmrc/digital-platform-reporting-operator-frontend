@@ -28,7 +28,7 @@ import pages.update.{CheckYourAnswersPage, HasSecondaryContactPage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.OriginalPlatformOperatorQuery
+import queries.{OriginalPlatformOperatorQuery, SentUpdatedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.{AuditService, EmailService, UserAnswersService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -85,7 +85,9 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
         originalPlatformOperatorInfo = request.userAnswers.get(OriginalPlatformOperatorQuery).get
         auditModel = ChangePlatformOperatorAuditEventModel(originalPlatformOperatorInfo, updateRequest, countriesList).toAuditModel
         _ <- auditService.sendAudit(auditModel)
-        _ <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers)
+        emailsSentResult <- emailService.sendUpdatedPlatformOperatorEmails(request.userAnswers)
+        updatedAnswers <- Future.fromTry(request.userAnswers.set(SentUpdatedPlatformOperatorEmailQuery, emailsSentResult))
+        _ <- sessionRepository.set(updatedAnswers)
       } yield Redirect(CheckYourAnswersPage.nextPage(operatorId, request.userAnswers))).recover {
         case error: UpdatePlatformOperatorFailure => logger.warn("Failed to update platform operator", error)
           throw error
