@@ -16,15 +16,19 @@
 
 package controllers.update
 
-import controllers.actions._
+import connectors.SubscriptionConnector
 import controllers.AnswerExtractor
+import controllers.actions._
+import models.email.EmailsSentResult
+import models.pageviews.PlatformOperatorRemovedViewModel
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PlatformOperatorDeletedQuery
+import queries.{PlatformOperatorDeletedQuery, SentRemovedPlatformOperatorEmailQuery}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.update.PlatformOperatorRemovedView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class PlatformOperatorRemovedController @Inject()(
                                                    override val messagesApi: MessagesApi,
@@ -32,11 +36,22 @@ class PlatformOperatorRemovedController @Inject()(
                                                    getData: DataRetrievalActionProvider,
                                                    requireData: DataRequiredAction,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   view: PlatformOperatorRemovedView
-                                                 ) extends FrontendBaseController with I18nSupport with AnswerExtractor {
+                                                   view: PlatformOperatorRemovedView,
+                                                   connector: SubscriptionConnector)
+                                                 (implicit executionContext: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    getAnswer(PlatformOperatorDeletedQuery) { businessName => Ok(view(operatorId, businessName))
+  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
+    getAnswerAsync(PlatformOperatorDeletedQuery) { originalInfo =>
+      val emailsSentResult = request.userAnswers.get(SentRemovedPlatformOperatorEmailQuery).getOrElse(EmailsSentResult(userEmailSent = false, None))
+      connector.getSubscriptionInfo.map { x =>
+        Ok(view(PlatformOperatorRemovedViewModel(
+          x.primaryContact.email,
+          operatorId,
+          originalInfo.operatorName,
+          originalInfo.poPrimaryContactEmail,
+          emailsSentResult)))
+      }
     }
   }
 }

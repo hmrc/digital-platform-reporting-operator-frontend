@@ -21,14 +21,15 @@ import controllers.AnswerExtractor
 import controllers.actions._
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.RemovePlatformOperatorAuditEventModel
-import pages.update.BusinessNamePage
+import pages.update.{BusinessNamePage, PrimaryContactEmailPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PlatformOperatorDeletedQuery
+import queries.{PlatformOperatorDeletedQuery, SentRemovedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.update.RemovePlatformOperatorView
 
 import javax.inject.Inject
@@ -59,12 +60,15 @@ class RemovePlatformOperatorController @Inject()(override val messagesApi: Messa
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, operatorId, businessName))),
         value => if (value) {
           for {
-            _              <- platformConnector.removePlatformOperator(operatorId)
-            cleanedData    = request.userAnswers.copy(data = Json.obj())
-            updatedAnswers <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, businessName))
-            _              <- sessionRepository.set(updatedAnswers)
-            _              <- emailService.sendRemovePlatformOperatorEmails(request.userAnswers)
-            _              <- auditService.sendAudit(RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
+            _                <- platformConnector.removePlatformOperator(operatorId)
+            emailsSentResult <- emailService.sendRemovePlatformOperatorEmails(request.userAnswers)
+            poEmailAddress   = request.userAnswers.get(PrimaryContactEmailPage).get
+            viewModel        = PlatformOperatorSummaryViewModel(operatorId, businessName, poEmailAddress)
+            cleanedData      = request.userAnswers.copy(data = Json.obj())
+            answers          <- Future.fromTry(cleanedData.set(PlatformOperatorDeletedQuery, viewModel))
+            updatedAnswers   <- Future.fromTry(answers.set(SentRemovedPlatformOperatorEmailQuery, emailsSentResult))
+            _ <- auditService.sendAudit(RemovePlatformOperatorAuditEventModel(businessName, operatorId).toAuditModel)
+            _ <- sessionRepository.set(updatedAnswers)
           } yield Redirect(routes.PlatformOperatorRemovedController.onPageLoad(operatorId))
         } else {
           Future.successful(Redirect(routes.PlatformOperatorController.onPageLoad(operatorId)))

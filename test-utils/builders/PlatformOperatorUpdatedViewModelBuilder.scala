@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package queries
+package builders
 
-import play.api.libs.json.JsPath
-import viewmodels.PlatformOperatorSummaryViewModel
+import builders.EmailsSentResultBuilder.anEmailsSentResult
+import models.pageviews.PlatformOperatorUpdatedViewModel
 
-case object PlatformOperatorDeletedQuery extends Gettable[PlatformOperatorSummaryViewModel] with Settable[PlatformOperatorSummaryViewModel] {
+object PlatformOperatorUpdatedViewModelBuilder {
 
-  override def path: JsPath = JsPath \ "platformOperatorDeletedInfo"
+  val aPlatformOperatorUpdatedViewModel: PlatformOperatorUpdatedViewModel = PlatformOperatorUpdatedViewModel(
+    userEmail = "default.user.email@example.com",
+    operatorId = "default-operator-id",
+    poBusinessName = "default-po-name",
+    poEmail = "default.po.email@example.com",
+    emailsSentResult = anEmailsSentResult
+  )
 }

@@ -19,6 +19,7 @@ package controllers.update
 import base.SpecBase
 import builders.CountryBuilder.aCountry
 import builders.EmailsSentResultBuilder.anEmailsSentResult
+import builders.PlatformOperatorSummaryViewModelBuilder.aPlatformOperatorSummaryViewModel
 import connectors.PlatformOperatorConnector
 import forms.RemovePlatformOperatorFormProvider
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
@@ -33,7 +34,7 @@ import pages.update._
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import queries.PlatformOperatorDeletedQuery
+import queries.{PlatformOperatorDeletedQuery, SentRemovedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -75,12 +76,12 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
     "must remove the platform operator and redirect to Platform Operator Removed for a POST when the answer is yes" in {
       val answers = UserAnswers(userAnswersId, Some(operatorId))
-        .set(BusinessNamePage, "business").success.value
+        .set(BusinessNamePage, "default-operator-name").success.value
         .set(HasTradingNamePage, false).success.value
         .set(RegisteredInUkPage, RegisteredAddressCountry.values.head).success.value
         .set(UkAddressPage, UkAddress("line 1", None, "town", None, "AA1 1AA", aCountry)).success.value
         .set(PrimaryContactNamePage, "name").success.value
-        .set(PrimaryContactEmailPage, "email").success.value
+        .set(PrimaryContactEmailPage, "default.contact@example.com").success.value
         .set(CanPhonePrimaryContactPage, false).success.value
         .set(HasSecondaryContactPage, false).success.value
 
@@ -101,7 +102,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       running(application) {
         val request = FakeRequest(POST, routes.RemovePlatformOperatorController.onSubmit(operatorId).url)
           .withFormUrlEncodedBody(("value", "true"))
-        val businessName: String = "business"
+        val businessName: String = "default-operator-name"
         val auditType: String = "RemovePlatformOperator"
         val expectedAuditEvent = RemovePlatformOperatorAuditEventModel(businessName, operatorId)
         val result = route(application, request).value
@@ -116,7 +117,8 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
           eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
 
         val savedAnswers = answersCaptor.getValue
-        savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual "business"
+        savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual aPlatformOperatorSummaryViewModel
+        savedAnswers.get(SentRemovedPlatformOperatorEmailQuery).value mustEqual anEmailsSentResult
       }
     }
 

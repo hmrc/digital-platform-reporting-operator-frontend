@@ -16,27 +16,38 @@
 
 package controllers.notification
 
+import connectors.PlatformOperatorConnector
 import controllers.actions._
 import models.NormalMode
 import pages.notification.AddGuidancePage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.notification.AddGuidanceView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddGuidanceController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
                                        getData: DataRetrievalActionProvider,
                                        requireData: DataRequiredAction,
+                                       platformOperatorConnector: PlatformOperatorConnector,
+                                       userAnswersService: UserAnswersService,
+                                       sessionRepository: SessionRepository,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: AddGuidanceView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
-    Ok(view(operatorId))
+  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
+    for {
+      platformOperator <- platformOperatorConnector.viewPlatformOperator(operatorId)
+      userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
+      _ <- sessionRepository.set(userAnswers)
+    } yield Ok(view(operatorId))
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>

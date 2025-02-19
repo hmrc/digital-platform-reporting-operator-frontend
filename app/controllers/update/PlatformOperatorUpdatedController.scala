@@ -16,15 +16,20 @@
 
 package controllers.update
 
+import connectors.SubscriptionConnector
+import controllers.AnswerExtractor
 import controllers.actions._
+import models.email.EmailsSentResult
+import models.pageviews.PlatformOperatorUpdatedViewModel
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.SentUpdatedPlatformOperatorEmailQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.PlatformOperatorSummaryViewModel
 import views.html.update.PlatformOperatorUpdatedView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class PlatformOperatorUpdatedController @Inject()(
                                                    override val messagesApi: MessagesApi,
@@ -32,16 +37,21 @@ class PlatformOperatorUpdatedController @Inject()(
                                                    getData: DataRetrievalActionProvider,
                                                    requireData: DataRequiredAction,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   view: PlatformOperatorUpdatedView
-                                                 )
-  extends FrontendBaseController with I18nSupport {
+                                                   view: PlatformOperatorUpdatedView,
+                                                   connector: SubscriptionConnector
+                                                 )(implicit executionContext: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
-  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
+  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData).async { implicit request =>
     request.userAnswers.get(BusinessNamePage).map { businessName =>
-      val viewModel = PlatformOperatorSummaryViewModel(operatorId, businessName, request.userAnswers.get(PrimaryContactEmailPage).toString)
-      Ok(view(operatorId, viewModel))
+      val emailsSentResult = request.userAnswers.get(SentUpdatedPlatformOperatorEmailQuery).getOrElse(EmailsSentResult(userEmailSent = false, None))
+      val poEmail = request.userAnswers.get(PrimaryContactEmailPage).get
+
+      connector.getSubscriptionInfo.map { x =>
+        Ok(view(PlatformOperatorUpdatedViewModel(x.primaryContact.email, operatorId, businessName, poEmail, emailsSentResult)))
+      }
     }.getOrElse {
-      Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 }
