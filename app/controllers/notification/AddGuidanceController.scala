@@ -42,7 +42,7 @@ class AddGuidanceController @Inject()(
                                        view: AddGuidanceView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(operatorId: String): Action[AnyContent] = (identify andThen getData(None) andThen requireData).async { implicit request =>
+  def onPageLoad(operatorId: String): Action[AnyContent] = identify.async { implicit request =>
     for {
       platformOperator <- platformOperatorConnector.viewPlatformOperator(operatorId)
       userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
