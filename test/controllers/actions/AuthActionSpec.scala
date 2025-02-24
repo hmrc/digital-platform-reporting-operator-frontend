@@ -25,8 +25,7 @@ import connectors.PendingEnrolmentConnector
 import controllers.routes
 import models.eacd.EnrolmentDetails
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.MockitoSugar.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
@@ -60,7 +59,7 @@ class AuthActionSpec extends SpecBase
   }
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockPendingEnrolmentConnector, mockEnrolmentService)
+    reset(mockPendingEnrolmentConnector, mockEnrolmentService)
     super.beforeEach()
   }
 
@@ -117,8 +116,8 @@ class AuthActionSpec extends SpecBase
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
 
-          verify(mockEnrolmentService, never()).enrol(any())(any())
-          verify(mockPendingEnrolmentConnector, never()).remove()(any())
+          verify(mockEnrolmentService, never).enrol(any())(any())
+          verify(mockPendingEnrolmentConnector, never).remove()(any())
         }
 
         "if enrolment fails" in {
@@ -138,7 +137,7 @@ class AuthActionSpec extends SpecBase
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
 
-          verify(mockPendingEnrolmentConnector, never()).remove()(any())
+          verify(mockPendingEnrolmentConnector, never).remove()(any())
         }
       }
     }
@@ -157,9 +156,9 @@ class AuthActionSpec extends SpecBase
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
 
-        verify(mockPendingEnrolmentConnector, never()).getPendingEnrolment()(any())
-        verify(mockEnrolmentService, never()).enrol(any())(any())
-        verify(mockPendingEnrolmentConnector, never()).remove()(any())
+        verify(mockPendingEnrolmentConnector, never).getPendingEnrolment()(any())
+        verify(mockEnrolmentService, never).enrol(any())(any())
+        verify(mockPendingEnrolmentConnector, never).remove()(any())
       }
     }
 
@@ -179,8 +178,8 @@ class AuthActionSpec extends SpecBase
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
 
-        verify(mockEnrolmentService, never()).enrol(any())(any())
-        verify(mockPendingEnrolmentConnector, never()).remove()(any())
+        verify(mockEnrolmentService, never).enrol(any())(any())
+        verify(mockPendingEnrolmentConnector, never).remove()(any())
       }
     }
 
@@ -200,8 +199,8 @@ class AuthActionSpec extends SpecBase
         status(result) mustBe OK
         contentAsString(result) mustEqual "internalId dprsId"
 
-        verify(mockEnrolmentService, never()).enrol(any())(any())
-        verify(mockPendingEnrolmentConnector, never()).remove()(any())
+        verify(mockEnrolmentService, never).enrol(any())(any())
+        verify(mockPendingEnrolmentConnector, never).remove()(any())
       }
     }
   }

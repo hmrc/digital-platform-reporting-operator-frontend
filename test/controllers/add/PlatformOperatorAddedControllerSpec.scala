@@ -24,8 +24,7 @@ import connectors.SubscriptionConnector
 import models.email.EmailsSentResult
 import models.pageviews.PlatformOperatorAddedViewModel
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
@@ -44,7 +43,7 @@ class PlatformOperatorAddedControllerSpec extends SpecBase with MockitoSugar wit
   private val mockRepository = mock[SessionRepository]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    reset(mockConnector, mockRepository)
     super.beforeEach()
   }
 

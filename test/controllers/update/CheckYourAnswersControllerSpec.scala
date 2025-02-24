@@ -29,9 +29,9 @@ import models.audit.{AuditModel, ChangePlatformOperatorAuditEventModel}
 import models.operator.{AddressDetails, TinDetails, TinType}
 import models.{CountriesList, DefaultCountriesList, RegisteredAddressCountry, UkTaxIdentifiers, UserAnswers}
 import org.apache.pekko.Done
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.MockitoSugar.{never, reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add.{ChrnPage, CrnPage, EmprefPage, UkTaxIdentifiersPage, UtrPage, VrnPage}
@@ -57,7 +57,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
   private val mockEmailService = mock[EmailService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockPlatformOperatorConnector, mockSessionRepository, mockAuditService, mockEmailService)
+    reset(mockPlatformOperatorConnector, mockSessionRepository, mockAuditService, mockEmailService)
     super.beforeEach()
   }
 
@@ -236,9 +236,9 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           route(app, request).value.failed.futureValue
           verify(mockPlatformOperatorConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
-          verify(mockSessionRepository, never()).set(any())
-          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any())(any())
+          verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
+          verify(mockSessionRepository, never).set(any())
+          verify(mockEmailService, never).sendUpdatedPlatformOperatorEmails(any())(any())
         }
       }
 
@@ -257,10 +257,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.MissingInformationController.onPageLoad(operatorId).url
 
-          verify(mockPlatformOperatorConnector, never()).createPlatformOperator(any())(any())
-          verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
-          verify(mockEmailService, never()).sendUpdatedPlatformOperatorEmails(any())(any())
-          verify(mockSessionRepository, never()).set(any())
+          verify(mockPlatformOperatorConnector, never).createPlatformOperator(any())(any())
+          verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
+          verify(mockEmailService, never).sendUpdatedPlatformOperatorEmails(any())(any())
+          verify(mockSessionRepository, never).set(any())
         }
       }
     }

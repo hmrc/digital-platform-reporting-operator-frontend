@@ -25,8 +25,7 @@ import models.email.EmailsSentResult
 import models.operator.NotificationType
 import models.operator.responses.NotificationDetails
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add.PrimaryContactEmailPage
@@ -49,7 +48,7 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
   private val mockRepository = mock[SessionRepository]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository)
+    reset(mockConnector, mockRepository)
     super.beforeEach()
   }
 

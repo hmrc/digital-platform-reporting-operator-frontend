@@ -20,9 +20,9 @@ import base.SpecBase
 import builders.PlatformOperatorBuilder.aPlatformOperator
 import connectors.{PlatformOperatorConnector, SubmissionsConnector}
 import models.UserAnswers
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.MockitoSugar.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add.BusinessNamePage
@@ -42,7 +42,7 @@ class PlatformOperatorControllerSpec extends SpecBase with MockitoSugar with Bef
   private val mockRepository = mock[SessionRepository]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockPlatformOperatorConnector, mockSubmissionsConnector, mockRepository)
+    reset(mockPlatformOperatorConnector, mockSubmissionsConnector, mockRepository)
     super.beforeEach()
   }
 

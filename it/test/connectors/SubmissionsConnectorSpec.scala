@@ -19,7 +19,7 @@ package connectors
 import builders.SubmissionsSummaryBuilder.aSubmissionsSummary
 import com.github.tomakehurst.wiremock.client.WireMock._
 import connectors.SubmissionsConnector.{AssumedReportsExistFailure, SubmissionsExistFailure}
-import models.submissions.{SubmissionsSummary, ViewSubmissionsRequest}
+import models.submissions.ViewSubmissionsRequest
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
