@@ -25,9 +25,9 @@ import forms.RemovePlatformOperatorFormProvider
 import models.audit.{AuditModel, RemovePlatformOperatorAuditEventModel}
 import models.{RegisteredAddressCountry, UkAddress, UserAnswers}
 import org.apache.pekko.Done
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.MockitoSugar.{never, reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.update._
@@ -56,7 +56,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
+    reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
     super.beforeEach()
   }
 
@@ -138,10 +138,10 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.PlatformOperatorController.onPageLoad(operatorId).url
 
-        verify(mockConnector, never()).removePlatformOperator(any())(any())
-        verify(mockRepository, never()).clear(any(), any())
-        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any())(any())
-        verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
+        verify(mockConnector, never).removePlatformOperator(any())(any())
+        verify(mockRepository, never).clear(any(), any())
+        verify(mockEmailService, never).sendRemovePlatformOperatorEmails(any())(any())
+        verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
       }
     }
 
@@ -163,10 +163,10 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(request, messages(application)).toString
 
-        verify(mockConnector, never()).removePlatformOperator(any())(any())
-        verify(mockRepository, never()).clear(any(), any())
-        verify(mockEmailService, never()).sendRemovePlatformOperatorEmails(any())(any())
-        verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
+        verify(mockConnector, never).removePlatformOperator(any())(any())
+        verify(mockRepository, never).clear(any(), any())
+        verify(mockEmailService, never).sendRemovePlatformOperatorEmails(any())(any())
+        verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
       }
     }
   }

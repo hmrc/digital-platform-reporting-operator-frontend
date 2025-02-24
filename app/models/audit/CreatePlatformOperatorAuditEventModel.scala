@@ -17,6 +17,7 @@
 package models.audit
 
 import models.CountriesList
+import models.Country.UnitedKingdom
 import models.operator.TinType
 import models.operator.requests.CreatePlatformOperatorRequest
 import models.operator.responses.PlatformOperatorCreatedResponse
@@ -57,7 +58,7 @@ object CreatePlatformOperatorAuditEventModel {
     } else {
       Json.obj("hasTaxIdentificationNumber" -> false)
     }
-    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {
+    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == UnitedKingdom.code)) {
       Json.obj("ukTaxResident" -> true)
     } else {
       Json.obj("ukTaxResident" -> false)
@@ -68,7 +69,7 @@ object CreatePlatformOperatorAuditEventModel {
     val empRef = info.tinDetails.find(obj => obj.tinType == TinType.Empref).map(obj => Json.obj("employerPayeReferenceNumber" -> obj.tin)).getOrElse(Json.obj())
     val chrn = info.tinDetails.find(obj => obj.tinType == TinType.Chrn).map(obj => Json.obj("hmrcCharityReference" -> obj.tin)).getOrElse(Json.obj())
     val other = info.tinDetails.find(obj => obj.tinType == TinType.Other).map(obj => Json.obj("internationalTaxIdentifier" -> obj.tin)).getOrElse(Json.obj())
-    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == "GB")) {
+    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == UnitedKingdom.code)) {
       Json.obj("taxIdentifiers" -> {
         utr ++ crn ++ vrn ++ empRef ++ chrn ++ other
       })

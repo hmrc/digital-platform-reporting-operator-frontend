@@ -27,9 +27,9 @@ import models.UkTaxIdentifiers.Utr
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, TinDetails, TinType}
 import models.{Country, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.MockitoSugar.{never, reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add._
@@ -55,7 +55,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
   private val mockEmailService = mock[EmailService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
+    reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
     super.beforeEach()
   }
 
@@ -217,8 +217,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockRepository, never()).set(any())
-          verify(mockEmailService, never()).sendAddPlatformOperatorEmails(any())(any())
+          verify(mockRepository, never).set(any())
+          verify(mockEmailService, never).sendAddPlatformOperatorEmails(any())(any())
           verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
         }
       }
@@ -239,10 +239,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.MissingInformationController.onPageLoad().url
 
-          verify(mockConnector, never()).createPlatformOperator(any())(any())
-          verify(mockRepository, never()).set(any())
-          verify(mockEmailService, never()).sendAddPlatformOperatorEmails(any())(any())
-          verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
+          verify(mockConnector, never).createPlatformOperator(any())(any())
+          verify(mockRepository, never).set(any())
+          verify(mockEmailService, never).sendAddPlatformOperatorEmails(any())(any())
+          verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
         }
       }
     }

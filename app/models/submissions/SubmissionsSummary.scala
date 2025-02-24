@@ -23,7 +23,6 @@ final case class SubmissionsSummary(deliveredSubmissions: Seq[SubmissionSummary]
                                     deliveredSubmissionsExist: Boolean,
                                     undeliveredSubmissionCount: Long) {
 
-  // TODO: (Hristo) Test me
   lazy val submissionsExist: Boolean = deliveredSubmissions.nonEmpty || undeliveredSubmissionCount > 0
 }
 
