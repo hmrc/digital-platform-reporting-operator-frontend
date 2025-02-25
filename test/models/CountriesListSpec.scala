@@ -16,7 +16,7 @@
 
 package models
 
-import models.Country.{Guernsey, Jersey, TheIsleOfMan, UnitedKingdom}
+import models.Country.{Guernsey, IsleOfMan, Jersey, UnitedKingdom}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 
@@ -27,7 +27,7 @@ class CountriesListSpec extends AnyFreeSpec with Matchers {
   "CountryList" - {
     "crownDependantCountries" - {
       "must contain only Guernsey, Jersey and The Isle of Man" in {
-        val expectedList = Seq(Guernsey, Jersey, TheIsleOfMan)
+        val expectedList = Seq(Guernsey, Jersey, IsleOfMan)
 
         underTest.crownDependantCountries must contain theSameElementsAs expectedList
       }
