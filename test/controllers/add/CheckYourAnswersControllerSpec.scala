@@ -19,11 +19,14 @@ package controllers.add
 import base.SpecBase
 import builders.CreatePlatformOperatorRequestBuilder.aCreatePlatformOperatorRequest
 import builders.EmailsSentResultBuilder.anEmailsSentResult
+import builders.JerseyGuernseyIoMAddressBuilder.aJerseyGuernseyIoMAddress
 import builders.PlatformOperatorSummaryViewModelBuilder.aPlatformOperatorSummaryViewModel
+import builders.UkAddressBuilder.aUkAddress
 import connectors.PlatformOperatorConnector
 import connectors.PlatformOperatorConnector.CreatePlatformOperatorFailure
 import controllers.{routes => baseRoutes}
-import models.UkTaxIdentifiers.Utr
+import models.RegisteredAddressCountry.{JerseyGuernseyIsleOfMan, Uk}
+import models.UkTaxIdentifiers.{Chrn, Crn, Empref, Utr, Vrn}
 import models.operator.responses.PlatformOperatorCreatedResponse
 import models.operator.{AddressDetails, TinDetails, TinType}
 import models.{Country, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
@@ -33,7 +36,6 @@ import org.mockito.MockitoSugar.{never, reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.add._
-import pages.update.{UkTaxIdentifiersPage, UtrPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -41,7 +43,7 @@ import queries.{PlatformOperatorAddedQuery, SentAddedPlatformOperatorEmailQuery}
 import repositories.SessionRepository
 import services.{AuditService, EmailService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import viewmodels.checkAnswers.add.{BusinessNameSummary, HasSecondaryContactSummary, PrimaryContactNameSummary}
+import viewmodels.checkAnswers.add._
 import viewmodels.govuk.SummaryListFluency
 import views.html.add.CheckYourAnswersView
 
@@ -68,8 +70,19 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         val answers =
           emptyUserAnswers
             .set(BusinessNamePage, "business").success.value
+            .set(HasTradingNamePage, true).success.value
+            .set(TradingNamePage, "tradingName").success.value
+            .set(RegisteredInUkPage, Uk).success.value
+            .set(UkAddressPage, aUkAddress).success.value
             .set(PrimaryContactNamePage, "name").success.value
+            .set(PrimaryContactEmailPage, "email.com").success.value
+            .set(PrimaryContactPhoneNumberPage, "some-phone-number").success.value
+            .set(CanPhonePrimaryContactPage, true).success.value
             .set(HasSecondaryContactPage, true).success.value
+            .set(SecondaryContactNamePage, "second Name").success.value
+            .set(SecondaryContactEmailPage, "secondEmail.com").success.value
+            .set(CanPhoneSecondaryContactPage, true).success.value
+            .set(SecondaryContactPhoneNumberPage, "second-phone-number").success.value
 
         val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -81,12 +94,26 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val view = application.injector.instanceOf[CheckYourAnswersView]
 
           val businessNameRow = BusinessNameSummary.row(answers)(messages(application)).value
+          val hasTradingNameRow = HasTradingNameSummary.row(answers)(messages(application)).value
+          val tradingNameRow = TradingNameSummary.row(answers)(messages(application)).value
+          val registeredInUkRow = RegisteredInUkSummary.row(answers)(messages(application)).value
+          val ukAddressRow = UkAddressSummary.row(answers)(messages(application)).value
           val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(messages(application)).value
+          val primaryContactEmailRow = PrimaryContactEmailSummary.row(answers)(messages(application)).value
+          val primaryContactPhoneNumberRow = PrimaryContactPhoneNumberSummary.row(answers)(messages(application)).value
+          val canPhonePrimaryContactRow = CanPhonePrimaryContactSummary.row(answers)(messages(application)).value
           val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(messages(application)).value
+          val secondaryContactNameRow = SecondaryContactNameSummary.row(answers)(messages(application)).value
+          val secondaryContactEmailRow = SecondaryContactEmailSummary.row(answers)(messages(application)).value
+          val canPhoneSecondaryContactRow = CanPhoneSecondaryContactSummary.row(answers)(messages(application)).value
+          val SecondaryContactPhoneNumberRow = SecondaryContactPhoneNumberSummary.row(answers)(messages(application)).value
 
-          val platformOperatorList = SummaryListViewModel(Seq(businessNameRow))
-          val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow))
-          val secondaryContactList = SummaryListViewModel(Seq(hasSecondaryContactRow))
+          val platformOperatorList = SummaryListViewModel(Seq(businessNameRow, hasTradingNameRow,
+            tradingNameRow, registeredInUkRow, ukAddressRow))
+          val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow, primaryContactEmailRow,
+            canPhonePrimaryContactRow, primaryContactPhoneNumberRow))
+          val secondaryContactList = SummaryListViewModel(Seq(hasSecondaryContactRow, secondaryContactNameRow,
+            secondaryContactEmailRow, canPhoneSecondaryContactRow, SecondaryContactPhoneNumberRow))
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
@@ -98,6 +125,14 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
         val answers =
           emptyUserAnswers
             .set(BusinessNamePage, "business").success.value
+            .set(UkTaxIdentifiersPage, Set[UkTaxIdentifiers](Utr, Crn, Vrn, Empref, Chrn)).success.value
+            .set(UtrPage, "utr").success.value
+            .set(CrnPage, "crn").success.value
+            .set(VrnPage, "vrn").success.value
+            .set(EmprefPage, "empref").success.value
+            .set(ChrnPage, "chrn").success.value
+            .set(RegisteredInUkPage, JerseyGuernseyIsleOfMan).success.value
+            .set(JerseyGuernseyIoMAddressPage, aJerseyGuernseyIoMAddress).success.value
             .set(PrimaryContactNamePage, "name").success.value
             .set(HasSecondaryContactPage, false).success.value
 
@@ -111,10 +146,19 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val view = application.injector.instanceOf[CheckYourAnswersView]
 
           val businessNameRow = BusinessNameSummary.row(answers)(messages(application)).value
+          val ukTaxIdentifierRow = UkTaxIdentifiersSummary.row(answers)(messages(application)).value
+          val utrRow = UtrSummary.row(answers)(messages(application)).value
+          val crnRow = CrnSummary.row(answers)(messages(application)).value
+          val vrnRow = VrnSummary.row(answers)(messages(application)).value
+          val emprefRow = EmprefSummary.row(answers)(messages(application)).value
+          val chrnRow = ChrnSummary.row(answers)(messages(application)).value
+          val registeredInUkRow = RegisteredInUkSummary.row(answers)(messages(application)).value
+          val jerseyGuernseyIoMRow = JerseyGuernseyIoMAddressSummary.row(answers)(messages(application)).value
           val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(messages(application)).value
           val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(messages(application)).value
 
-          val platformOperatorList = SummaryListViewModel(Seq(businessNameRow))
+          val platformOperatorList = SummaryListViewModel(Seq(businessNameRow, ukTaxIdentifierRow, utrRow, crnRow,
+            vrnRow, emprefRow, chrnRow, registeredInUkRow, jerseyGuernseyIoMRow))
           val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow, hasSecondaryContactRow))
 
           status(result) mustEqual OK
