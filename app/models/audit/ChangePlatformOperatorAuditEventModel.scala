@@ -17,6 +17,7 @@
 package models.audit
 
 import models.CountriesList
+import models.Country.UnitedKingdom
 import models.operator.TinType
 import models.operator.requests.UpdatePlatformOperatorRequest
 import models.operator.responses.PlatformOperator
@@ -55,22 +56,26 @@ object ChangePlatformOperatorAuditEventModel {
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
-    val taxJson = getTaxJsonPO(info, countriesList)
+    val taxJson = getTaxJsonPO(info)
     val addressJson = getAddressJsonPO(info, countriesList)
     val contactJson = getContactJsonPO(info)
     businessNameJson ++ tradingNameJson ++ taxJson ++ addressJson ++ contactJson
   }
 
-  private def getTaxJsonPO(info: PlatformOperator, countriesList: CountriesList): JsObject = {
+  private def getTaxJsonPO(info: PlatformOperator): JsObject = {
     val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
-    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
+    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == UnitedKingdom.code)) {
+      Json.obj("ukTaxResident" -> true)
+    } else {
+      Json.obj("ukTaxResident" -> false)
+    }
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
     val crn = info.tinDetails.find(obj => obj.tinType == TinType.Crn).map(obj => Json.obj("companyRegistrationNumber" -> obj.tin)).getOrElse(Json.obj())
     val vrn = info.tinDetails.find(obj => obj.tinType == TinType.Vrn).map(obj => Json.obj("vrn" -> obj.tin)).getOrElse(Json.obj())
     val empRef = info.tinDetails.find(obj => obj.tinType == TinType.Empref).map(obj => Json.obj("employerPayeReferenceNumber" -> obj.tin)).getOrElse(Json.obj())
     val chrn = info.tinDetails.find(obj => obj.tinType == TinType.Chrn).map(obj => Json.obj("hmrcCharityReference" -> obj.tin)).getOrElse(Json.obj())
     val other = info.tinDetails.find(obj => obj.tinType == TinType.Other).map(obj => Json.obj("internationalTaxIdentifier" -> obj.tin)).getOrElse(Json.obj())
-    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == "GB"))
+    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == UnitedKingdom.code))
     {Json.obj("taxIdentifiers" -> {utr ++ crn ++ vrn ++ empRef ++ chrn ++ other})} else {Json.obj()}
     hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers
   }
@@ -125,22 +130,26 @@ object ChangePlatformOperatorAuditEventModel {
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
-    val taxJson = getTaxJsonUPO(info, countriesList)
+    val taxJson = getTaxJsonUPO(info)
     val addressJson = getAddressJsonUPO(info, countriesList)
     val contactJson = getContactJsonUPO(info)
     businessNameJson ++ tradingNameJson ++ taxJson ++ addressJson ++ contactJson
   }
 
-  private def getTaxJsonUPO(info: UpdatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
+  private def getTaxJsonUPO(info: UpdatePlatformOperatorRequest): JsObject = {
     val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {Json.obj("hasTaxIdentificationNumber" -> true)} else {Json.obj("hasTaxIdentificationNumber" -> false)}
-    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == "GB")) {Json.obj("ukTaxResident" -> true)} else {Json.obj("ukTaxResident" -> false)}
+    val taxResidentInUk = if (info.tinDetails.exists(_.issuedBy == UnitedKingdom.code)) {
+      Json.obj("ukTaxResident" -> true)
+    } else {
+      Json.obj("ukTaxResident" -> false)
+    }
     val utr = info.tinDetails.find(obj => obj.tinType == TinType.Utr).map(obj => Json.obj("ctUtr" -> obj.tin)).getOrElse(Json.obj())
     val crn = info.tinDetails.find(obj => obj.tinType == TinType.Crn).map(obj => Json.obj("companyRegistrationNumber" -> obj.tin)).getOrElse(Json.obj())
     val vrn = info.tinDetails.find(obj => obj.tinType == TinType.Vrn).map(obj => Json.obj("vrn" -> obj.tin)).getOrElse(Json.obj())
     val empRef = info.tinDetails.find(obj => obj.tinType == TinType.Empref).map(obj => Json.obj("employerPayeReferenceNumber" -> obj.tin)).getOrElse(Json.obj())
     val chrn = info.tinDetails.find(obj => obj.tinType == TinType.Chrn).map(obj => Json.obj("hmrcCharityReference" -> obj.tin)).getOrElse(Json.obj())
     val other = info.tinDetails.find(obj => obj.tinType == TinType.Other).map(obj => Json.obj("internationalTaxIdentifier" -> obj.tin)).getOrElse(Json.obj())
-    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == "GB"))
+    val taxIdentifiers = if (info.tinDetails.exists(_.issuedBy == UnitedKingdom.code))
     {Json.obj("taxIdentifiers" -> {utr ++ crn ++ vrn ++ empRef ++ chrn ++ other})} else {Json.obj()}
     hasTaxIdentifier ++ taxResidentInUk ++ taxIdentifiers
   }

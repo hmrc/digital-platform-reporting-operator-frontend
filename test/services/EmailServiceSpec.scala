@@ -24,8 +24,7 @@ import connectors.{EmailConnector, SubscriptionConnector}
 import models.email.EmailsSentResult
 import models.email.requests._
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.MockitoSugar.{never, reset, times, verify, when}
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -54,7 +53,7 @@ class EmailServiceSpec extends AnyFreeSpec
   private val mockSubscriptionConnector = mock[SubscriptionConnector]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockEmailConnector, mockSubscriptionConnector)
+    reset(mockEmailConnector, mockSubscriptionConnector)
     super.beforeEach()
   }
 
@@ -98,7 +97,7 @@ class EmailServiceSpec extends AnyFreeSpec
       underTest.sendAddPlatformOperatorEmails(userAnswers).futureValue mustBe EmailsSentResult(userEmailSent = true, None)
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedPORequest))(any())
-      verify(mockEmailConnector, never()).send(eqTo(expectedAddedAsPORequest))(any())
+      verify(mockEmailConnector, never).send(eqTo(expectedAddedAsPORequest))(any())
     }
 
     "must not send emails when relevant data not available" in {
@@ -111,7 +110,7 @@ class EmailServiceSpec extends AnyFreeSpec
 
       underTest.sendAddPlatformOperatorEmails(userAnswers).futureValue mustBe EmailsSentResult(userEmailSent = false, None)
 
-      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never).send(any())(any())
     }
   }
 
@@ -153,7 +152,7 @@ class EmailServiceSpec extends AnyFreeSpec
       underTest.sendRemovePlatformOperatorEmails(userAnswers).futureValue mustBe EmailsSentResult(userEmailSent = true, None)
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedRemovedPORequest))(any())
-      verify(mockEmailConnector, never()).send(eqTo(expectedRemovedAsPORequest))(any())
+      verify(mockEmailConnector, never).send(eqTo(expectedRemovedAsPORequest))(any())
     }
 
     "must not send emails when relevant data not available" in {
@@ -166,7 +165,7 @@ class EmailServiceSpec extends AnyFreeSpec
 
       underTest.sendRemovePlatformOperatorEmails(userAnswers).futureValue mustBe EmailsSentResult(userEmailSent = false, None)
 
-      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never).send(any())(any())
     }
   }
 
@@ -208,7 +207,7 @@ class EmailServiceSpec extends AnyFreeSpec
       underTest.sendUpdatedPlatformOperatorEmails(userAnswers).futureValue mustBe EmailsSentResult(userEmailSent = true, None)
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedUpdatedPORequest))(any())
-      verify(mockEmailConnector, never()).send(eqTo(expectedUpdatedAsPORequest))(any())
+      verify(mockEmailConnector, never).send(eqTo(expectedUpdatedAsPORequest))(any())
     }
 
     "must not send emails when relevant data not available" in {
@@ -222,7 +221,7 @@ class EmailServiceSpec extends AnyFreeSpec
 
       underTest.sendUpdatedPlatformOperatorEmails(userAnswers).futureValue mustBe EmailsSentResult(userEmailSent = false, None)
 
-      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never).send(any())(any())
     }
   }
 
@@ -269,7 +268,7 @@ class EmailServiceSpec extends AnyFreeSpec
         EmailsSentResult(userEmailSent = true, None)
 
       verify(mockEmailConnector, times(1)).send(eqTo(expectedAddedRNRequest))(any())
-      verify(mockEmailConnector, never()).send(eqTo(expectedAddedAsRNRequest))(any())
+      verify(mockEmailConnector, never).send(eqTo(expectedAddedAsRNRequest))(any())
     }
 
     "must not send emails when relevant data not available" in {
@@ -284,7 +283,7 @@ class EmailServiceSpec extends AnyFreeSpec
       underTest.sendAddReportingNotificationEmails(userAnswers, aUpdatePlatformOperatorRequest).futureValue mustBe
         EmailsSentResult(userEmailSent = false, None)
 
-      verify(mockEmailConnector, never()).send(any())(any())
+      verify(mockEmailConnector, never).send(any())(any())
     }
   }
 }

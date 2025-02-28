@@ -223,7 +223,7 @@ class ChangePlatformOperatorAuditEventModelSpec extends AnyFreeSpec with Matcher
           "registeredBusinessAddress" -> Json.obj(
             "addressLine1" -> "line1",
             "countryCode" -> "IM",
-            "country" -> "The Isle of Man"
+            "country" -> "Isle of Man"
           )
         )
       )

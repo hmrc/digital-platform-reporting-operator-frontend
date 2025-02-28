@@ -24,8 +24,7 @@ import controllers.notification.routes.ViewNotificationsController
 import forms.ViewNotificationsFormProvider
 import models.NormalMode
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.MockitoSugar.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.notification.ViewNotificationsPage
@@ -52,7 +51,7 @@ class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar with Be
     .set(NotificationDetailsQuery, Nil).success.value
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockPlatformOperatorConnector, mockSessionRepository)
+    reset(mockPlatformOperatorConnector, mockSessionRepository)
     super.beforeEach()
   }
 

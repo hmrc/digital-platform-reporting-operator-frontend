@@ -24,6 +24,4 @@ case object CheckYourAnswersPage extends AddPage {
 
   override protected def nextPageNormalMode(answers: UserAnswers): Call =
     routes.PlatformOperatorAddedController.onPageLoad
-
-  override protected def nextPageCheckMode(answers: UserAnswers): Call = ???
 }

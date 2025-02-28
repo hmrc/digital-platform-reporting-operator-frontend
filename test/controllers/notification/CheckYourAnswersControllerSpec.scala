@@ -29,9 +29,9 @@ import models.operator.requests.Notification
 import models.operator.{AddressDetails, TinDetails, TinType}
 import models.{Country, DueDiligence, NormalMode, RegisteredAddressCountry, UkAddress, UkTaxIdentifiers, UserAnswers}
 import org.apache.pekko.Done
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.MockitoSugar.{never, reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.notification.{DueDiligencePage, NotificationTypePage, ReportingPeriodPage}
@@ -55,7 +55,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
   private val mockEmailService = mock[EmailService]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
+    reset(mockConnector, mockRepository, mockAuditService, mockEmailService)
     super.beforeEach()
   }
 
@@ -209,8 +209,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
-          verify(mockRepository, never()).set(any())
-          verify(mockEmailService, never()).sendAddReportingNotificationEmails(any(), any())(any())
+          verify(mockRepository, never).set(any())
+          verify(mockEmailService, never).sendAddReportingNotificationEmails(any(), any())(any())
           verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
         }
       }
@@ -234,8 +234,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           route(app, request).value.failed.futureValue
           verify(mockConnector, times(1)).updatePlatformOperator(eqTo(expectedRequest))(any())
           verify(mockConnector, times(1)).viewPlatformOperator(eqTo(operatorId))(any())
-          verify(mockRepository, never()).set(any())
-          verify(mockEmailService, never()).sendAddReportingNotificationEmails(any(), any())(any())
+          verify(mockRepository, never).set(any())
+          verify(mockEmailService, never).sendAddReportingNotificationEmails(any(), any())(any())
           verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
         }
       }
@@ -253,9 +253,9 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad(operatorId).url)
 
           route(app, request).value.failed.futureValue
-          verify(mockConnector, never()).createPlatformOperator(any())(any())
-          verify(mockRepository, never()).set(any())
-          verify(mockAuditService, never()).sendAudit(any())(any(), any(), any())
+          verify(mockConnector, never).createPlatformOperator(any())(any())
+          verify(mockRepository, never).set(any())
+          verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
         }
       }
     }

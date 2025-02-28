@@ -16,7 +16,7 @@
 
 package models
 
-import models.Country.{Guernsey, Jersey, TheIsleOfMan, UnitedKingdom}
+import models.Country.{Guernsey, IsleOfMan, Jersey, UnitedKingdom}
 
 import javax.inject.{Inject, Singleton}
 
@@ -103,7 +103,7 @@ trait CountriesList {
     Country("IR", "Iran"),
     Country("IQ", "Iraq"),
     Country("IE", "Ireland"),
-    TheIsleOfMan,
+    IsleOfMan,
     Country("IL", "Israel"),
     Country("IT", "Italy"),
     Country("CI", "Ivory Coast"),
@@ -225,7 +225,7 @@ trait CountriesList {
 
   def allCountries: Seq[Country] = countriesList
 
-  lazy val crownDependantCountries: Seq[Country] = Seq(Guernsey, Jersey, TheIsleOfMan)
+  lazy val crownDependantCountries: Seq[Country] = Seq(Guernsey, Jersey, IsleOfMan)
   lazy val internationalCountries: Seq[Country] = allCountries.diff(crownDependantCountries :+ UnitedKingdom)
   lazy val nonUkCountries: Seq[Country] = allCountries.filterNot(_.code == UnitedKingdom.code)
 }

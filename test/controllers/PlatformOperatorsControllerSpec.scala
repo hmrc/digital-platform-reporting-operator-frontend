@@ -18,7 +18,8 @@ package controllers
 
 import base.SpecBase
 import connectors.PlatformOperatorConnector
-import models.operator.responses.ViewPlatformOperatorsResponse
+import models.operator.{AddressDetails, ContactDetails}
+import models.operator.responses.{PlatformOperator, ViewPlatformOperatorsResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.when
@@ -35,6 +36,29 @@ import scala.concurrent.Future
 class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private val mockConnector = mock[PlatformOperatorConnector]
+  private val operator1 = PlatformOperator(
+    operatorId = "operatorId1",
+    operatorName = "operatorName1",
+    tinDetails = Nil,
+    businessName = None,
+    tradingName = None,
+    primaryContactDetails = ContactDetails(None, "name", "email"),
+    secondaryContactDetails = None,
+    addressDetails = AddressDetails("line 1", None, None, None, None, None),
+    notifications = Nil
+  )
+
+  private val operator2 = PlatformOperator(
+    operatorId = "operatorId2",
+    operatorName = "operatorName2",
+    tinDetails = Nil,
+    businessName = None,
+    tradingName = None,
+    primaryContactDetails = ContactDetails(None, "name", "email"),
+    secondaryContactDetails = None,
+    addressDetails = AddressDetails("line 1", None, None, None, None, None),
+    notifications = Nil
+  )
 
   override def beforeEach(): Unit = {
     Mockito.reset(mockConnector)
@@ -59,6 +83,30 @@ class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with Be
 
         val view = application.injector.instanceOf[PlatformOperatorsView]
         val viewModel = PlatformOperatorsViewModel(Seq.empty)
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET for multiple platform operators" in {
+
+      val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
+
+      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+
+      val application =
+        applicationBuilder(userAnswers = None)
+          .overrides(bind[PlatformOperatorConnector].toInstance(mockConnector))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.PlatformOperatorsController.onPageLoad.url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[PlatformOperatorsView]
+        val viewModel = PlatformOperatorsViewModel(viewOperatorInfo)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
