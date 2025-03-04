@@ -23,6 +23,7 @@
     layout: templates.Layout,
     govukPanel: GovukPanel,
     govukWarning: GovukWarningText,
+    govukInsetText: GovukInsetText,
     appConfig: FrontendAppConfig
 )
 
@@ -68,7 +69,9 @@
         }
     </p>
 
-    <p class="govuk-inset-text">@messages("platformOperatorAdded.p2")</p>
+    @govukInsetText(InsetText(
+        content = messages("platformOperatorAdded.p2")
+    ))
 
     @if(viewModel.sentEmails.size == 0) {
         @govukWarning(WarningText(
