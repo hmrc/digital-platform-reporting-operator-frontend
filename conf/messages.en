@@ -217,9 +217,9 @@ secondaryContactPhoneNumber.error.length = Telephone number must be {0} characte
 secondaryContactPhoneNumber.error.format = Enter a telephone number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 secondaryContactPhoneNumber.change.hidden = the telephone number for {0}
 
-start.title = Adding a platform operator
-start.heading = Adding a platform operator
-start.p1 = In the next few screens you can enter the details of your platform operator. If you are a third party, you should enter the details of the platform operator you are reporting for.
+start.title = Add a platform operator
+start.heading = Add a platform operator
+start.p1 = Provide the details of your platform operator. This could be the same as the business you registered as. If you are a third party, enter the details of the platform operator you are reporting for.
 start.summary.title = What is a platform operator? (select here to expand)
 start.summary.content = A platform operator is a business that allows sellers to use their website or mobile app to connect to customers for the sale of goods and services.
 start.beforeYouContinue = Before you continue
@@ -386,7 +386,7 @@ platformOperatorRemoved.p1.1.one.email = We have sent a confirmation email to {0
 platformOperatorRemoved.emailNotSent.warning = You will not be emailed a confirmation of this.
 
 addGuidance.title = Add a reporting notification
-addGuidance.heading = Add a reporting notification
+addGuidance.heading = Add a reporting notification for {0}
 addGuidance.p1 = You need to tell HMRC if you intend to send reports for yourself or, if you are a third party, any platform operators you are reporting for.
 addGuidance.p2 = You must add a reporting notification for a platform operator before you make a submission for them. This notification will automatically carry over each year until it is updated.
 addGuidance.p3 = You cannot remove or change a notification once it has been added, but you can update it by adding a new one if anything changes.

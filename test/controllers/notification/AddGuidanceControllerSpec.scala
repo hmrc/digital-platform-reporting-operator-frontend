@@ -61,7 +61,7 @@ class AddGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AddGuidanceView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(aPlatformOperator.operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(aPlatformOperator.operatorId, aPlatformOperator.operatorName)(request, messages(application)).toString
 
         verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())

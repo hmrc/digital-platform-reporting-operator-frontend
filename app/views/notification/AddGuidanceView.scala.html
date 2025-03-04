@@ -22,13 +22,13 @@
         govukButton: GovukButton
 )
 
-@(operatorId: String)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, operatorName: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("addGuidance.title"))
 ) {
 
-    <h1 class="govuk-heading-xl">@messages("addGuidance.heading")</h1>
+    <h1 class="govuk-heading-xl">@messages("addGuidance.heading", operatorName)</h1>
 
     <p class="govuk-body">@messages("addGuidance.p1")</p>
 
