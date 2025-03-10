@@ -17,7 +17,6 @@
 package controllers.notification
 
 import controllers.{routes => baseRoutes}
-import config.Constants
 import controllers.AnswerExtractor
 import controllers.actions._
 import forms.ReportingPeriodFormProvider
@@ -29,9 +28,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.NotificationDetailsQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.notification.{ReportingPeriod2024View, ReportingPeriodFirstView, ReportingPeriodView}
+import views.html.notification.{ReportingPeriodFirstView, ReportingPeriodView}
 
-import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,9 +42,7 @@ class ReportingPeriodController @Inject()(
                                            formProvider: ReportingPeriodFormProvider,
                                            sessionRepository: SessionRepository,
                                            view: ReportingPeriodView,
-                                           view2024: ReportingPeriod2024View,
-                                           viewFirst: ReportingPeriodFirstView,
-                                           clock: Clock
+                                           viewFirst: ReportingPeriodFirstView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with AnswerExtractor {
 
   def onPageLoad(mode: Mode, operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
@@ -63,9 +59,7 @@ class ReportingPeriodController @Inject()(
           case Some(value) => form.fill(value)
         }
 
-        if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
-          Ok(view2024(preparedForm, mode, operatorId, businessName, notificationType))
-        } else if (notifications.isEmpty) {
+        if (notifications.isEmpty) {
           Ok(viewFirst(preparedForm, mode, operatorId, businessName, notificationType))
         } else {
           Ok(view(preparedForm, mode, operatorId, businessName))
@@ -86,9 +80,7 @@ class ReportingPeriodController @Inject()(
 
         form.bindFromRequest().fold(
           formWithErrors => {
-            if (LocalDate.now(clock).getYear == Constants.firstLegislativeYear) {
-              Future.successful(BadRequest(view2024(formWithErrors, mode, operatorId, businessName, notificationType)))
-            } else if (notifications.isEmpty) {
+            if (notifications.isEmpty) {
               Future.successful(BadRequest(viewFirst(formWithErrors, mode, operatorId, businessName, notificationType)))
             } else {
               Future.successful(BadRequest(view(formWithErrors, mode, operatorId, businessName)))

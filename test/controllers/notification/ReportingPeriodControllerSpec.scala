@@ -33,7 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import queries.NotificationDetailsQuery
 import repositories.SessionRepository
-import views.html.notification.{ReportingPeriod2024View, ReportingPeriodFirstView, ReportingPeriodView}
+import views.html.notification.{ReportingPeriodFirstView, ReportingPeriodView}
 
 import java.time.{Clock, Instant, ZoneId, ZoneOffset}
 import scala.concurrent.Future
@@ -59,29 +59,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" - {
 
-      "in 2024" in {
-
-        val fixedClock = Clock.fixed(Instant.parse("2024-12-31T00:00:00Z"), ZoneOffset.UTC)
-
-        val application =
-          applicationBuilder(userAnswers = Some(baseAnswers))
-            .overrides(bind[Clock].toInstance(fixedClock))
-            .build()
-
-        running(application) {
-          val request = FakeRequest(GET, reportingPeriodRoute)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[ReportingPeriod2024View]
-
-          status(result) mustEqual OK
-
-          contentAsString(result) mustEqual view(form, NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
-        }
-      }
-
-      "in years after 2024 when no notifications have been set up yet" in {
+      "when no notifications have been set up yet" in {
 
         val year = Gen.choose(2025, 2050).sample.value
         val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
@@ -104,7 +82,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "in years after 2024 when at least one notification has been set up" in {
+      "when at least one notification has been set up" in {
 
         val year = Gen.choose(2025, 2050).sample.value
         val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
@@ -133,29 +111,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" - {
 
-      "in 2024" in {
-
-        val fixedClock = Clock.fixed(Instant.parse("2024-12-31T00:00:00Z"), ZoneOffset.UTC)
-        val userAnswers = baseAnswers.set(ReportingPeriodPage, 2024).success.value
-
-        val application =
-          applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(bind[Clock].toInstance(fixedClock))
-            .build()
-
-        running(application) {
-          val request = FakeRequest(GET, reportingPeriodRoute)
-
-          val view = application.injector.instanceOf[ReportingPeriod2024View]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form.fill(2024), NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
-        }
-      }
-
-      "in years after 2024 when no notifications have been set up yet" in {
+      "when no notifications have been set up yet" in {
 
         val year = Gen.choose(2025, 2050).sample.value
         val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
@@ -179,7 +135,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "in years after 2024 when at least one notification has been set up" in {
+      "when at least one notification has been set up" in {
 
         val year = Gen.choose(2025, 2050).sample.value
         val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
@@ -234,31 +190,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" - {
 
-      "in 2024" in {
-
-        val fixedClock = Clock.fixed(Instant.parse("2024-12-31T00:00:00Z"), ZoneOffset.UTC)
-        val application =
-          applicationBuilder(userAnswers = Some(baseAnswers))
-            .overrides(bind[Clock].toInstance(fixedClock))
-            .build()
-
-        running(application) {
-          val request =
-            FakeRequest(POST, reportingPeriodRoute)
-              .withFormUrlEncodedBody(("value", "invalid value"))
-
-          val boundForm = form.bind(Map("value" -> "invalid value"))
-
-          val view = application.injector.instanceOf[ReportingPeriod2024View]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(boundForm, NormalMode, operatorId, businessName, notificationType)(request, messages(application)).toString
-        }
-      }
-
-      "in years after 2024 when no notification have been set up" in {
+      "when no notification have been set up" in {
 
         val year = Gen.choose(2025, 2050).sample.value
         val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)
@@ -283,7 +215,7 @@ class ReportingPeriodControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "in years after 2024 when at least one notification has been set up" in {
+      "when at least one notification has been set up" in {
 
         val year = Gen.choose(2025, 2050).sample.value
         val fixedClock = Clock.fixed(Instant.parse(s"$year-12-31T00:00:00Z"), ZoneOffset.UTC)

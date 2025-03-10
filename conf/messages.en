@@ -481,15 +481,6 @@ reportingPeriod.error.belowMinimum = Reportable period must be {1} or later
 reportingPeriod.error.aboveMaximum = Reportable period must be {1} or earlier
 reportingPeriod.change.hidden = the reportable period
 
-reportingPeriod.2024.rpo.title = The platform operator will send reports for the 2024 reportable period
-reportingPeriod.2024.epo.title = The platform operator will not send reports for the 2024 reportable period
-reportingPeriod.2024.rpo.heading = {0} will send reports for the 2024 reportable period
-reportingPeriod.2024.epo.heading = {0} will not send reports for the 2024 reportable period
-reportingPeriod.2024.rpo.p1 = {0} is a reporting platform operator for the 2024 reportable period. A reportable period is a calendar year that runs from 1 January to 31 December.
-reportingPeriod.2024.epo.p1 = {0} is an excluded platform operator for the 2024 reportable period. A reportable period is a calendar year that runs from 1 January to 31 December.
-reportingPeriod.2024.p2 = This reporting notification will automatically carry over each year until it is updated. You will be able to add a new notification if this changes.
-reportingPeriod.2024.checkYourAnswersLabel = The first year {0} is required to report for
-
 reportingPeriod.title = What reportable period is this reporting notification from?
 reportingPeriod.heading = What reportable period is this reporting notification from?
 reportingPeriod.p1 = Each reportable period is a calendar year that runs from the 1st of January until the 31st of December.
