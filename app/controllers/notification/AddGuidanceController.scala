@@ -47,7 +47,7 @@ class AddGuidanceController @Inject()(
       platformOperator <- platformOperatorConnector.viewPlatformOperator(operatorId)
       userAnswers <- Future.fromTry(userAnswersService.fromPlatformOperator(request.userId, platformOperator))
       _ <- sessionRepository.set(userAnswers)
-    } yield Ok(view(operatorId))
+    } yield Ok(view(operatorId, platformOperator.operatorName))
   }
 
   def onSubmit(operatorId: String): Action[AnyContent] = (identify andThen getData(Some(operatorId)) andThen requireData) { implicit request =>
