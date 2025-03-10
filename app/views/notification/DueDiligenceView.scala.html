@@ -19,6 +19,8 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.details.Details
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
+@import java.time.Year
+
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
@@ -58,10 +60,17 @@
 
         <p class="govuk-body">@messages("dueDiligence.extended.p2", businessName)</p>
 
-        @govukDetails(Details(
-            summary = Text(messages("dueDiligence.detail.heading")),
-            content = HtmlContent(s"""<p class="govuk-body"> ${messages("dueDiligence.detail.heading.p1")} </p> <p class="govuk-body"> ${messages("dueDiligence.detail.heading.p2")} </p>""")
-        ))
+        @{
+            val currentYear = Year.now
+            val nextYear = Year.now.plusYears(1)
+            val paragraphOne = <p class="govuk-body">{messages("dueDiligence.detail.heading.p1", currentYear)}</p>
+            val paragraphTwo = <p class="govuk-body">{messages("dueDiligence.detail.heading.p2", nextYear, currentYear)}</p>
+
+            govukDetails(Details(
+                summary = Text(messages("dueDiligence.detail.heading")),
+                content = HtmlContent(paragraphOne.toString + paragraphTwo.toString)
+            ))
+        }
 
         @govukCheckboxes(
             CheckboxesViewModel(
