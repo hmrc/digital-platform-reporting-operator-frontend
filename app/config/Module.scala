@@ -17,14 +17,14 @@
 package config
 
 import controllers.actions._
-import models.CountriesList
+import models.{CountriesList, DefaultCountriesList}
 import play.api.inject.Binding
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 
 import java.time.Clock
 
-class Module extends play.api.inject.Module  {
+class Module extends play.api.inject.Module {
 
   override def bindings(environment: Environment, configuration: Configuration): collection.Seq[Binding[_]] = {
     Seq(
@@ -32,7 +32,7 @@ class Module extends play.api.inject.Module  {
       bind[IdentifierAction].to[AuthenticatedIdentifierAction].eagerly(),
       bind[Clock].toInstance(Clock.systemUTC()),
       bind[Encrypter with Decrypter].toProvider[CryptoProvider],
-      bind[CountriesList].toProvider[CountriesListProvider]
+      bind[CountriesList].to[DefaultCountriesList]
     )
   }
 }
