@@ -15,6 +15,7 @@ site.or = or
 site.confirmAndAdd = Confirm and add
 site.confirmAndUpdate = Confirm and update
 site.printThisPage = Print this page
+site.confirmAndDelete = Confirm and remove
 
 date.day = Day
 date.month = Month
@@ -371,10 +372,10 @@ platformOperator.remove = Remove platform operator
 
 removePlatformOperator.title = Removing a platform operator
 removePlatformOperator.heading = Removing a platform operator
-removePlatformOperator.p1 = This will permanently remove {0} with the Platform Operator ID {1}. It will no longer be possible for anyone to:
-removePlatformOperator.bullet1 = send, access, update or delete reports for the Platform Operator ID {0}
-removePlatformOperator.bullet2 = access or change details for the Platform Operator ID {0}
-removePlatformOperator.warning = Removing a platform operator means you cannot amend inaccurate or incomplete reports for the Platform Operator ID {0}
+removePlatformOperator.p1 = This will permanently remove {0} with the platform operator ID {1}. It will no longer be possible for anyone to:
+removePlatformOperator.bullet1 = send, access, update or delete reports for the platform operator ID {0}
+removePlatformOperator.bullet2 = access or change details for the platform operator ID {0}
+removePlatformOperator.warning = Removing a platform operator means you cannot amend inaccurate or incomplete reports for the platform operator ID {0}
 removePlatformOperator.legend = Are you sure you want to remove {0}?
 removePlatformOperator.error.required = Select yes if you want to remove {0}
 
@@ -472,7 +473,7 @@ dueDiligence.change.hidden = if {0} chooses to take any types of due diligence
 
 reportingPeriod.first.title = What is the first reportable period for the platform operator?
 reportingPeriod.first.heading = What is the first reportable period for {0}?
-reportingPeriod.first.rpo.p1 = This is the first year the platform operator became an reporting platform operator and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
+reportingPeriod.first.rpo.p1 = This is the first year the platform operator became a reporting platform operator and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
 reportingPeriod.first.epo.p1 = This is the first year the platform operator became an excluded platform operator. Each reportable period is a calendar year that runs from 1 January to 31 December.
 reportingPeriod.first.hint = This is a year, for example 2024.
 reportingPeriod.error.required = Enter the reportable period
@@ -503,7 +504,7 @@ notificationAdded.p3.link.text = add another reporting notification
 notificationAdded.operatorId = Platform operator ID
 notificationAdded.operatorName = Platform operator name
 notificationAdded.notificationType = Reporting notification
-notificationAdded.reportingPeriod = Reporting period
+notificationAdded.reportingPeriod = Reportable period
 notificationAdded.dueDiligence = Types of due diligence
 
 viewNotifications.title.none = You have not added any reporting notifications
@@ -518,7 +519,7 @@ viewNotifications.none.error.required = Select yes if you need to add a reportin
 viewNotifications.some.error.required = Select yes if you need to add another reporting notification
 viewNotifications.dateAdded = Date added
 viewNotifications.notificationType = Reporting notification
-viewNotifications.reportingPeriod = Reporting period
+viewNotifications.reportingPeriod = Reportable period
 viewNotifications.dueDiligence = Types of due diligence
 viewNotifications.notificationType.RPO = Reporting platform operator
 viewNotifications.notificationType.EPO = Excluded platform operator
