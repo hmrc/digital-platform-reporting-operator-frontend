@@ -21,6 +21,7 @@
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
         govukRadios: GovukRadios,
+        govukInsetText: GovukInsetText,
         govukButton: GovukButton
 )
 
@@ -41,6 +42,8 @@
         <h2 class="govuk-heading-m">@messages("dueDiligence.active.heading")</h2>
 
         <p class="govuk-body">@messages("dueDiligence.activeOnly.p1", businessName)</p>
+
+        @govukInsetText(InsetText(id = Some("dueDiligenceInset"), content = messages("dueDiligence.active.inset.text")))
 
         @govukRadios(
             RadiosViewModel.yesNo(
