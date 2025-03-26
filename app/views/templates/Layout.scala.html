@@ -30,7 +30,6 @@
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcScripts: HmrcScripts,
-    phaseBanner: StandardBetaBanner,
     autocompleteCss: HmrcAccessibleAutocompleteCss,
     autocompleteJavascript: HmrcAccessibleAutocompleteJavascript,
     defaultLayout: TwoThirdsMainContent
@@ -91,8 +90,7 @@
     headBlock   = Some(head),
     headerBlock = Some(hmrcStandardHeader(
         serviceUrl  = Some(appConfig.manageFrontendUrl),
-        signOutUrl  = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None,
-        phaseBanner = Some(phaseBanner(appConfig.feedbackUrl))
+        signOutUrl  = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
     )),
     beforeContentBlock = Some(beforeContent),
     footerBlock        = Some(hmrcStandardFooter()),
