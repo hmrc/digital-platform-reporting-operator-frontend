@@ -26,7 +26,7 @@ import play.api.libs.ws.writeableOf_JsValue
 import services.UuidService
 import uk.gov.hmrc.http.HttpReads.Implicits.readRaw
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, RequestId, StringContextOps}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,10 +38,12 @@ class TaxEnrolmentConnector @Inject()(appConfig: FrontendAppConfig,
                                      (implicit ec: ExecutionContext) {
 
   def upsert(upsertKnownFacts: UpsertKnownFacts)
-            (implicit hc: HeaderCarrier): Future[Done] =
+            (implicit hc: HeaderCarrier): Future[Done] = {
+    val correlationId = hc.requestId.getOrElse(RequestId(uuidService.generate())).value
+    val conversationId = uuidService.generate()
     httpClient.put(url"${appConfig.taxEnrolmentsBaseUrl}/tax-enrolments/enrolments/${upsertKnownFacts.enrolmentKey}")
-      .setHeader("X-Correlation-ID" -> uuidService.generate())
-      .setHeader("X-Conversation-ID" -> uuidService.generate())
+      .setHeader("X-Correlation-ID" -> correlationId)
+      .setHeader("X-Conversation-ID" -> conversationId)
       .setHeader("X-Forwarded-Host" -> appConfig.appName)
       .withBody(Json.toJson(upsertKnownFacts))
       .execute[HttpResponse]
@@ -51,12 +53,15 @@ class TaxEnrolmentConnector @Inject()(appConfig: FrontendAppConfig,
           case code => Future.failed(UpsertTaxEnrolmentFailure(code))
         }
       }
+  }
 
   def allocateEnrolmentToGroup(groupEnrolment: GroupEnrolment)
-                              (implicit hc: HeaderCarrier): Future[Done] =
+                              (implicit hc: HeaderCarrier): Future[Done] = {
+    val correlationId = hc.requestId.getOrElse(RequestId(uuidService.generate())).value
+    val conversationId = uuidService.generate()
     httpClient.post(url"${appConfig.taxEnrolmentsBaseUrl}/tax-enrolments/groups/${groupEnrolment.groupId}/enrolments/${groupEnrolment.enrolmentKey}")
-      .setHeader("X-Correlation-ID" -> uuidService.generate())
-      .setHeader("X-Conversation-ID" -> uuidService.generate())
+      .setHeader("X-Correlation-ID" -> correlationId)
+      .setHeader("X-Conversation-ID" -> conversationId)
       .setHeader("X-Forwarded-Host" -> appConfig.appName)
       .withBody(Json.toJson(groupEnrolment))
       .execute[HttpResponse]
@@ -66,6 +71,7 @@ class TaxEnrolmentConnector @Inject()(appConfig: FrontendAppConfig,
           case code => Future.failed(AllocateEnrolmentToGroupTaxEnrolmentFailure(code))
         }
       }
+  }
 }
 
 object TaxEnrolmentConnector {
