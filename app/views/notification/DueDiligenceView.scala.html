@@ -32,7 +32,7 @@
 )
 
 
-@(form: Form[_], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[?], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = title(form, messages("dueDiligence.title"))) {
 

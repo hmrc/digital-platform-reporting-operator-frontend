@@ -46,13 +46,13 @@ object CreatePlatformOperatorAuditEventModel {
     val tradingNameJson = info.tradingName
       .map(tradingName => Json.obj("hasBusinessTradingName" -> true, "businessTradingName" -> tradingName))
       .getOrElse(Json.obj("hasBusinessTradingName" -> false))
-    val taxJson = getTaxJson(info, countriesList)
+    val taxJson = getTaxJson(info)
     val addressJson = getAddressJson(info, countriesList)
     val contactJson = getContactJson(info)
     subscriptionIdJson ++ businessNameJson ++ tradingNameJson ++ taxJson ++ addressJson ++ contactJson
   }
 
-  private def getTaxJson(info: CreatePlatformOperatorRequest, countriesList: CountriesList): JsObject = {
+  private def getTaxJson(info: CreatePlatformOperatorRequest): JsObject = {
     val hasTaxIdentifier = if (info.tinDetails.nonEmpty) {
       Json.obj("hasTaxIdentificationNumber" -> true)
     } else {

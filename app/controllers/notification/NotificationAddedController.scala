@@ -18,17 +18,16 @@ package controllers.notification
 
 import connectors.SubscriptionConnector
 import controllers.AnswerExtractor
-import controllers.actions._
+import controllers.actions.*
 import models.email.EmailsSentResult
 import models.pageviews.NotificationAddedViewModel
-import models.subscription.SubscriptionInfo
 import pages.add.{BusinessNamePage, PrimaryContactEmailPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.SentAddedReportingNotificationEmailQuery
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.checkAnswers.notification._
-import viewmodels.govuk.summarylist._
+import viewmodels.checkAnswers.notification.*
+import viewmodels.govuk.summarylist.*
 import views.html.notification.NotificationAddedView
 
 import javax.inject.Inject
@@ -56,7 +55,7 @@ class NotificationAddedController @Inject()(override val messagesApi: MessagesAp
           ).flatten
         )
         val emailsSentResult = request.userAnswers.get(SentAddedReportingNotificationEmailQuery).getOrElse(EmailsSentResult(userEmailSent = false, None))
-        connector.getSubscriptionInfo.map { x: SubscriptionInfo =>
+        connector.getSubscriptionInfo.map { x =>
           Ok(view(NotificationAddedViewModel(summaryList, x.primaryContact.email, businessName, poContactEmail, emailsSentResult)))
         }
       }

@@ -28,7 +28,7 @@
         govukButton: GovukButton
 )
 
-@(form: Form[_], operators: Seq[PlatformOperatorData])(implicit request: Request[_], messages: Messages)
+@(form: Form[?], operators: Seq[PlatformOperatorData])(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = title(form, messages("selectPlatformOperator.title"))

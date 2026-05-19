@@ -42,7 +42,7 @@ trait Constraints {
         if (input >= minimum) {
           Valid
         } else {
-          Invalid(errorKey, minimum +: args: _*)
+          Invalid(errorKey, minimum +: args*)
         }
     }
 
@@ -55,7 +55,7 @@ trait Constraints {
         if (input <= maximum) {
           Valid
         } else {
-          Invalid(errorKey, maximum +: args: _*)
+          Invalid(errorKey, maximum +: args*)
         }
     }
 
@@ -77,7 +77,7 @@ trait Constraints {
       case str if str.matches(regex) =>
         Valid
       case _ =>
-        Invalid(errorKey, regex +: args: _*)
+        Invalid(errorKey, regex +: args*)
     }
 
   protected def maxLength(maximum: Int, errorKey: String, args: Any*): Constraint[String] =
@@ -85,13 +85,13 @@ trait Constraints {
       case str if str.length <= maximum =>
         Valid
       case _ =>
-        Invalid(errorKey, maximum +: args: _*)
+        Invalid(errorKey, maximum +: args*)
     }
 
   protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
     Constraint {
       case date if date.isAfter(maximum) =>
-        Invalid(errorKey, args: _*)
+        Invalid(errorKey, args*)
       case _ =>
         Valid
     }
@@ -99,17 +99,17 @@ trait Constraints {
   protected def minDate(minimum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
     Constraint {
       case date if date.isBefore(minimum) =>
-        Invalid(errorKey, args: _*)
+        Invalid(errorKey, args*)
       case _ =>
         Valid
     }
 
-  protected def nonEmptySet(errorKey: String, args: Any*): Constraint[Set[_]] =
+  protected def nonEmptySet(errorKey: String, args: Any*): Constraint[Set[?]] =
     Constraint {
       case set if set.nonEmpty =>
         Valid
       case _ =>
-        Invalid(errorKey, args: _*)
+        Invalid(errorKey, args*)
     }
 
   protected def validPhoneNumber(errorKey: String): Constraint[String] =
@@ -127,7 +127,7 @@ trait Constraints {
   protected def noMutuallyExclusiveAnswers[A](set1: Set[A], set2: Set[A], errorKey: String, args: Any*): Constraint[Set[A]] =
     Constraint {
       case set if set.intersect(set1).nonEmpty && set.intersect(set2).nonEmpty =>
-        Invalid(errorKey, args: _*)
+        Invalid(errorKey, args*)
       case _ =>
         Valid
     }

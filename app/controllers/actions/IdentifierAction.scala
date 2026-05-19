@@ -71,9 +71,9 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
 
   private def reEnrol[A](request: Request[A], block: IdentifierRequest[A] => Future[Result])(hc: HeaderCarrier): Future[Result] = {
     for {
-      pendingEnrolment <- pendingEnrolmentConnector.getPendingEnrolment()(hc)
-      _ <- enrolmentService.enrol(EnrolmentDetails(pendingEnrolment))(hc)
-      _ <- pendingEnrolmentConnector.remove()(hc)
+      pendingEnrolment <- pendingEnrolmentConnector.getPendingEnrolment()(using hc)
+      _ <- enrolmentService.enrol(EnrolmentDetails(pendingEnrolment))(using hc)
+      _ <- pendingEnrolmentConnector.remove()(using hc)
       result <- block(IdentifierRequest(request, pendingEnrolment.userId, pendingEnrolment.dprsId))
     } yield result
   }

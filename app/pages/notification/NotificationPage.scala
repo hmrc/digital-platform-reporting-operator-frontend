@@ -21,6 +21,8 @@ import models.{CheckMode, Mode, NormalMode, UserAnswers}
 import pages.Page
 import play.api.mvc.Call
 
+import scala.annotation.unused
+
 trait NotificationPage extends Page {
 
   final def nextPage(mode: Mode, operatorId: String, answers: UserAnswers): Call =
@@ -32,6 +34,6 @@ trait NotificationPage extends Page {
 
   protected def nextPageNormalMode(operatorId: String, answers: UserAnswers): Call
 
-  protected def nextPageCheckMode(operatorId: String, answers: UserAnswers): Call =
+  protected def nextPageCheckMode(operatorId: String, @unused answers: UserAnswers): Call =
     routes.CheckYourAnswersController.onPageLoad(operatorId)
 }

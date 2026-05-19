@@ -25,7 +25,7 @@
         govukInsetText : GovukInsetText
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("start.title"))) {
 
