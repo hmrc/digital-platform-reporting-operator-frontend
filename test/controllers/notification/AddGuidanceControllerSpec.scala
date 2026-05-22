@@ -42,8 +42,8 @@ class AddGuidanceControllerSpec extends SpecBase with MockitoSugar {
 
     "must get platform operator details, save them, and show the correct view" in {
 
-      when(mockPlatformOperatorConnector.viewPlatformOperator(any())(any())) thenReturn Future.successful(aPlatformOperator)
-      when(mockRepository.set(any())) thenReturn Future.successful(true)
+      when(mockPlatformOperatorConnector.viewPlatformOperator(any())(using any())).thenReturn(Future.successful(aPlatformOperator))
+      when(mockRepository.set(any())).thenReturn(Future.successful(true))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(
@@ -61,9 +61,9 @@ class AddGuidanceControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[AddGuidanceView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(aPlatformOperator.operatorId, aPlatformOperator.operatorName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(aPlatformOperator.operatorId, aPlatformOperator.operatorName)(using request, messages(application)).toString
 
-        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(any())
+        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(using any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
 
       }

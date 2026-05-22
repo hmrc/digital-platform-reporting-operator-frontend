@@ -42,7 +42,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" - {
       "for different emails" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())).thenReturn(Future.successful(aSubscriptionInfo))
 
         val emailsSentResult = EmailsSentResult(userEmailSent = true, Some(true))
         val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "default-operator-name").success.value
@@ -50,7 +50,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
           .set(SentUpdatedPlatformOperatorEmailQuery, emailsSentResult).success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
-          bind[SubscriptionConnector].toInstance(mockConnector)).build
+          bind[SubscriptionConnector].toInstance(mockConnector)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.PlatformOperatorUpdatedController.onPageLoad(operatorId).url)
@@ -60,14 +60,14 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           val viewModel = PlatformOperatorUpdatedViewModel(aSubscriptionInfo, aPlatformOperatorSummaryViewModel,
             emailsSentResult)
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(
             messages(application)("platformOperatorUpdated.p1.1.two.emails", viewModel.userEmail, viewModel.poEmail))
         }
       }
 
       "for same emails" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())).thenReturn(Future.successful(aSubscriptionInfo))
 
         val emailsSentResult = EmailsSentResult(userEmailSent = true, poEmailSent = None)
         val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "default-operator-name").success.value
@@ -75,7 +75,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
           .set(SentUpdatedPlatformOperatorEmailQuery, emailsSentResult).success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
-          bind[SubscriptionConnector].toInstance(mockConnector)).build
+          bind[SubscriptionConnector].toInstance(mockConnector)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.PlatformOperatorUpdatedController.onPageLoad(operatorId).url)
@@ -86,7 +86,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
           val viewModel = PlatformOperatorUpdatedViewModel(aSubscriptionInfo, platformOperatorViewModel, emailsSentResult)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(
             messages(application)("platformOperatorUpdated.p1.1.one.email", viewModel.userEmail, viewModel.poEmail)
           )
@@ -94,14 +94,14 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "when no emails were sent" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())).thenReturn(Future.successful(aSubscriptionInfo))
 
         val emailsSentResult = EmailsSentResult(userEmailSent = false, poEmailSent = None)
         val baseAnswers = emptyUserAnswers.set(BusinessNamePage, "default-operator-name").success.value
           .set(PrimaryContactEmailPage, "default.email@example.com").success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
-          bind[SubscriptionConnector].toInstance(mockConnector)).build
+          bind[SubscriptionConnector].toInstance(mockConnector)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.PlatformOperatorUpdatedController.onPageLoad(operatorId).url)
@@ -111,7 +111,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
           val viewModel = PlatformOperatorUpdatedViewModel(aSubscriptionInfo, aPlatformOperatorSummaryViewModel, emailsSentResult)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(
             messages(application)("platformOperatorUpdated.emailNotSent.warning")
           )
@@ -120,7 +120,7 @@ class PlatformOperatorUpdatedControllerSpec extends SpecBase with MockitoSugar {
 
       "redirects to JourneyRecovery page when subscriptionInfo fails" in {
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.PlatformOperatorUpdatedController.onPageLoad(operatorId).url)

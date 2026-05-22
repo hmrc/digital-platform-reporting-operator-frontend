@@ -39,7 +39,7 @@ class VrnControllerSpec extends SpecBase with MockitoSugar {
   private val form = formProvider(businessName)
   private val baseAnswers = emptyUserAnswers.set(BusinessNamePage, businessName).success.value
 
-  lazy val vrnRoute = routes.VrnController.onPageLoad(NormalMode).url
+  lazy val vrnRoute: String = routes.VrnController.onPageLoad(NormalMode).url
 
   "Vrn Controller" - {
 
@@ -55,7 +55,7 @@ class VrnControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[VrnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -73,7 +73,7 @@ class VrnControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("GB123456789"), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("GB123456789"), NormalMode, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -81,7 +81,7 @@ class VrnControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -116,7 +116,7 @@ class VrnControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(using request, messages(application)).toString
       }
     }
 

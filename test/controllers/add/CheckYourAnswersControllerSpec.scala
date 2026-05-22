@@ -93,20 +93,20 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           val view = application.injector.instanceOf[CheckYourAnswersView]
 
-          val businessNameRow = BusinessNameSummary.row(answers)(messages(application)).value
-          val hasTradingNameRow = HasTradingNameSummary.row(answers)(messages(application)).value
-          val tradingNameRow = TradingNameSummary.row(answers)(messages(application)).value
-          val registeredInUkRow = RegisteredInUkSummary.row(answers)(messages(application)).value
-          val ukAddressRow = UkAddressSummary.row(answers)(messages(application)).value
-          val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(messages(application)).value
-          val primaryContactEmailRow = PrimaryContactEmailSummary.row(answers)(messages(application)).value
-          val primaryContactPhoneNumberRow = PrimaryContactPhoneNumberSummary.row(answers)(messages(application)).value
-          val canPhonePrimaryContactRow = CanPhonePrimaryContactSummary.row(answers)(messages(application)).value
-          val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(messages(application)).value
-          val secondaryContactNameRow = SecondaryContactNameSummary.row(answers)(messages(application)).value
-          val secondaryContactEmailRow = SecondaryContactEmailSummary.row(answers)(messages(application)).value
-          val canPhoneSecondaryContactRow = CanPhoneSecondaryContactSummary.row(answers)(messages(application)).value
-          val SecondaryContactPhoneNumberRow = SecondaryContactPhoneNumberSummary.row(answers)(messages(application)).value
+          val businessNameRow = BusinessNameSummary.row(answers)(using messages(application)).value
+          val hasTradingNameRow = HasTradingNameSummary.row(answers)(using messages(application)).value
+          val tradingNameRow = TradingNameSummary.row(answers)(using messages(application)).value
+          val registeredInUkRow = RegisteredInUkSummary.row(answers)(using messages(application)).value
+          val ukAddressRow = UkAddressSummary.row(answers)(using messages(application)).value
+          val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(using messages(application)).value
+          val primaryContactEmailRow = PrimaryContactEmailSummary.row(answers)(using messages(application)).value
+          val primaryContactPhoneNumberRow = PrimaryContactPhoneNumberSummary.row(answers)(using messages(application)).value
+          val canPhonePrimaryContactRow = CanPhonePrimaryContactSummary.row(answers)(using messages(application)).value
+          val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(using messages(application)).value
+          val secondaryContactNameRow = SecondaryContactNameSummary.row(answers)(using messages(application)).value
+          val secondaryContactEmailRow = SecondaryContactEmailSummary.row(answers)(using messages(application)).value
+          val canPhoneSecondaryContactRow = CanPhoneSecondaryContactSummary.row(answers)(using messages(application)).value
+          val SecondaryContactPhoneNumberRow = SecondaryContactPhoneNumberSummary.row(answers)(using messages(application)).value
 
           val platformOperatorList = SummaryListViewModel(Seq(businessNameRow, hasTradingNameRow,
             tradingNameRow, registeredInUkRow, ukAddressRow))
@@ -116,7 +116,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
             secondaryContactEmailRow, canPhoneSecondaryContactRow, SecondaryContactPhoneNumberRow))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, Some(secondaryContactList))(request, messages(application)).toString
+          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, Some(secondaryContactList))
+            (using request, messages(application)).toString
         }
       }
 
@@ -145,24 +146,24 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
 
           val view = application.injector.instanceOf[CheckYourAnswersView]
 
-          val businessNameRow = BusinessNameSummary.row(answers)(messages(application)).value
-          val ukTaxIdentifierRow = UkTaxIdentifiersSummary.row(answers)(messages(application)).value
-          val utrRow = UtrSummary.row(answers)(messages(application)).value
-          val crnRow = CrnSummary.row(answers)(messages(application)).value
-          val vrnRow = VrnSummary.row(answers)(messages(application)).value
-          val emprefRow = EmprefSummary.row(answers)(messages(application)).value
-          val chrnRow = ChrnSummary.row(answers)(messages(application)).value
-          val registeredInUkRow = RegisteredInUkSummary.row(answers)(messages(application)).value
-          val jerseyGuernseyIoMRow = JerseyGuernseyIoMAddressSummary.row(answers)(messages(application)).value
-          val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(messages(application)).value
-          val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(messages(application)).value
+          val businessNameRow = BusinessNameSummary.row(answers)(using messages(application)).value
+          val ukTaxIdentifierRow = UkTaxIdentifiersSummary.row(answers)(using messages(application)).value
+          val utrRow = UtrSummary.row(answers)(using messages(application)).value
+          val crnRow = CrnSummary.row(answers)(using messages(application)).value
+          val vrnRow = VrnSummary.row(answers)(using messages(application)).value
+          val emprefRow = EmprefSummary.row(answers)(using messages(application)).value
+          val chrnRow = ChrnSummary.row(answers)(using messages(application)).value
+          val registeredInUkRow = RegisteredInUkSummary.row(answers)(using messages(application)).value
+          val jerseyGuernseyIoMRow = JerseyGuernseyIoMAddressSummary.row(answers)(using messages(application)).value
+          val primaryContactNameRow = PrimaryContactNameSummary.row(answers)(using messages(application)).value
+          val hasSecondaryContactRow = HasSecondaryContactSummary.row(answers)(using messages(application)).value
 
           val platformOperatorList = SummaryListViewModel(Seq(businessNameRow, ukTaxIdentifierRow, utrRow, crnRow,
             vrnRow, emprefRow, chrnRow, registeredInUkRow, jerseyGuernseyIoMRow))
           val primaryContactList = SummaryListViewModel(Seq(primaryContactNameRow, hasSecondaryContactRow))
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, None)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(platformOperatorList, primaryContactList, None)(using request, messages(application)).toString
         }
       }
     }
@@ -215,10 +216,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       "must submit a Create Operator request, clear other data from user answers and save the operator details, and redirect to the next page" in {
         val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.successful(response)
+        when(mockConnector.createPlatformOperator(any())(using any())) thenReturn Future.successful(response)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
-        when(mockEmailService.sendAddPlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anEmailsSentResult))
-        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockEmailService.sendAddPlatformOperatorEmails(any())(using any())).thenReturn(Future.successful(anEmailsSentResult))
+        when(mockAuditService.sendAudit(any())(using any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockConnector),
@@ -234,10 +235,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           status(result) mustEqual SEE_OTHER
 
           redirectLocation(result).value mustEqual CheckYourAnswersPage.nextPage(NormalMode, answers).url
-          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(using any())
           verify(mockRepository, times(1)).set(answersCaptor.capture())
-          verify(mockEmailService, times(1)).sendAddPlatformOperatorEmails(eqTo(answers))(any())
-          verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
+          verify(mockEmailService, times(1)).sendAddPlatformOperatorEmails(eqTo(answers))(using any())
+          verify(mockAuditService, times(1)).sendAudit(any())(using any(), any(), any())
 
           val savedAnswers = answersCaptor.getValue
           savedAnswers.get(PlatformOperatorAddedQuery).value mustEqual aPlatformOperatorSummaryViewModel
@@ -246,8 +247,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
       }
 
       "must return a failed future when creating the operator fails" in {
-        when(mockConnector.createPlatformOperator(any())(any())) thenReturn Future.failed(CreatePlatformOperatorFailure(422))
-        when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+        when(mockConnector.createPlatformOperator(any())(using any())) thenReturn Future.failed(CreatePlatformOperatorFailure(422))
+        when(mockAuditService.sendAudit(any())(using any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
         val app = applicationBuilder(Some(answers)).overrides(
           bind[PlatformOperatorConnector].toInstance(mockConnector),
@@ -260,10 +261,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           val request = FakeRequest(POST, routes.CheckYourAnswersController.onPageLoad().url)
 
           route(app, request).value.failed.futureValue
-          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(any())
+          verify(mockConnector, times(1)).createPlatformOperator(eqTo(expectedRequest))(using any())
           verify(mockRepository, never).set(any())
-          verify(mockEmailService, never).sendAddPlatformOperatorEmails(any())(any())
-          verify(mockAuditService, times(1)).sendAudit(any())(any(), any(), any())
+          verify(mockEmailService, never).sendAddPlatformOperatorEmails(any())(using any())
+          verify(mockAuditService, times(1)).sendAudit(any())(using any(), any(), any())
         }
       }
 
@@ -283,10 +284,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency wi
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.MissingInformationController.onPageLoad().url
 
-          verify(mockConnector, never).createPlatformOperator(any())(any())
+          verify(mockConnector, never).createPlatformOperator(any())(using any())
           verify(mockRepository, never).set(any())
-          verify(mockEmailService, never).sendAddPlatformOperatorEmails(any())(any())
-          verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
+          verify(mockEmailService, never).sendAddPlatformOperatorEmails(any())(using any())
+          verify(mockAuditService, never).sendAudit(any())(using any(), any(), any())
         }
       }
     }

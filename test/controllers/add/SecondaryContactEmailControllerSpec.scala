@@ -60,7 +60,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SecondaryContactEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName, contactName)(using request, messages(application)).toString
       }
     }
 
@@ -78,7 +78,8 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("foo@example.com"), NormalMode, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("foo@example.com"), NormalMode, businessName, contactName)
+          (using request, messages(application)).toString
       }
     }
 
@@ -86,7 +87,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -121,7 +122,7 @@ class SecondaryContactEmailControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName, contactName)(using request, messages(application)).toString
       }
     }
 

@@ -80,7 +80,7 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
       val form = formProvider(Set(operator1.operatorId, operator2.operatorId))
       val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
 
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -100,8 +100,8 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form, expectedViewModels)(request, messages(application)).toString
-        verify(mockConnector, times(1)).viewPlatformOperators(any())
+        contentAsString(result) mustEqual view(form, expectedViewModels)(using request, messages(application)).toString
+        verify(mockConnector, times(1)).viewPlatformOperators(using any())
       }
     }
 
@@ -110,8 +110,8 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
       val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1))
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -148,7 +148,7 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
 
       val form = formProvider(Set(operator1.operatorId, operator2.operatorId))
       val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -171,7 +171,7 @@ class SelectPlatformOperatorToViewControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, viewModels)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, viewModels)(using request, messages(application)).toString
       }
     }
   }

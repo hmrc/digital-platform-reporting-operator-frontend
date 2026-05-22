@@ -57,7 +57,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, operatorId, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -74,7 +74,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(UkAddress("line 1", None, "town", None, "AA1 1AA",
-          Country("GB", "United Kingdom"))), operatorId, businessName)(request, messages(application)).toString
+          Country("GB", "United Kingdom"))), operatorId, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -82,7 +82,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -117,7 +117,7 @@ class UkAddressControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(using request, messages(application)).toString
       }
     }
 

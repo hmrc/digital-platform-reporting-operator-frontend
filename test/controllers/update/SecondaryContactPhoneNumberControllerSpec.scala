@@ -59,7 +59,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val view = application.injector.instanceOf[SecondaryContactPhoneNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, operatorId, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, operatorId, businessName, contactName)(using request, messages(application)).toString
       }
     }
 
@@ -77,7 +77,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("07777 777777"), operatorId, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("07777 777777"), operatorId, businessName, contactName)(using request, messages(application)).toString
       }
     }
 
@@ -85,7 +85,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -120,7 +120,7 @@ class SecondaryContactPhoneNumberControllerSpec extends SpecBase with MockitoSug
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, operatorId, businessName, contactName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, operatorId, businessName, contactName)(using request, messages(application)).toString
       }
     }
 

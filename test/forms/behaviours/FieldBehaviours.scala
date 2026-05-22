@@ -24,7 +24,7 @@ import play.api.data.{Form, FormError}
 
 trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Generators {
 
-  def fieldThatBindsValidData(form: Form[_],
+  def fieldThatBindsValidData(form: Form[?],
                               fieldName: String,
                               validDataGenerator: Gen[String]): Unit = {
 
@@ -39,7 +39,7 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
     }
   }
 
-  def fieldThatDoesNotBindInvalidData(form: Form[_],
+  def fieldThatDoesNotBindInvalidData(form: Form[?],
                                       fieldName: String,
                                       invalidDataGenerator: Gen[String],
                                       invalidError: FormError): Unit = {
@@ -54,7 +54,7 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
     }
   }
 
-  def mandatoryField(form: Form[_],
+  def mandatoryField(form: Form[?],
                      fieldName: String,
                      requiredError: FormError): Unit = {
 

@@ -41,7 +41,7 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" - {
       "for different emails" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())).thenReturn(Future.successful(aSubscriptionInfo))
 
         val emailsSentResult = EmailsSentResult(userEmailSent = true, Some(true))
         val baseAnswers = emptyUserAnswers.set(PlatformOperatorDeletedQuery, aPlatformOperatorSummaryViewModel).success.value
@@ -58,7 +58,7 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
           val viewModel = PlatformOperatorRemovedViewModel(aSubscriptionInfo, aPlatformOperatorSummaryViewModel,
             emailsSentResult)
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(
             messages(application)("platformOperatorRemoved.p1.1.two.emails", viewModel.userEmail, viewModel.poEmail)
           )
@@ -66,14 +66,14 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "for same emails" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())).thenReturn(Future.successful(aSubscriptionInfo))
 
         val emailsSentResult = EmailsSentResult(userEmailSent = true, poEmailSent = None)
         val baseAnswers = emptyUserAnswers.set(PlatformOperatorDeletedQuery, aPlatformOperatorSummaryViewModel).success.value
           .set(SentRemovedPlatformOperatorEmailQuery, emailsSentResult).success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
-          inject.bind[SubscriptionConnector].toInstance(mockConnector)).build
+          inject.bind[SubscriptionConnector].toInstance(mockConnector)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.PlatformOperatorRemovedController.onPageLoad(operatorId).url)
@@ -85,7 +85,7 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
             emailsSentResult)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(
             messages(application)("platformOperatorRemoved.p1.1.one.email", viewModel.userEmail, viewModel.poEmail)
           )
@@ -93,13 +93,13 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "when no emails were sent" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())).thenReturn(Future.successful(aSubscriptionInfo))
 
         val emailsSentResult = EmailsSentResult(userEmailSent = false, poEmailSent = None)
         val baseAnswers = emptyUserAnswers.set(PlatformOperatorDeletedQuery, aPlatformOperatorSummaryViewModel).success.value
 
         val application = applicationBuilder(userAnswers = Some(baseAnswers)).overrides(
-          inject.bind[SubscriptionConnector].toInstance(mockConnector)).build
+          inject.bind[SubscriptionConnector].toInstance(mockConnector)).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.PlatformOperatorRemovedController.onPageLoad(operatorId).url)
@@ -110,7 +110,7 @@ class PlatformOperatorRemovedControllerSpec extends SpecBase with MockitoSugar {
             emailsSentResult)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(
             messages(application)("platformOperatorRemoved.emailNotSent.warning", viewModel.userEmail, viewModel.poEmail)
           )

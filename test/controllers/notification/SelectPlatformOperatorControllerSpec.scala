@@ -85,7 +85,7 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
         val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1))
 
-        when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+        when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
         val application =
           applicationBuilder(userAnswers = None)
@@ -101,8 +101,8 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
           status(result) mustEqual OK
 
-          contentAsString(result) mustEqual view(operator1.operatorId, operator1.operatorName)(request, messages(application)).toString
-          verify(mockConnector, times(1)).viewPlatformOperators(any())
+          contentAsString(result) mustEqual view(operator1.operatorId, operator1.operatorName)(using request, messages(application)).toString
+          verify(mockConnector, times(1)).viewPlatformOperators(using any())
         }
       }
 
@@ -111,7 +111,7 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val form = formProvider(Set(operator1.operatorId, operator2.operatorId))
         val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
 
-        when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+        when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
         val application =
           applicationBuilder(userAnswers = None)
@@ -131,8 +131,8 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
           status(result) mustEqual OK
 
-          contentAsString(result) mustEqual view(form, expectedViewModels)(request, messages(application)).toString
-          verify(mockConnector, times(1)).viewPlatformOperators(any())
+          contentAsString(result) mustEqual view(form, expectedViewModels)(using request, messages(application)).toString
+          verify(mockConnector, times(1)).viewPlatformOperators(using any())
         }
       }
     }
@@ -142,8 +142,8 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
       val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1))
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -180,7 +180,7 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
       val form = formProvider(Set(operator1.operatorId, operator2.operatorId))
       val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -203,7 +203,7 @@ class SelectPlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, viewModels)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, viewModels)(using request, messages(application)).toString
       }
     }
   }

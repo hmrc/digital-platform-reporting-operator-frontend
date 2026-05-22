@@ -59,7 +59,7 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
       val notification2 = NotificationDetails(NotificationType.Rpo, None, Some(true), 2025, instant.plusSeconds(1))
 
       "for different emails" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())) thenReturn Future.successful(aSubscriptionInfo)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val answers = emptyUserAnswers.copy(operatorId = Some("1"))
@@ -79,11 +79,11 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
           val view = application.injector.instanceOf[NotificationAddedView]
           val expectedList = SummaryListViewModel(
             rows = Seq(
-              OperatorNameSummary.summaryRow(answers)(messages(application)),
-              OperatorIdSummary.summaryRow(answers)(messages(application)),
-              NotificationTypeSummary.summaryRow(answers)(messages(application)),
-              ReportingPeriodSummary.summaryRow(answers)(messages(application)),
-              DueDiligenceSummary.summaryRow(answers)(messages(application)),
+              OperatorNameSummary.summaryRow(answers)(using messages(application)),
+              OperatorIdSummary.summaryRow(answers)(using messages(application)),
+              NotificationTypeSummary.summaryRow(answers)(using messages(application)),
+              ReportingPeriodSummary.summaryRow(answers)(using messages(application)),
+              DueDiligenceSummary.summaryRow(answers)(using messages(application)),
             ).flatten
           )
           status(result) mustEqual OK
@@ -92,14 +92,14 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
             userEmail = aSubscriptionInfo.primaryContact.email,
             emailsSentResult = EmailsSentResult(userEmailSent = true, Some(true))
           )
-          contentAsString(result) mustEqual view(model)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(model)(using request, messages(application)).toString
           contentAsString(result) must include(messages(application)("notificationAdded.p1.2.two.emails",
             aSubscriptionInfo.primaryContact.email, aNotificationAddedViewModel.poEmail))
         }
       }
 
       "for same emails" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())) thenReturn Future.successful(aSubscriptionInfo)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val answers = emptyUserAnswers
@@ -119,11 +119,11 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
           val view = application.injector.instanceOf[NotificationAddedView]
           val expectedList = SummaryListViewModel(
             rows = Seq(
-              OperatorNameSummary.summaryRow(answers)(messages(application)),
-              OperatorIdSummary.summaryRow(answers)(messages(application)),
-              NotificationTypeSummary.summaryRow(answers)(messages(application)),
-              ReportingPeriodSummary.summaryRow(answers)(messages(application)),
-              DueDiligenceSummary.summaryRow(answers)(messages(application)),
+              OperatorNameSummary.summaryRow(answers)(using messages(application)),
+              OperatorIdSummary.summaryRow(answers)(using messages(application)),
+              NotificationTypeSummary.summaryRow(answers)(using messages(application)),
+              ReportingPeriodSummary.summaryRow(answers)(using messages(application)),
+              DueDiligenceSummary.summaryRow(answers)(using messages(application)),
             ).flatten
           )
           status(result) mustEqual OK
@@ -132,14 +132,14 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
             userEmail = aSubscriptionInfo.primaryContact.email,
             emailsSentResult = EmailsSentResult(userEmailSent = true, None)
           )
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(messages(application)("notificationAdded.p1.2.one.email",
             aSubscriptionInfo.primaryContact.email))
         }
       }
 
       "when no email is sent" in {
-        when(mockConnector.getSubscriptionInfo(any())) thenReturn Future.successful(aSubscriptionInfo)
+        when(mockConnector.getSubscriptionInfo(using any())) thenReturn Future.successful(aSubscriptionInfo)
         when(mockRepository.set(any())) thenReturn Future.successful(true)
 
         val answers = emptyUserAnswers
@@ -159,16 +159,16 @@ class NotificationAddedControllerSpec extends SpecBase with MockitoSugar with Be
           val view = application.injector.instanceOf[NotificationAddedView]
           val expectedList = SummaryListViewModel(
             rows = Seq(
-              OperatorNameSummary.summaryRow(answers)(messages(application)),
-              OperatorIdSummary.summaryRow(answers)(messages(application)),
-              NotificationTypeSummary.summaryRow(answers)(messages(application)),
-              ReportingPeriodSummary.summaryRow(answers)(messages(application)),
-              DueDiligenceSummary.summaryRow(answers)(messages(application)),
+              OperatorNameSummary.summaryRow(answers)(using messages(application)),
+              OperatorIdSummary.summaryRow(answers)(using messages(application)),
+              NotificationTypeSummary.summaryRow(answers)(using messages(application)),
+              ReportingPeriodSummary.summaryRow(answers)(using messages(application)),
+              DueDiligenceSummary.summaryRow(answers)(using messages(application)),
             ).flatten
           )
           status(result) mustEqual OK
           val viewModel = aNotificationAddedViewModel.copy(expectedList, emailsSentResult = EmailsSentResult(userEmailSent = false, None))
-          contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
           contentAsString(result) must include(messages(application)("notificationAdded.emailNotSent.warning"))
         }
       }
