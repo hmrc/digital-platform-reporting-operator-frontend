@@ -89,7 +89,7 @@ class SessionRepositorySpec
       insert(userAnswers1).futureValue
       insert(userAnswers2).futureValue
 
-      val expectedRecord1 = userAnswers1 copy (lastUpdated = instant)
+      val expectedRecord1 = userAnswers1.copy(lastUpdated = instant)
 
       repository.set(userAnswers1).futureValue
       val record1 = find(byIds(userAnswers1.userId, userAnswers1.operatorId)).futureValue.headOption.value

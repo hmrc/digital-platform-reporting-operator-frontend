@@ -16,16 +16,62 @@
 
 package models
 
+import models.Country.UnitedKingdom
 import models.operator.NotificationType.{Epo, Rpo}
 import models.operator.responses.NotificationDetails
 import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import pages.QuestionPage
+import play.api.libs.json.{JsArray, JsBoolean, JsObject, JsPath, JsString, Json}
 import queries.NotificationDetailsQuery
 
 import java.time.Instant
 
 class UserAnswersSpec extends AnyFreeSpec with Matchers with TryValues with OptionValues {
+
+  private object BooleanPage extends QuestionPage[Boolean] {
+    override def path: JsPath = JsPath \ "boolean"
+  }
+
+  private object StringPage extends QuestionPage[String] {
+    override def path: JsPath = JsPath \ "string"
+  }
+
+  ".get" - {
+
+    "must read boolean values stored as strings" in {
+
+      val answers = UserAnswers("id", data = Json.obj("boolean" -> "false"))
+
+      answers.get(BooleanPage).value mustEqual false
+    }
+
+    "must preserve string values that look like booleans" in {
+
+      val answers = UserAnswers("id", data = Json.obj("string" -> "false"))
+
+      answers.get(StringPage).value mustEqual "false"
+    }
+  }
+
+  ".set" - {
+    "must write non-enumerable values with their own Writes when enumerable implicits are imported" in {
+
+      import UkTaxIdentifiers._
+
+      val address = UkAddress("line 1", Some("line 2"), "town", Some("county"), "AA1 1AA", UnitedKingdom)
+      val answers = UserAnswers("id")
+        .set(BooleanPage, false).success.value
+        .set(pages.add.UkAddressPage, address).success.value
+        .set(pages.add.UkTaxIdentifiersPage, Set(Utr)).success.value
+
+      (answers.data \ "boolean").asOpt[JsBoolean].value mustEqual JsBoolean(false)
+      (answers.data \ "ukAddress").asOpt[JsObject].value
+      (answers.data \ "ukTaxIdentifiers").asOpt[JsArray].value mustEqual JsArray(Seq(JsString("utr")))
+      answers.get(pages.add.UkAddressPage).value mustEqual address
+    }
+  }
 
   ".firstYearAsRpo" - {
 

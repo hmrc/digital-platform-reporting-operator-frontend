@@ -36,8 +36,19 @@ final case class UserAnswers(
                               lastUpdated: Instant = Instant.now
                             ) {
 
-  def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
-    Reads.optionNoError(using Reads.at(page.path)).reads(data).getOrElse(None)
+  def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] = {
+    Reads.at[JsValue](page.path).reads(data).asOpt.flatMap { value =>
+      rds.reads(value)
+        .orElse {
+          value match {
+            case JsString("true")  => rds.reads(JsBoolean(true))
+            case JsString("false") => rds.reads(JsBoolean(false))
+            case _                 => JsError("error.expected.validvalue")
+          }
+        }
+        .asOpt
+    }
+  }
 
   def getEither[A](page: Gettable[A])(implicit rds: Reads[A]): EitherNec[Query, A] =
     get(page).toRight(NonEmptyChain.one(page))
