@@ -23,7 +23,7 @@
         govukButton: GovukButton
 )
 
-@(operatorId: String, businessName: String)(implicit request: Request[_], messages: Messages)
+@(operatorId: String, businessName: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("selectPlatformOperator.single.title"))

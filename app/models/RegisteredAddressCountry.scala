@@ -47,5 +47,5 @@ object RegisteredAddressCountry extends Enumerable.Implicits {
   }
 
   implicit val enumerable: Enumerable[RegisteredAddressCountry] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v)*)
 }

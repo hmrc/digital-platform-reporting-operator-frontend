@@ -70,7 +70,7 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val view = application.injector.instanceOf[RemovePlatformOperatorView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, operatorId, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -87,10 +87,10 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
 
       val answersCaptor: ArgumentCaptor[UserAnswers] = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-      when(mockConnector.removePlatformOperator(any())(any())) thenReturn Future.successful(Done)
+      when(mockConnector.removePlatformOperator(any())(using any())) thenReturn Future.successful(Done)
       when(mockRepository.set(any())) thenReturn Future.successful(true)
-      when(mockAuditService.sendAudit(any())(any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
-      when(mockEmailService.sendRemovePlatformOperatorEmails(any())(any())).thenReturn(Future.successful(anEmailsSentResult))
+      when(mockAuditService.sendAudit(any())(using any(), any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockEmailService.sendRemovePlatformOperatorEmails(any())(using any())).thenReturn(Future.successful(anEmailsSentResult))
 
       val application = applicationBuilder(userAnswers = Some(answers)).overrides(
         bind[PlatformOperatorConnector].toInstance(mockConnector),
@@ -110,11 +110,11 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.PlatformOperatorRemovedController.onPageLoad(operatorId).url
 
-        verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(any())
+        verify(mockConnector, times(1)).removePlatformOperator(eqTo(operatorId))(using any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
-        verify(mockEmailService, times(1)).sendRemovePlatformOperatorEmails(eqTo(answers))(any())
+        verify(mockEmailService, times(1)).sendRemovePlatformOperatorEmails(eqTo(answers))(using any())
         verify(mockAuditService, times(1)).sendAudit(
-          eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(any(), any(), any())
+          eqTo(AuditModel[RemovePlatformOperatorAuditEventModel](auditType, expectedAuditEvent)))(using any(), any(), any())
 
         val savedAnswers = answersCaptor.getValue
         savedAnswers.get(PlatformOperatorDeletedQuery).value mustEqual aPlatformOperatorSummaryViewModel
@@ -138,10 +138,10 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.PlatformOperatorController.onPageLoad(operatorId).url
 
-        verify(mockConnector, never).removePlatformOperator(any())(any())
+        verify(mockConnector, never).removePlatformOperator(any())(using any())
         verify(mockRepository, never).clear(any(), any())
-        verify(mockEmailService, never).sendRemovePlatformOperatorEmails(any())(any())
-        verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
+        verify(mockEmailService, never).sendRemovePlatformOperatorEmails(any())(using any())
+        verify(mockAuditService, never).sendAudit(any())(using any(), any(), any())
       }
     }
 
@@ -161,12 +161,12 @@ class RemovePlatformOperatorControllerSpec extends SpecBase with MockitoSugar wi
         val boundForm = form.bind(Map("value" -> ""))
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, operatorId, businessName)(using request, messages(application)).toString
 
-        verify(mockConnector, never).removePlatformOperator(any())(any())
+        verify(mockConnector, never).removePlatformOperator(any())(using any())
         verify(mockRepository, never).clear(any(), any())
-        verify(mockEmailService, never).sendRemovePlatformOperatorEmails(any())(any())
-        verify(mockAuditService, never).sendAudit(any())(any(), any(), any())
+        verify(mockEmailService, never).sendRemovePlatformOperatorEmails(any())(using any())
+        verify(mockAuditService, never).sendAudit(any())(using any(), any(), any())
       }
     }
   }

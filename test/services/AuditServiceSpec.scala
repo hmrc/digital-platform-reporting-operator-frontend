@@ -50,7 +50,7 @@ class AuditServiceSpec extends AnyFreeSpec
     "create extended event and send to auditConnector" in {
       val event = AuditModel(auditType, eventDetails)
 
-      when(mockAuditConnector.sendExtendedEvent(any())(any(), any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditConnector.sendExtendedEvent(any())(using any(), any())).thenReturn(Future.successful(AuditResult.Success))
 
       await(underTest.sendAudit(event)) mustBe AuditResult.Success
 

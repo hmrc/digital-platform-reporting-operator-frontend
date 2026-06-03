@@ -51,7 +51,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[BusinessNameView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, operatorId)(using request, messages(application)).toString
       }
     }
 
@@ -69,7 +69,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), operatorId)(using request, messages(application)).toString
       }
     }
 
@@ -77,7 +77,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -112,7 +112,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, operatorId)(using request, messages(application)).toString
       }
     }
 
@@ -128,7 +128,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[BusinessNameView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, operatorId)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, operatorId)(using request, messages(application)).toString
       }
     }
 
@@ -136,7 +136,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = None)

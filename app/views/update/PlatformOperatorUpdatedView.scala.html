@@ -26,7 +26,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(viewModel: PlatformOperatorUpdatedViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: PlatformOperatorUpdatedViewModel)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("platformOperatorUpdated.title")),

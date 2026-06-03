@@ -23,7 +23,7 @@
         govukButton: GovukButton
 )
 
-@(list: SummaryList, operatorId: String)(implicit request: Request[_], messages: Messages)
+@(list: SummaryList, operatorId: String)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("checkYourAnswers.notification.title"))) {
 

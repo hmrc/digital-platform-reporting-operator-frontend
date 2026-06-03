@@ -18,6 +18,8 @@ package models
 
 import play.api.libs.json._
 
+import scala.annotation.unused
+
 trait Enumerable[A] {
 
   def withName(str: String): Option[A]
@@ -44,8 +46,26 @@ object Enumerable {
        }
     }
 
-    implicit def writes[A : Enumerable]: Writes[A] = {
+    implicit def writes[A](implicit @unused ev: Enumerable[A]): Writes[A] = {
       Writes(value => JsString(value.toString))
     }
+
+    implicit def setReads[A](implicit ev: Enumerable[A]): Reads[Set[A]] =
+      Reads {
+        case JsArray(values) =>
+          values.foldLeft[JsResult[Set[A]]](JsSuccess(Set.empty)) {
+            case (JsSuccess(acc, _), JsString(str)) =>
+              ev.withName(str).map(v => JsSuccess(acc + v)).getOrElse(JsError("error.invalid"))
+            case _  => JsError("error.invalid")
+          }
+        case _ => JsError("error.invalid")
+      }
+ 
+    implicit def setWrites[A]()(implicit @unused ev: Enumerable[A]): Writes[Set[A]] =
+      Writes(set => JsArray(set.map(v => JsString(v.toString)).toSeq))
+
+    implicit def setFormat[A](implicit ev: Enumerable[A]): Format[Set[A]] =
+      Format(setReads[A], setWrites[A]())
+
   }
 }

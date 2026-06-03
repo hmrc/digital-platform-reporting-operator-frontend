@@ -26,7 +26,7 @@
         appConfig: FrontendAppConfig
 )
 
-@(viewModel: NotificationAddedViewModel)(implicit request: Request[_], messages: Messages)
+@(viewModel: NotificationAddedViewModel)(implicit request: Request[?], messages: Messages)
 
 @heading = {
     @govukPanel(Panel(title = messages("notificationAdded.panel.heading")))

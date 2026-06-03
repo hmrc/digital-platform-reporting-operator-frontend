@@ -70,7 +70,7 @@ class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar with Be
         val form = formProvider(false)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, Nil, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, Nil, operatorId, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -105,13 +105,13 @@ class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar with Be
         val form = formProvider(false).bind(Map("value" -> ""))
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(form, Nil, operatorId, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, Nil, operatorId, businessName)(using request, messages(application)).toString
       }
     }
 
     ".initialise(...)" - {
       "must redirect to View Notifications page" in {
-        when(mockPlatformOperatorConnector.viewPlatformOperator(any())(any())).thenReturn(Future.successful(aPlatformOperator))
+        when(mockPlatformOperatorConnector.viewPlatformOperator(any())(using any())).thenReturn(Future.successful(aPlatformOperator))
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
         val app = applicationBuilder(userAnswers = Some(aUserAnswers)).overrides(
@@ -126,7 +126,7 @@ class ViewNotificationsControllerSpec extends SpecBase with MockitoSugar with Be
           redirectLocation(result).value mustEqual ViewNotificationsController.onPageLoad(aUserAnswers.operatorId.get).url
         }
 
-        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aUserAnswers.operatorId.get))(any())
+        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aUserAnswers.operatorId.get))(using any())
       }
     }
   }

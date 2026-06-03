@@ -31,7 +31,7 @@
     countriesList: CountriesList
 )
 
-@(form: Form[_], mode: Mode, businessName: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[?], mode: Mode, businessName: String)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = title(form, messages("internationalAddress.title"))) {
 

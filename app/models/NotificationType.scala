@@ -30,7 +30,7 @@ object NotificationType extends Enumerable.Implicits {
   val values: Seq[NotificationType] = Seq(Rpo, Epo)
 
   implicit val enumerable: Enumerable[NotificationType] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v)*)
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
     case (value, index) =>

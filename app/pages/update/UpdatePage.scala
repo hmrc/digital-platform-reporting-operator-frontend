@@ -21,8 +21,10 @@ import models.UserAnswers
 import pages.Page
 import play.api.mvc.Call
 
+import scala.annotation.unused
+
 trait UpdatePage extends Page {
 
-  def nextPage(operatorId: String, answers: UserAnswers): Call =
+  def nextPage(operatorId: String, @unused answers: UserAnswers): Call =
     routes.CheckYourAnswersController.onPageLoad(operatorId)
 }

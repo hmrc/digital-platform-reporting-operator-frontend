@@ -34,7 +34,7 @@ class ViewNotificationsPageSpec extends AnyFreeSpec with Matchers with TryValues
   private val emptyAnswers = UserAnswers("id")
   val page = new ViewNotificationsPage(mockConfig)
 
-  when(mockConfig.manageFrontendUrl) thenReturn "/foo"
+  when(mockConfig.manageFrontendUrl).thenReturn("/foo")
 
   ".nextPage" - {
 

@@ -38,7 +38,7 @@ class MissingInformationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[MissingInformationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view()(using request, messages(application)).toString
       }
     }
 

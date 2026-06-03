@@ -36,10 +36,10 @@ POST       /second-contact                              controllers.add.HasSecon
 GET        /change-second-contact                       controllers.add.HasSecondaryContactController.onPageLoad(mode: Mode = CheckMode)
 POST       /change-second-contact                       controllers.add.HasSecondaryContactController.onSubmit(mode: Mode = CheckMode)
 
-GET        /po-have-trading-name                           controllers.add.HasTradingNameController.onPageLoad(mode: Mode = NormalMode)
-POST       /po-have-trading-name                           controllers.add.HasTradingNameController.onSubmit(mode: Mode = NormalMode)
-GET        /po-change-have-trading-name                    controllers.add.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
-POST       /po-change-have-trading-name                    controllers.add.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
+GET        /po-have-trading-name                        controllers.add.HasTradingNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /po-have-trading-name                        controllers.add.HasTradingNameController.onSubmit(mode: Mode = NormalMode)
+GET        /po-change-have-trading-name                 controllers.add.HasTradingNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /po-change-have-trading-name                 controllers.add.HasTradingNameController.onSubmit(mode: Mode = CheckMode)
 
 GET        /international-address                       controllers.add.InternationalAddressController.onPageLoad(mode: Mode = NormalMode)
 POST       /international-address                       controllers.add.InternationalAddressController.onSubmit(mode: Mode = NormalMode)

@@ -69,7 +69,7 @@ class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with Be
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(ViewPlatformOperatorsResponse(Seq.empty))
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(ViewPlatformOperatorsResponse(Seq.empty)))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -85,7 +85,7 @@ class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with Be
         val viewModel = PlatformOperatorsViewModel(Seq.empty)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
       }
     }
 
@@ -93,7 +93,7 @@ class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with Be
 
       val viewOperatorInfo = ViewPlatformOperatorsResponse(Seq(operator1, operator2))
 
-      when(mockConnector.viewPlatformOperators(any())) thenReturn Future.successful(viewOperatorInfo)
+      when(mockConnector.viewPlatformOperators(using any())).thenReturn(Future.successful(viewOperatorInfo))
 
       val application =
         applicationBuilder(userAnswers = None)
@@ -109,7 +109,7 @@ class PlatformOperatorsControllerSpec extends SpecBase with MockitoSugar with Be
         val viewModel = PlatformOperatorsViewModel(viewOperatorInfo)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(viewModel)(using request, messages(application)).toString
       }
     }
   }

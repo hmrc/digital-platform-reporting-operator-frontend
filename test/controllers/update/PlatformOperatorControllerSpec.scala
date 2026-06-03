@@ -48,9 +48,9 @@ class PlatformOperatorControllerSpec extends SpecBase with MockitoSugar with Bef
 
   "Platform Operator controller" - {
     "must get platform operator details, save them, and show the correct view" in {
-      when(mockPlatformOperatorConnector.viewPlatformOperator(any())(any())) thenReturn Future.successful(aPlatformOperator)
-      when(mockSubmissionsConnector.submissionsExist(any)(any)) thenReturn Future.successful(true)
-      when(mockSubmissionsConnector.assumedReportsExist(any)(any)) thenReturn Future.successful(true)
+      when(mockPlatformOperatorConnector.viewPlatformOperator(any())(using any())) thenReturn Future.successful(aPlatformOperator)
+      when(mockSubmissionsConnector.submissionsExist(any)(using any)) thenReturn Future.successful(true)
+      when(mockSubmissionsConnector.assumedReportsExist(any)(using any)) thenReturn Future.successful(true)
       when(mockRepository.set(any())) thenReturn Future.successful(true)
 
       val app = applicationBuilder(userAnswers = None).overrides(
@@ -67,9 +67,9 @@ class PlatformOperatorControllerSpec extends SpecBase with MockitoSugar with Bef
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(PlatformOperatorViewModel(aPlatformOperator, hasSubmissions = true, hasAssumedReports = true))(request, messages(app)).toString
+          view(PlatformOperatorViewModel(aPlatformOperator, hasSubmissions = true, hasAssumedReports = true))(using request, messages(app)).toString
 
-        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(any())
+        verify(mockPlatformOperatorConnector, times(1)).viewPlatformOperator(eqTo(aPlatformOperator.operatorId))(using any())
         verify(mockRepository, times(1)).set(answersCaptor.capture())
 
         val answers = answersCaptor.getValue

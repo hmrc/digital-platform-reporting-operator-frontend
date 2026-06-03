@@ -19,7 +19,7 @@ package models
 import cats.data.{EitherNec, NonEmptyChain}
 import models.operator.NotificationType.Rpo
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json._
+import play.api.libs.json.*
 import queries.{Gettable, NotificationDetailsQuery, Query, Settable}
 import uk.gov.hmrc.crypto.Sensitive.SensitiveString
 import uk.gov.hmrc.crypto.json.JsonEncryption
@@ -36,8 +36,19 @@ final case class UserAnswers(
                               lastUpdated: Instant = Instant.now
                             ) {
 
-  def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
-    Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
+  def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] = {
+    Reads.at[JsValue](page.path).reads(data).asOpt.flatMap { value =>
+      rds.reads(value)
+        .orElse {
+          value match {
+            case JsString("true")  => rds.reads(JsBoolean(true))
+            case JsString("false") => rds.reads(JsBoolean(false))
+            case _                 => JsError("error.expected.validvalue")
+          }
+        }
+        .asOpt
+    }
+  }
 
   def getEither[A](page: Gettable[A])(implicit rds: Reads[A]): EitherNec[Query, A] =
     get(page).toRight(NonEmptyChain.one(page))
@@ -87,7 +98,7 @@ final case class UserAnswers(
 
 object UserAnswers {
 
-  def encryptedFormat(implicit crypto: Encrypter with Decrypter): OFormat[UserAnswers] = {
+  def encryptedFormat(implicit crypto: Encrypter & Decrypter): OFormat[UserAnswers] = {
     implicit val sensitiveFormat: Format[SensitiveString] =
       JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
 
@@ -96,7 +107,7 @@ object UserAnswers {
         (__ \ "userId").read[String] and
           (__ \ "operatorId").readNullable[String] and
           (__ \ "data").read[SensitiveString] and
-          (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
+          (__ \ "lastUpdated").read(using MongoJavatimeFormats.instantFormat)
         )((userId, operatorId, data, lastUpdated) =>
         UserAnswers(userId, operatorId, Json.parse(data.decryptedValue).as[JsObject], lastUpdated)
       )
@@ -106,7 +117,7 @@ object UserAnswers {
         (__ \ "userId").write[String] and
           (__ \ "operatorId").writeNullable[String] and
           (__ \ "data").write[SensitiveString] and
-          (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+          (__ \ "lastUpdated").write(using MongoJavatimeFormats.instantFormat)
         )(ua => (ua.userId, ua.operatorId, SensitiveString(Json.stringify(ua.data)), ua.lastUpdated))
 
     OFormat(encryptedReads, encryptedWrites)
@@ -114,25 +125,21 @@ object UserAnswers {
 
   val reads: Reads[UserAnswers] = {
 
-    import play.api.libs.functional.syntax._
-
     (
       (__ \ "userId").read[String] and
       (__ \ "operatorId").readNullable[String] and
       (__ \ "data").read[JsObject] and
-      (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-    ) (UserAnswers.apply _)
+      (__ \ "lastUpdated").read(using MongoJavatimeFormats.instantFormat)
+    ) (UserAnswers.apply)
   }
 
   val writes: OWrites[UserAnswers] = {
-
-    import play.api.libs.functional.syntax._
 
     (
       (__ \ "userId").write[String] and
       (__ \ "operatorId").writeNullable[String] and
       (__ \ "data").write[JsObject] and
-      (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+      (__ \ "lastUpdated").write(using MongoJavatimeFormats.instantFormat)
     ) (ua => (ua.userId, ua.operatorId, ua.data, ua.lastUpdated))
   }
 

@@ -56,7 +56,7 @@ class UkTaxIdentifiersControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view(form, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, businessName)(using request, messages(application)).toString
       }
     }
 
@@ -74,7 +74,8 @@ class UkTaxIdentifiersControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(UkTaxIdentifiers.values.toSet), NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(UkTaxIdentifiers.values.toSet), NormalMode, businessName)
+          (using request, messages(application)).toString
       }
     }
 
@@ -82,7 +83,7 @@ class UkTaxIdentifiersControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[SessionRepository]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(userAnswers = Some(baseAnswers))
@@ -118,7 +119,7 @@ class UkTaxIdentifiersControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, businessName)(using request, messages(application)).toString
       }
     }
 
