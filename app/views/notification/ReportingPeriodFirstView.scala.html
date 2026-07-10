@@ -28,7 +28,7 @@
 @(form: Form[?], mode: Mode, operatorId: String, businessName: String, notificationType: NotificationType)(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = title(form, messages("reportingPeriod.first.title"))
+    pageTitle = title(form, messages("reportingPeriod.first.heading", businessName))
 ) {
 
     @formHelper(action = routes.ReportingPeriodController.onSubmit(mode, operatorId)) {

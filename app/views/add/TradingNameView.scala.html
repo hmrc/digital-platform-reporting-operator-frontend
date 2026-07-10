@@ -27,7 +27,7 @@
 
 @(form: Form[?], mode: Mode, businessName: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = title(form, messages("tradingName.title"))) {
+@layout(pageTitle = title(form, messages("tradingName.heading", businessName))) {
 
     @formHelper(action = routes.TradingNameController.onSubmit(mode)) {
 

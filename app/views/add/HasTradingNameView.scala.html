@@ -26,7 +26,7 @@
 
 @(form: Form[?], mode: Mode, businessName: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = title(form, messages("hasTradingName.title"))) {
+@layout(pageTitle = title(form, messages("hasTradingName.heading", businessName))) {
 
     @formHelper(action = routes.HasTradingNameController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

@@ -31,7 +31,7 @@
 @(form: Form[?], operators: Seq[PlatformOperatorData])(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = title(form, messages("selectPlatformOperator.title"))
+    pageTitle = title(form, messages("selectPlatformOperator.heading"))
 ) {
 
     @formHelper(action = routes.SelectPlatformOperatorController.onSubmit) {

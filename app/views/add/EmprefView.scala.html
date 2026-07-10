@@ -27,7 +27,7 @@
 
 @(form: Form[?], mode: Mode, businessName: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = title(form, messages("empref.title"))) {
+@layout(pageTitle = title(form, messages("empref.heading", businessName))) {
 
     @formHelper(action = routes.EmprefController.onSubmit(mode)) {
 

@@ -28,7 +28,7 @@
 @(form: Form[?], mode: Mode, operatorId: String, businessName: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = title(form, messages("reportingPeriod.title"))
+    pageTitle = title(form, messages("reportingPeriod.heading", businessName))
 ) {
 
     @formHelper(action = routes.ReportingPeriodController.onSubmit(mode, operatorId)) {
