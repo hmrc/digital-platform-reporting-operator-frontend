@@ -34,7 +34,7 @@
 
 @(form: Form[?], mode: Mode, businessName: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = title(form, messages("jerseyGuernseyIoMAddress.title"))) {
+@layout(pageTitle = title(form, messages("jerseyGuernseyIoMAddress.heading", businessName))) {
 
     @formHelper(action = routes.JerseyGuernseyIoMAddressController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 

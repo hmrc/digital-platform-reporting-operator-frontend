@@ -27,7 +27,7 @@
 
 @(form: Form[?], mode: Mode, businessName: String, contactName: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = title(form, messages("primaryContactEmail.title"))) {
+@layout(pageTitle = title(form, messages("primaryContactEmail.heading", contactName))) {
 
     @formHelper(action = routes.PrimaryContactEmailController.onSubmit(mode)) {
 

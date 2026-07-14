@@ -31,7 +31,7 @@
 
 @heading = {
     @govukPanel(Panel(
-        title = messages("platformOperatorAdded.panel.heading", viewModel.poBusinessName),
+        title = messages("platformOperatorAdded.whatYouNeedToDoNext"),
         content = messages("platformOperatorAdded.panel.p1", viewModel.operatorId)
     ))
 }
@@ -89,7 +89,7 @@
     }
 }
 
-@layout(pageTitle = titleNoForm(messages("platformOperatorAdded.title")), showBackLink = false) {
+@layout(pageTitle = titleNoForm(messages("platformOperatorAdded.whatYouNeedToDoNext")), showBackLink = false) {
     @heading
 
     @pageBodyContent

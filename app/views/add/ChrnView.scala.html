@@ -27,7 +27,7 @@
 
 @(form: Form[?], mode: Mode, businessName: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = title(form, messages("chrn.title"))) {
+@layout(pageTitle = title(form, messages("chrn.heading", businessName))) {
 
     @formHelper(action = routes.ChrnController.onSubmit(mode)) {
 

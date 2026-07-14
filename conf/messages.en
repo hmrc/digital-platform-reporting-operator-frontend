@@ -76,21 +76,18 @@ businessName.error.length = Business name must be {0} characters or less
 businessName.error.format = Business name must only include letters, numbers, hyphens, spaces, commas, full stops, exclamation marks, ampersands, underscores, parentheses and apostrophes
 businessName.change.hidden = the registered business name
 
-canPhonePrimaryContact.title = Can we contact the person or team by telephone?
 canPhonePrimaryContact.heading = Can we contact {0} by telephone?
 canPhonePrimaryContact.p1 = We may use this phone number if we have any questions about the reports made for {0}.
 canPhonePrimaryContact.checkYourAnswersLabel = Can we contact {0} by telephone?
 canPhonePrimaryContact.error.required = Select yes if we can contact {0} by telephone
 canPhonePrimaryContact.change.hidden = if we can contact {0} by telephone
 
-canPhoneSecondaryContact.title = Can we contact the second person or team by telephone?
 canPhoneSecondaryContact.heading = Can we contact {0} by telephone?
 canPhoneSecondaryContact.p1 = We may use this phone number if we have any questions about the reports made for {0}.
 canPhoneSecondaryContact.checkYourAnswersLabel = Can we contact {0} by telephone?
 canPhoneSecondaryContact.error.required = Select yes if we can contact {0} by telephone
 canPhoneSecondaryContact.change.hidden = if we can contact {0} by telephone
 
-chrn.title = What is the platform operator’s HMRC Charity Reference (CHRN)?
 chrn.heading = What is {0}’s HMRC Charity Reference (CHRN)?
 chrn.hint = This is up to 5 numbers, and will start with two letters or an ‘X’. It will be on the letter issued by HMRC confirming recognition as a charity, or approving registration as a CASC. The number may also be on other correspondence from HMRC Charities.
 chrn.checkYourAnswersLabel = HMRC Charity Reference (CHRN)
@@ -98,7 +95,6 @@ chrn.error.required = Enter the HMRC Charity Reference (CHRN) for {0}
 chrn.error.format = Enter an HMRC Charity Reference (CHRN) in the correct format, for example AB12345
 chrn.change.hidden = the HMRC Charity Reference (CHRN) for {0}
 
-crn.title = What is the platform operator’s Company Registration Number (CRN)?
 crn.heading = What is {0}’s Company Registration Number (CRN)?
 crn.hint = This is 8 characters, like AB123456. It may also be called ‘company number’ or ‘Companies House number’.
 crn.checkYourAnswersLabel = Company Registration Number (CRN)
@@ -106,7 +102,6 @@ crn.error.required = Enter the Company Registration Number (CRN) for {0}
 crn.error.format = Enter a Company Registration Number (CRN) in the correct format
 crn.change.hidden = the Company Registration Number (CRN) for {0}
 
-empref.title = What is the platform operator’s Employer PAYE Reference (EMPREF)?
 empref.heading = What is {0}’s Employer PAYE Reference (EMPREF)?
 empref.hint = This is a 3 digit tax office number, a forward slash, and a tax office employer reference, like 123/AB456. It may be called ‘Employer PAYE reference’ or ‘PAYE reference’. It will be on a P60 from {0}.
 empref.checkYourAnswersLabel = Employer PAYE Reference (EMPREF)
@@ -114,19 +109,16 @@ empref.error.required = Enter the Employer PAYE Reference (EMPREF) for {0}
 empref.error.format = Enter an Employer PAYE Reference (EMPREF) in the correct format
 empref.change.hidden = the Employer PAYE Reference (EMPREF) for {0}
 
-hasSecondaryContact.title = Is there someone else we can contact if the first person or team is not available?
 hasSecondaryContact.heading = Is there someone else we can contact if {0} is not available?
 hasSecondaryContact.checkYourAnswersLabel = Is there someone else we can contact if {0} is not available?
 hasSecondaryContact.error.required = Select yes if there is someone else we can contact
 hasSecondaryContact.change.hidden = if there is someone else we can contact if {0} is not available
 
-hasTradingName.title = Does the platform operator trade under a different name?
 hasTradingName.heading = Does {0} trade under a different name?
 hasTradingName.checkYourAnswersLabel = Does {0} trade under a different name?
 hasTradingName.error.required = Select yes if {0} trades under a different name
 hasTradingName.change.hidden = if {0} trades under a different name
 
-internationalAddress.title = What is the platform operator’s address?
 internationalAddress.heading = What is the registered address for {0}?
 internationalAddress.line1 = Address line 1
 internationalAddress.line2 = Address line 2 (optional)
@@ -151,7 +143,6 @@ internationalAddress.error.postal.length = Postal or zip code must be {0} charac
 internationalAddress.error.postal.format = Postal or zip code must only include letters, numbers, hyphens, spaces, commas, full stops, exclamation marks, ampersands, underscores, parentheses and apostrophes
 internationalAddress.error.country.required = Start typing in country and choose from the list
 
-primaryContactEmail.title = What is the email address for the person or team we can contact?
 primaryContactEmail.heading = What is the email address for {0}?
 primaryContactEmail.p1 = We will use this email address to send confirmation of the reports made for {0}.
 primaryContactEmail.hint = For example, ‘name@example.com’.
@@ -161,7 +152,6 @@ primaryContactEmail.error.length = Email address must be {0} characters or less
 primaryContactEmail.error.format = Enter an email address in the correct format, like name@example.com
 primaryContactEmail.change.hidden = the email address for {0}
 
-primaryContactName.title = What is the name of the first person or team we should contact at the platform operator?
 primaryContactName.heading = What is the name of the first person or team we should contact at {0}?
 primaryContactName.p1 = If you are a third party reporting for {0}, we need the contact details of someone at {0} in case we need to reach out to them about compliance issues.
 primaryContactName.hint = For example, ‘Ashley Smith’ or ‘Tax Team’.
@@ -171,7 +161,6 @@ primaryContactName.error.length = Name must be {0} characters or less
 primaryContactName.error.format = Name must only include letters, numbers, hyphens, spaces, commas, full stops, exclamation marks, ampersands, underscores, parentheses and apostrophes
 primaryContactName.change.hidden = the name of the person or team at {0} we should contact
 
-primaryContactPhoneNumber.title = What is the telephone number for the person or team we can contact?
 primaryContactPhoneNumber.heading = What is the telephone number for {0}?
 primaryContactPhoneNumber.hint = For international numbers, include the country code.
 primaryContactPhoneNumber.checkYourAnswersLabel = Telephone number
@@ -180,7 +169,6 @@ primaryContactPhoneNumber.error.length = Telephone number must be {0} characters
 primaryContactPhoneNumber.error.format = Enter a telephone number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 primaryContactPhoneNumber.change.hidden = the telephone number for {0}
 
-registeredInUk.title = Where is platform operator’s registered address?
 registeredInUk.heading = Where is {0}’s registered address?
 registeredInUk.checkYourAnswersLabel = Where is {0}’s registered address?
 registeredInUk.error.required = Select {0}’s registered address
@@ -190,7 +178,6 @@ registeredInUk.uk.hint = The UK consists of England, Wales, Scotland and Norther
 registeredInUk.jerseyGuernseyIsleOfMan = Jersey, Guernsey or the Isle of Man
 registeredInUk.international = Rest of the world
 
-secondaryContactEmail.title = What is the email address for the second person or team we can contact?
 secondaryContactEmail.heading = What is the email address for {0}?
 secondaryContactEmail.p1 = We may use this email address if we have any questions about the reports made for {0}.
 secondaryContactEmail.hint = For example, ‘name@example.com’.
@@ -232,7 +219,6 @@ start.beforeYouContinue.p2 = You can add one or more platform operators now. You
 start.beforeYouContinue.p3 = Adding a new platform operator takes around 10 minutes.
 start.addNow = Add now
 
-tradingName.title = What is the platform operator’s trading name?
 tradingName.heading = What is {0}’s trading name?
 tradingName.checkYourAnswersLabel = Trading name
 tradingName.error.required = Enter the trading name
@@ -240,7 +226,6 @@ tradingName.error.length = Trading name must be {0} characters or less
 tradingName.error.format = Trading name must only include letters, numbers, hyphens, spaces, commas, full stops, exclamation marks, ampersands, underscores, parentheses and apostrophes
 tradingName.change.hidden = the trading name
 
-ukAddress.title = What is the platform operator’s address?
 ukAddress.heading = What is the registered address for {0}?
 ukAddress.line1 = Address line 1
 ukAddress.line2 = Address line 2 (optional)
@@ -264,7 +249,6 @@ ukAddress.error.postCode.required = Enter postcode
 ukAddress.error.postCode.format = Enter a full UK postcode
 ukAddress.error.country.required = Start typing in country and choose from the list
 
-jerseyGuernseyIoMAddress.title = What is the platform operator’s address?
 jerseyGuernseyIoMAddress.heading = What is the registered address for {0}?
 jerseyGuernseyIoMAddress.line1 = Address line 1
 jerseyGuernseyIoMAddress.line2 = Address line 2 (optional)
@@ -305,7 +289,6 @@ ukTaxIdentifiers.checkYourAnswersLabel = What type of tax identification numbers
 ukTaxIdentifiers.error.required = Select all the tax identification numbers you want to provide
 ukTaxIdentifiers.change.hidden = the tax identification numbers {0} has
 
-utr.title = What is the platform operator’s Unique Taxpayer Reference (UTR)?
 utr.heading = What is {0}’s Unique Taxpayer Reference (UTR)?
 utr.hint = A UTR can be 10 or 13 digits long. You can find it in their Business Tax Account or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 utr.checkYourAnswersLabel = Unique Taxpayer Reference (UTR)
@@ -313,7 +296,6 @@ utr.error.required = Enter the Unique Taxpayer Reference (UTR) for {0}
 utr.error.format = Enter a Unique Taxpayer Reference (UTR) in the correct format
 utr.change.hidden = the Unique Taxpayer Reference (UTR) for {0}
 
-vrn.title = What is the platform operator’s VAT Registration Number (VRN)?
 vrn.heading = What is {0}’s VAT Registration Number (VRN)?
 vrn.hint = This is 9 numbers, sometimes with ‘GB’ at the start, for example 123456789 or GB123456789. You can find it on {0}’s VAT registration certificate.
 vrn.checkYourAnswersLabel = VAT Registration Number (VRN)
@@ -321,7 +303,6 @@ vrn.error.required = Enter the VAT Registration Number (VRN) for {0}
 vrn.error.format = Enter a VAT Registration Number (VRN) in the correct format
 vrn.change.hidden = the VAT Registration Number (VRN) for {0}
 
-platformOperatorUpdated.title = Platform operator updated
 platformOperatorUpdated.panel.heading = Details updated for {0}
 platformOperatorUpdated.link1.text = Return to view your platform operators
 platformOperatorUpdated.link2.text = Return to manage your digital platform reporting
@@ -329,8 +310,6 @@ platformOperatorUpdated.p1.1.two.emails = We have sent a confirmation email to {
 platformOperatorUpdated.p1.1.one.email = We have sent a confirmation email to {0}.
 platformOperatorUpdated.emailNotSent.warning = You will not be emailed a confirmation of this.
 
-platformOperatorAdded.title = Platform operator added
-platformOperatorAdded.panel.heading = {0} added
 platformOperatorAdded.panel.p1 = The platform operator ID is {0}
 platformOperatorAdded.p1.1 = {0} has been successfully added as a platform operator.
 platformOperatorAdded.p1.2.two.emails = We have sent a confirmation email to {0} and {1}.
@@ -379,7 +358,6 @@ removePlatformOperator.warning = Removing a platform operator means you cannot a
 removePlatformOperator.legend = Are you sure you want to remove {0}?
 removePlatformOperator.error.required = Select yes if you want to remove {0}
 
-platformOperatorRemoved.title = Platform operator has been successfully removed
 platformOperatorRemoved.heading = {0} (PO {1}) has been successfully removed
 platformOperatorRemoved.button = Return to view platform operators
 platformOperatorRemoved.p1.1.two.emails = We have sent a confirmation email to {0} and {1}.
@@ -393,14 +371,12 @@ addGuidance.p2 = You must add a reporting notification for a platform operator b
 addGuidance.p3 = You cannot remove or change a notification once it has been added, but you can update it by adding a new one if anything changes.
 addGuidance.p4 = Adding a reporting notification takes around 10 minutes.
 
-selectPlatformOperator.title = Which platform operator do you want to add a reporting notification for?
 selectPlatformOperator.heading = Which platform operator do you want to add a reporting notification for?
 selectPlatformOperator.error.required = Select which platform operator you want to add a reporting notification for
 selectPlatformOperator.p1 = You can also
 selectPlatformOperator.p1.link.text = add a new platform operator
 selectPlatformOperator.item.text = {0}
 selectPlatformOperator.item.hint = {0}
-selectPlatformOperator.single.title = You are about to add a reporting notification
 selectPlatformOperator.single.heading = You are about to add a reporting notification for {0} (PO {1})
 selectPlatformOperator.single.p1 = If this is not correct, you can
 selectPlatformOperator.single.link.text = add a new platform operator
@@ -471,7 +447,6 @@ dueDiligence.activeOnly.error.required = Select yes if {0} chooses to take activ
 dueDiligence.checkYourAnswersLabel = Does {0} choose to take any types of due diligence?
 dueDiligence.change.hidden = if {0} chooses to take any types of due diligence
 
-reportingPeriod.first.title = What is the first reportable period for the platform operator?
 reportingPeriod.first.heading = What is the first reportable period for {0}?
 reportingPeriod.first.rpo.p1 = This is the first year the platform operator became a reporting platform operator and is required to collect seller information. Each reportable period is a calendar year that runs from 1 January to 31 December.
 reportingPeriod.first.epo.p1 = This is the first year the platform operator became an excluded platform operator. Each reportable period is a calendar year that runs from 1 January to 31 December.
@@ -482,7 +457,6 @@ reportingPeriod.error.belowMinimum = Reportable period must be {1} or later
 reportingPeriod.error.aboveMaximum = Reportable period must be {1} or earlier
 reportingPeriod.change.hidden = the reportable period
 
-reportingPeriod.title = What reportable period is this reporting notification from?
 reportingPeriod.heading = What reportable period is this reporting notification from?
 reportingPeriod.p1 = Each reportable period is a calendar year that runs from the 1st of January until the 31st of December.
 reportingPeriod.p2 = This reporting notification will be in place from the chosen period until another notification is added.
@@ -490,8 +464,6 @@ reportingPeriod.hint = This is a year, for example 2024.
 reportingPeriod.checkYourAnswersLabel = Reportable period
 reportingPeriod.change.hidden = the reportable period
 
-notificationAdded.title = Reporting notification added
-notificationAdded.panel.heading = Reporting notification added
 notificationAdded.p1.1 = A new reporting notification has been successfully added for {0}.
 notificationAdded.p1.2.two.emails = We have sent a confirmation email to {0} and {1}.
 notificationAdded.p1.2.one.email = We have sent a confirmation email to {0}.

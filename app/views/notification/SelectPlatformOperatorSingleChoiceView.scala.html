@@ -26,7 +26,7 @@
 @(operatorId: String, businessName: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("selectPlatformOperator.single.title"))
+    pageTitle = titleNoForm(messages("selectPlatformOperator.single.heading", businessName, operatorId))
 ) {
 
     @formHelper(action = routes.SelectPlatformOperatorController.onSubmit) {

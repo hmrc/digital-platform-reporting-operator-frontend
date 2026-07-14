@@ -29,7 +29,7 @@
 @(viewModel: NotificationAddedViewModel)(implicit request: Request[?], messages: Messages)
 
 @heading = {
-    @govukPanel(Panel(title = messages("notificationAdded.panel.heading")))
+    @govukPanel(Panel(title = messages("notificationAdded.h2")))
 }
 
 @whatYouNeedToDoNext = {
@@ -81,7 +81,7 @@
     }
 }
 
-@layout(pageTitle = titleNoForm(messages("notificationAdded.title")), showBackLink = false) {
+@layout(pageTitle = titleNoForm(messages("notificationAdded.h2")), showBackLink = false) {
 
     @heading
 
