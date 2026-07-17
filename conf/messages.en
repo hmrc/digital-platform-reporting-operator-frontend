@@ -187,7 +187,6 @@ secondaryContactEmail.error.length = Email address must be {0} characters or les
 secondaryContactEmail.error.format = Enter an email address in the correct format, like name@example.com
 secondaryContactEmail.change.hidden = the email address for {0}
 
-secondaryContactName.title = What is the name of the second person or team we should contact at the platform operator?
 secondaryContactName.heading = What is the name of the second person or team we should contact at {0}?
 secondaryContactName.hint = For example, ‘Ashley Smith’ or ‘Tax Team’.
 secondaryContactName.checkYourAnswersLabel = Contact name
