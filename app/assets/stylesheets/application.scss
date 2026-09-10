@@ -29,6 +29,17 @@ $page-colour: $white;
     max-width: 11.5em;
 }
 
+.autocomplete__option {
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+
+.autocomplete__input {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .grid-row {
   margin: 0 -15px;
 
