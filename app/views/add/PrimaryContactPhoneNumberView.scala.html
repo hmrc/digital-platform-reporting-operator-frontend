@@ -42,6 +42,9 @@
             )
             .withWidth(Fixed20)
             .withHint(HintViewModel(messages("primaryContactPhoneNumber.hint", businessName)))
+            .withAttribute("inputmode", "tel")
+            .withInputType("tel")
+            .withAttribute("data-hmrc-label", messages("primaryContactPhoneNumber.heading", contactName))
         )
 
         @govukButton(
